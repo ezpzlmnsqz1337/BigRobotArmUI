@@ -3,13 +3,22 @@
     <h2>Terminal</h2>
     <b-row>
       <b-col class="my-auto controls">
-        <b-textarea v-model="serialOutput" class="__serialOutput"></b-textarea>
+        <b-textarea
+          readonly
+          v-model="serialOutput"
+          class="__serialOutput"
+          ref="terminal"
+        ></b-textarea>
         <b-input-group>
           <b-form-input
             placeholder="Enter command..."
             v-model="command"
+            v-on:keyup.native.enter="sendCommand()"
           ></b-form-input>
-          <b-button @click="sendCommand()">Send</b-button>
+          <b-button @click="sendCommand()" :disabled="disabled">Send</b-button>
+          <b-button @click="scrollToBottom()" :pressed.sync="autoscroll"
+            >Autoscroll</b-button
+          >
         </b-input-group>
       </b-col>
     </b-row>
@@ -23,23 +32,45 @@ export default {
   name: 'Terminal',
   data() {
     return {
+      disabled: true,
       serialOutput: '',
-      command: ''
+      command: '',
+      autoscroll: true
     }
   },
   created: function() {
     this.$root.$on('ws-message-received', e => this.handleMessage(e))
+    this.$root.$on('ws-message-send', e => this.addMessage(e))
   },
   methods: {
+    addMessage(message, send = true) {
+      message = send ? `Send: ${message}\n` : `Receive: ${message}\n`
+      this.serialOutput += message
+      if (this.autoscroll) {
+        const textarea = this.$refs.terminal.$el
+        setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
+      }
+      if (send) {
+        this.disabled = true
+      }
+    },
     sendCommand() {
       if (!this.command.length) return
 
       ws.send(`${this.command}\r`)
-      this.serialOutput += `Send: ${this.command}\n`
+      this.addMessage(this.command)
       this.command = ''
+      this.disabled = true
     },
     handleMessage(message) {
-      this.serialOutput += `Receive: ${message}\n`
+      if (message.includes('READY')) this.disabled = false
+      this.addMessage(message, false)
+    },
+    scrollToBottom() {
+      if (this.autoscroll) {
+        const textarea = this.$refs.terminal.$el
+        setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
+      }
     }
   }
 }

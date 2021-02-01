@@ -8,21 +8,29 @@
         >
       </b-col>
     </b-row>
-    <b-row v-show="isConnected">
-      <b-col>
-        <Terminal />
-      </b-col>
-      <b-col>
-        <ManualControl />
-      </b-col>
-    </b-row>
-    <b-row v-show="isConnected">
-      <b-col>
-        <b-button variant="danger" size="large" @click="disconnect()"
-          >Disconnect</b-button
-        >
-      </b-col>
-    </b-row>
+    <div v-show="isConnected">
+      <b-row>
+        <b-col>
+          <Terminal />
+        </b-col>
+        <b-col>
+          <ManualControl />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col cols="3">
+          <Sequences />
+        </b-col>
+        <b-col />
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-button variant="danger" size="large" @click="disconnect()"
+            >Disconnect</b-button
+          >
+        </b-col>
+      </b-row>
+    </div>
   </b-container>
 </template>
 
@@ -30,12 +38,14 @@
 import ws from '@/shared'
 import Terminal from '@/components/Terminal'
 import ManualControl from '@/components/ManualControl'
+import Sequences from '@/components/Sequences'
 
 export default {
   name: 'Main',
   components: {
     ManualControl,
-    Terminal
+    Terminal,
+    Sequences
   },
   data() {
     return {
@@ -49,7 +59,7 @@ export default {
   },
   created() {
     ws.onopen = () => {
-      // ws.send('getPositions')
+      ws.send('connected')
     }
 
     ws.onmessage = event => {

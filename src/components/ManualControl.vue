@@ -54,6 +54,23 @@
             min="-3000"
             max="3000"
           />
+          <label for="gripper">Gripper</label>
+          <b-form-input
+            id="gripper"
+            type="range"
+            name="gripper"
+            v-model="gripper"
+            @change="sendCommand()"
+            min="0"
+            max="180"
+          />
+        </b-form-group>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col>
+        <b-form-group>
+          <b-button size="large" @click="sendHomeCommand()">Home</b-button>
         </b-form-group>
       </b-col>
     </b-row>
@@ -62,7 +79,6 @@
 
 <script>
 import ws from '@/shared'
-import { debounce } from 'vue-debounce'
 
 export default {
   name: 'ManualControl',
@@ -80,24 +96,25 @@ export default {
     this.$root.$on('ws-message-received', e => this.handleMessage(e))
   },
   methods: {
-    debounceSendCommand() {
-      return debounce(() => {
-        this.sendCommand()
-      }, 300)
-    },
     sendCommand() {
-      ws.send(
-        `G0 X${this.base} Y${this.shoulder} Z${this.elbow} E${this.wristRotate} F${this.wrist}`
-      )
+      const command = `G0 X${this.base} Y${this.shoulder} Z${this.elbow} E${this.wristRotate} F${this.wrist}`
+      this.$root.$emit('ws-message-send', command)
+      ws.send(command)
+    },
+    sendHomeCommand() {
+      const command = 'G28'
+      this.$root.$emit('ws-message-send', command)
+      ws.send(command)
     },
     handleMessage(message) {
-      if (message.includes('armPositions')) {
-        this.base = parseInt(message.split(':')[2])
-        this.shoulder = parseInt(message.split(':')[4])
-        this.elbow = parseInt(message.split(':')[6])
-        this.wristRotate = parseInt(message.split(':')[8])
-        this.wrist = parseInt(message.split(':')[10])
-        this.gripper = parseInt(message.split(':')[12])
+      if (message.includes('B:') && message.includes('S:')) {
+        message = message.split(' ')
+        this.base = parseInt(message[1])
+        this.shoulder = parseInt(message[3])
+        this.elbow = parseInt(message[5])
+        this.wristRotate = parseInt(message[7])
+        this.wrist = parseInt(message[9])
+        this.gripper = parseInt(message[11])
       }
     }
   }
