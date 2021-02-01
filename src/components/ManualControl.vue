@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     sendCommand() {
-      const command = `G0 X${this.base} Y${this.shoulder} Z${this.elbow} E${this.wristRotate} F${this.wrist}`
+      const command = `G0 B${this.base} S${this.shoulder} E${this.elbow} WR${this.wristRotate} W${this.wrist} G${this.gripper}`
       this.$root.$emit('ws-message-send', command)
       ws.send(command)
     },
