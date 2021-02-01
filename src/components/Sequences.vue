@@ -1,6 +1,6 @@
 <template>
   <b-container fluid>
-    <h2>Terminal</h2>
+    <h2>Sequences</h2>
     <b-row>
       <b-col class="my-auto controls">
         <b-textarea v-model="serialOutput" class="__serialOutput"></b-textarea>
@@ -20,10 +20,10 @@
 import ws from '@/shared'
 
 export default {
-  name: 'Terminal',
+  name: 'Sequences',
   data() {
     return {
-      serialOutput: '',
+      files: [],
       command: ''
     }
   },

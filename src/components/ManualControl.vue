@@ -4,16 +4,56 @@
     <b-row>
       <b-col class="my-auto controls">
         <b-form-group>
-          <b-label for="base">Base</b-label>
-          <b-form-input id="base" type="range" name="base" />
-          <b-label for="shoulder">Shoulder</b-label>
-          <b-form-input id="shoulder" type="range" name="shoulder" />
-          <b-label for="elbow">Elbow</b-label>
-          <b-form-input id="elbow" type="range" name="elbow" />
-          <b-label for="wristRotate">Wrist Rotate</b-label>
-          <b-form-input id="wristRotate" type="range" name="wristRotate" />
-          <b-label for="wrist">Wrist</b-label>
-          <b-form-input id="wrist" type="range" name="wrist" />
+          <label for="base">Base</label>
+          <b-form-input
+            id="base"
+            type="range"
+            name="base"
+            v-model="base"
+            @change="sendCommand()"
+            min="-6500"
+            max="6500"
+          />
+          <label for="shoulder">Shoulder</label>
+          <b-form-input
+            id="shoulder"
+            type="range"
+            name="shoulder"
+            v-model="shoulder"
+            @change="sendCommand()"
+            min="-10000"
+            max="10000"
+          />
+          <label for="elbow">Elbow</label>
+          <b-form-input
+            id="elbow"
+            type="range"
+            name="elbow"
+            v-model="elbow"
+            @change="sendCommand()"
+            min="-20500"
+            max="20500"
+          />
+          <label for="wristRotate">Wrist Rotate</label>
+          <b-form-input
+            id="wristRotate"
+            type="range"
+            name="wristRotate"
+            v-model="wristRotate"
+            @change="sendCommand()"
+            min="-800"
+            max="800"
+          />
+          <label for="wrist">Wrist</label>
+          <b-form-input
+            id="wrist"
+            type="range"
+            name="wrist"
+            v-model="wrist"
+            @change="sendCommand()"
+            min="-3000"
+            max="3000"
+          />
         </b-form-group>
       </b-col>
     </b-row>
@@ -22,6 +62,7 @@
 
 <script>
 import ws from '@/shared'
+import { debounce } from 'vue-debounce'
 
 export default {
   name: 'ManualControl',
@@ -39,8 +80,15 @@ export default {
     this.$root.$on('ws-message-received', e => this.handleMessage(e))
   },
   methods: {
+    debounceSendCommand() {
+      return debounce(() => {
+        this.sendCommand()
+      }, 300)
+    },
     sendCommand() {
-      ws.send('G0 X0 Y0 Z0 E0 F0')
+      ws.send(
+        `G0 X${this.base} Y${this.shoulder} Z${this.elbow} E${this.wristRotate} F${this.wrist}`
+      )
     },
     handleMessage(message) {
       if (message.includes('armPositions')) {
@@ -57,83 +105,4 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-.window {
-  position: relative;
-  margin: 0 auto;
-}
-
-.frame {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  border: 1rem solid #5c5c5c;
-  background-color: #d9f6ff;
-  z-index: 1;
-}
-
-.blind {
-  position: absolute;
-  z-index: 10;
-  height: 100%;
-  width: 100%;
-  background-color: #a8a6b9;
-  background-repeat: repeat;
-  border-bottom: none;
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 1s;
-}
-
-.blind.pending {
-  z-index: 10;
-  background-color: #fbff1f;
-  background-image: none;
-  animation: blinker 2s linear infinite;
-}
-
-.controls {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.controls button {
-  height: 4rem;
-}
-
-@keyframes blinker {
-  0% {
-    opacity: 0.9;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0.9;
-  }
-}
-
-.handle {
-  width: 1rem;
-  margin-top: 0.5rem;
-  position: absolute;
-  right: -1.5rem;
-  z-index: 999;
-  color: gray;
-  border-radius: 30%;
-  transform: rotate(180deg);
-  cursor: pointer;
-  -webkit-appearance: slider-vertical; /* WebKit */
-}
-
-input[type='range']::-webkit-slider-thumb {
-  border: 1px solid #00001e;
-  border-radius: 15px;
-  cursor: pointer;
-}
-
-input[type='range']::-webkit-slider-runnable-track {
-  background: rgba(0, 0, 0, 0);
-  cursor: pointer;
-}
-</style>
+<style scoped lang="scss"></style>
