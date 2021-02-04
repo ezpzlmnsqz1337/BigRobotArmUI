@@ -5,6 +5,7 @@
       <b-col class="my-auto controls">
         <b-form-group>
           <label for="base">Base</label>
+          <b-form-input disabled :value="base" />
           <b-form-input
             id="base"
             type="range"
@@ -15,36 +16,40 @@
             max="6500"
           />
           <label for="shoulder">Shoulder</label>
+          <b-form-input disabled :value="shoulder" />
           <b-form-input
             id="shoulder"
             type="range"
             name="shoulder"
             v-model="shoulder"
             @change="sendCommand()"
-            min="-10000"
-            max="10000"
+            min="-2500"
+            max="2500"
           />
           <label for="elbow">Elbow</label>
+          <b-form-input disabled :value="elbow" />
           <b-form-input
             id="elbow"
             type="range"
             name="elbow"
             v-model="elbow"
             @change="sendCommand()"
-            min="-20500"
-            max="20500"
+            min="-10000"
+            max="10000"
           />
           <label for="wristRotate">Wrist Rotate</label>
+          <b-form-input disabled :value="wristRotate" />
           <b-form-input
             id="wristRotate"
             type="range"
             name="wristRotate"
             v-model="wristRotate"
             @change="sendCommand()"
-            min="-800"
-            max="800"
+            min="-2000"
+            max="2000"
           />
           <label for="wrist">Wrist</label>
+          <b-form-input disabled :value="wrist" />
           <b-form-input
             id="wrist"
             type="range"
@@ -55,13 +60,14 @@
             max="3000"
           />
           <label for="gripper">Gripper</label>
+          <b-form-input disabled :value="gripper" />
           <b-form-input
             id="gripper"
             type="range"
             name="gripper"
             v-model="gripper"
             @change="sendCommand()"
-            min="0"
+            min="40"
             max="180"
           />
         </b-form-group>
@@ -89,7 +95,7 @@ export default {
       elbow: 0,
       wristRotate: 0,
       wrist: 0,
-      gripper: 0
+      gripper: 40
     }
   },
   created: function() {

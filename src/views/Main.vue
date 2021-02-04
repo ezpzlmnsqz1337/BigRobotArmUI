@@ -11,17 +11,22 @@
     <div v-show="isConnected">
       <b-row>
         <b-col>
-          <Terminal />
+          <Model />
         </b-col>
         <b-col>
           <ManualControl />
         </b-col>
       </b-row>
       <b-row>
+        <b-col cols="1"> </b-col>
+        <b-col cols="5">
+          <Terminal />
+        </b-col>
+        <b-col cols="1"> </b-col>
         <b-col cols="3">
           <Sequences />
         </b-col>
-        <b-col />
+        <b-col cols="1"> </b-col>
       </b-row>
       <b-row>
         <b-col>
@@ -39,17 +44,19 @@ import ws from '@/shared'
 import Terminal from '@/components/Terminal'
 import ManualControl from '@/components/ManualControl'
 import Sequences from '@/components/Sequences'
+import Model from '@/components/Model'
 
 export default {
   name: 'Main',
   components: {
     ManualControl,
     Terminal,
-    Sequences
+    Sequences,
+    Model
   },
   data() {
     return {
-      connectionStatus: 0
+      connectionStatus: 1
     }
   },
   computed: {

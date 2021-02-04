@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     addMessage(message, send = true) {
-      message = send ? `Send: ${message}\n` : `Receive: ${message}\n`
+      message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
       this.serialOutput += message
       if (this.autoscroll) {
         const textarea = this.$refs.terminal.$el
