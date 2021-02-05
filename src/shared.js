@@ -1,9 +1,6 @@
 const hostname = 'roborukapi4'
-// window.location.hostname === 'ezpzlmnsqz1337.eu'
-//   ? 'ezpzlmnsqz1337.eu'
-//   : 'rolety'
 
-const TESTING = true
+const TESTING = true // set this to false to enable WS
 
 const ws = TESTING ? null : new WebSocket(`ws://${hostname}:1337`)
 

@@ -1,24 +1,27 @@
-# big-robot-arm-ui
+# BigRobotArmUI
 
-## Project setup
-```
-npm install
-```
+User interface for controlling BigRobotArm from this instructables: 
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+https://www.instructables.com/Build-a-Giant-3D-Printed-Robot-Arm/
 
-### Compiles and minifies for production
-```
-npm run build
-```
+So far this is work in progress.
 
-### Lints and fixes files
-```
-npm run lint
-```
+## Features
+- Send websocket messages to control the arm
+- 3D visualization of the arm position
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Topology of this project
+TBD
+
+I used different board and drivers that in the instructables.
+- board: MKSGenL v2.1
+- drivers: TMC2208
+
+## Prerequisites
+This UI is designed to work with a python backend websocket server. Link: TBD
+
+
+## Instalation
+- clone this repository
+- npm run serve for development
+- npm run build for deployment
