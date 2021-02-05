@@ -10,23 +10,20 @@
     </b-row>
     <div v-show="isConnected">
       <b-row>
-        <b-col>
+        <b-col class="p-5">
           <Model />
         </b-col>
-        <b-col>
-          <ManualControl />
+        <b-col class="p-5">
+          <Terminal />
         </b-col>
       </b-row>
       <b-row>
-        <b-col cols="1"> </b-col>
-        <b-col cols="5">
-          <Terminal />
+        <b-col class="p-5">
+          <ManualControl />
         </b-col>
-        <b-col cols="1"> </b-col>
-        <b-col cols="3">
+        <b-col class="p-5">
           <Sequences />
         </b-col>
-        <b-col cols="1"> </b-col>
       </b-row>
       <b-row>
         <b-col>
@@ -65,8 +62,9 @@ export default {
     }
   },
   created() {
+    if (!ws) return
     ws.onopen = () => {
-      ws.send('connected')
+      if (ws) ws.send('connected')
     }
 
     ws.onmessage = event => {
@@ -80,10 +78,10 @@ export default {
   },
   methods: {
     connect: function() {
-      ws.send('connect')
+      if (ws) ws.send('connect')
     },
     disconnect: function() {
-      ws.send('disconnect')
+      if (ws) ws.send('disconnect')
     }
   }
 }

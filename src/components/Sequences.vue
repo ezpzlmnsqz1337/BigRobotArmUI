@@ -43,7 +43,7 @@ export default {
       this.disabled = true
     },
     sendCommand(command) {
-      ws.send(command)
+      if(ws) ws.send(command)
     },
     handleMessage(message) {
       if (message.includes('READY')) this.disabled = false

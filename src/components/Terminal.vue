@@ -57,7 +57,7 @@ export default {
     sendCommand() {
       if (!this.command.length) return
 
-      ws.send(`${this.command}\r`)
+      if(ws) ws.send(`${this.command}\r`)
       this.addMessage(this.command)
       this.command = ''
       this.disabled = true

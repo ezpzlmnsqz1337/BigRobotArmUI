@@ -5,10 +5,12 @@ import './plugins/bootstrap-vue'
 import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
-import vueDebounce from 'vue-debounce'
+import store from './store'
 
-Vue.use(vueDebounce)
 Vue.config.productionTip = false
+
+Vue.prototype.$store = store
+Vue.prototype.$arm = store.state.arm
 
 new Vue({
   router,
