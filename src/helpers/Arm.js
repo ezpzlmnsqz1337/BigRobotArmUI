@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import eb from '../EventBus'
 
 const RIGHT_ANGLE_EULER = 1.5
 
@@ -13,6 +14,11 @@ export class Arm {
     this.renderer = null
     this.stats = null
     this.controls = null
+
+    this.inPosition = arm.joints.reduce((prev, next) => {
+      prev[next.name] = true
+      return prev
+    }, {})
 
     this.arm = arm
   }
@@ -45,16 +51,30 @@ export class Arm {
         -RIGHT_ANGLE_EULER,
         RIGHT_ANGLE_EULER
       )
-      if (position < target) {
+      if (position === target) {
+        this.inPosition[joint.name] = true
+      } else if (position < target) {
+        this.inPosition[joint.name] = false
         joint.mesh.rotation[rAxis] += 0.01
       } else if (position > target) {
+        this.inPosition[joint.name] = false
         joint.mesh.rotation[rAxis] -= 0.01
       }
     }
+    if (this.isInPosition()) {
+      eb.emit('inPosition')
+      this.firedInPosition = true
+    } else {
+      this.firedInPosition = false
+    }
+  }
+
+  isInPosition() {
+    return !Object.values(this.inPosition).includes(false)
   }
 
   mapAngle(value, x1, y1, x2, y2) {
-    return ((value - x1) * (y2 - x2)) / (y1 - x1) + x2
+    return parseFloat((((value - x1) * (y2 - x2)) / (y1 - x1) + x2).toFixed(2))
   }
 
   setupScene() {
@@ -70,10 +90,14 @@ export class Arm {
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
     this.el.appendChild(this.renderer.domElement)
 
-    this.camera.position.z = 5
     const light = new THREE.AmbientLight(0x404040) // soft white light
-    light.intensity = 2
+    light.intensity = 3
+    this.scene.background = new THREE.Color(0xdddddd)
     this.scene.add(light)
+
+    this.camera.position.x = 1
+    this.camera.position.y = 1
+    this.camera.position.z = 0.5
   }
 
   setupStats() {
@@ -99,13 +123,23 @@ export class Arm {
       gltf => {
         this.scene.add(gltf.scene)
         // console.log(this.scene, gltf)
+        gltf.scene.name = 'BigRobotArm'
         this.setupShafts()
+        this.centerCamera()
       },
       undefined,
       error => {
         console.error(error)
       }
     )
+  }
+
+  centerCamera() {
+    const arm = this.scene.getObjectByName('BigRobotArm')
+    const center = new THREE.Vector3()
+    new THREE.Box3().setFromObject(arm).getCenter(center)
+    this.camera.lookAt(center)
+    console.log(arm)
   }
 
   setupShafts() {

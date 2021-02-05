@@ -16,13 +16,15 @@
         </div>
       </b-list-group-item>
     </b-list-group>
-    <b-button @click="playSequence()" :disabled="disabled">Play</b-button>
+    <b-button @click="play()" :disabled="disabled">Play</b-button>
+    <b-button @click="preview()">Preview</b-button>
   </b-container>
 </template>
 
 <script>
 import ws from '@/shared'
 import sequences from '@/assets/sequences'
+import eb from '../EventBus'
 
 export default {
   name: 'Sequences',
@@ -30,20 +32,32 @@ export default {
     return {
       sequences,
       selected: 0,
-      disabled: true
+      disabled: true,
+      joints: this.$arm.joints,
+      gripper: this.$arm.gripper,
+      previewQueue: []
     }
   },
   created: function() {
     this.$root.$on('ws-message-received', e => this.handleMessage(e))
+    eb.on('inPosition', () => this.previewCommand(this.previewQueue.shift()))
   },
   methods: {
-    playSequence() {
+    play() {
       const sequence = this.sequences[this.selected].data
       sequence.forEach(x => this.sendCommand(x))
       this.disabled = true
     },
+    preview() {
+      this.previewQueue = this.sequences[this.selected].data.map(x => x)
+    },
+    previewCommand(command) {
+      if (!command) return
+      const positions = this.$store.parsePositionFromCommand(command)
+      this.$store.setTargetPositions(positions)
+    },
     sendCommand(command) {
-      if(ws) ws.send(command)
+      if (ws) ws.send(command)
     },
     handleMessage(message) {
       if (message.includes('READY')) this.disabled = false

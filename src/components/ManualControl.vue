@@ -71,14 +71,9 @@ export default {
       if (ws) ws.send(command)
     },
     handleMessage(message) {
-      if (message.includes('B:') && message.includes('S:')) {
-        message = message.split(' ')
-        this.base = parseInt(message[1])
-        this.shoulder = parseInt(message[3])
-        this.elbow = parseInt(message[5])
-        this.wristRotate = parseInt(message[7])
-        this.wrist = parseInt(message[9])
-        this.gripper = parseInt(message[11])
+      if (message.includes('B') && message.includes('S')) {
+        const positions = this.$store.parsePositionFromCommand(message)
+        this.$store.setTargetPositions(positions)
       }
     }
   }
