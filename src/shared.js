@@ -1,6 +1,6 @@
 const hostname = 'roborukapi4'
 
-const TESTING = true // set this to false to enable WS
+const TESTING = false // set this to false to enable WS
 
 const ws = TESTING ? null : new WebSocket(`ws://${hostname}:1337`)
 

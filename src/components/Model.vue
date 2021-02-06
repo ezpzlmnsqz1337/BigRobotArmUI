@@ -31,7 +31,6 @@ export default {
   methods: {
     handleMessage(message) {
       if (message.includes('READY')) this.disabled = false
-      this.addMessage(message, false)
     }
   }
 }

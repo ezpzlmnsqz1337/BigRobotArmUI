@@ -50,6 +50,7 @@ export default {
     },
     preview() {
       this.previewQueue = this.sequences[this.selected].data.map(x => x)
+      this.previewCommand(this.previewQueue.shift())
     },
     previewCommand(command) {
       if (!command) return

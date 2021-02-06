@@ -72,8 +72,14 @@ export default {
     },
     handleMessage(message) {
       if (message.includes('B') && message.includes('S')) {
-        const positions = this.$store.parsePositionFromCommand(message)
-        this.$store.setTargetPositions(positions)
+        message = message
+          .split('\n')
+          .filter(x => !x.includes('BigRobotArm'))
+          .pop()
+        if (message) {
+          const positions = this.$store.parsePositionFromCommand(message[1])
+          this.$store.setTargetPositions(positions)
+        }
       }
     }
   }

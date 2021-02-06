@@ -20,6 +20,8 @@ export class Arm {
       return prev
     }, {})
 
+    this.firedInPosition = false
+
     this.arm = arm
   }
 
@@ -61,9 +63,12 @@ export class Arm {
         joint.mesh.rotation[rAxis] -= 0.01
       }
     }
+
     if (this.isInPosition()) {
-      eb.emit('inPosition')
-      this.firedInPosition = true
+      if (!this.firedInPosition) {
+        eb.emit('inPosition')
+        this.firedInPosition = true
+      }
     } else {
       this.firedInPosition = false
     }
