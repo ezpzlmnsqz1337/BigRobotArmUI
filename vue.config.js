@@ -1,7 +1,7 @@
 module.exports = {
   pwa: {
-    name: 'Rolety',
-    short: 'RLT',
+    name: 'BigRobotArmUI',
+    short: 'BRAUI',
     // themeColor: '#2b1eff'
     themeColor: '#f5f5f5'
   },
