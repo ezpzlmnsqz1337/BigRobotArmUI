@@ -6,10 +6,10 @@
         <b-form-group v-for="j in [...joints, gripper]" :key="j.name">
           <label :for="j.name">{{ j.name }}</label>
           <b-row>
-            <b-col cols="2">
+            <b-col md="12" lg="2">
               <b-form-input disabled :value="j.target" />
             </b-col>
-            <b-col>
+            <b-col md="12" lg="10">
               <b-form-input
                 :id="j.name"
                 type="range"

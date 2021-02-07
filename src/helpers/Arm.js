@@ -46,6 +46,13 @@ export class Arm {
     this.renderer.render(this.scene, this.camera)
   }
 
+  handleResize() {
+    this.camera.aspect = this.el.offsetWidth / this.el.offsetHeight
+    this.camera.updateProjectionMatrix()
+
+    this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
+  }
+
   handleJoint(joint) {
     if (joint.mesh) {
       const rAxis = joint.rotationAxis

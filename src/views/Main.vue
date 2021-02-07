@@ -3,35 +3,37 @@
     <h1>Big Robot Arm UI</h1>
     <b-row v-show="!isConnected">
       <b-col>
-        <b-button variant="success" size="large" @click="connect()"
+        <b-button variant="success" size="lg" @click="connect()"
           >Connect</b-button
         >
       </b-col>
     </b-row>
     <div v-show="isConnected">
       <b-row>
-        <b-col class="p-5">
+        <b-col class="p-lg-5" md="12" lg="6">
           <Model />
         </b-col>
-        <b-col class="p-5">
+        <b-col class="p-lg-5" md="12" lg="6">
           <Terminal />
         </b-col>
       </b-row>
       <b-row>
-        <b-col class="p-5">
+        <b-col class="p-lg-5" md="12" lg="6">
           <ManualControl />
         </b-col>
-        <b-col class="p-5">
+        <b-col class="p-lg-5" md="12" lg="6">
           <Sequences />
         </b-col>
       </b-row>
+      <br />
       <b-row>
         <b-col>
-          <b-button variant="danger" size="large" @click="disconnect()"
+          <b-button variant="danger" size="lg" @click="disconnect()"
             >Disconnect</b-button
           >
         </b-col>
       </b-row>
+      <br />
     </div>
   </b-container>
 </template>
