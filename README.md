@@ -17,12 +17,11 @@ I used different board and drivers that in the instructables.
 - board: MKSGenL v2.1
 - drivers: TMC2208
 
-## Related projects
+## Prerequisites
+This UI is designed to work with a python backend websocket server.
 https://github.com/ezpzlmnsqz1337/BigRobotArmServer - host this UI and connect to the MKS Gen L over USB (on raspberrypi)
 https://github.com/ezpzlmnsqz1337/BigRobotArmFirmware - firmware for the MKS Gen L
 
-## Prerequisites
-This UI is designed to work with a python backend websocket server. Link: TBD
 
 
 ## Instalation
