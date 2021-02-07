@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import eb from '../EventBus'
 
@@ -125,10 +126,15 @@ export class Arm {
   }
 
   loadModel() {
-    const loader = new GLTFLoader()
+    const gltfLoader = new GLTFLoader()
+    const dracoLoader = new DRACOLoader()
+    dracoLoader.setDecoderConfig({ type: 'js' })
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/')
 
-    loader.load(
-      require('@/assets/models/BigRobotArmWeb.glb'),
+    gltfLoader.setDRACOLoader(dracoLoader)
+
+    gltfLoader.load(
+      require('@/assets/models/BigRobotArmWebCompressed.glb'),
       gltf => {
         this.scene.add(gltf.scene)
         // console.log(this.scene, gltf)
