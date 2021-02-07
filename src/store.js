@@ -31,6 +31,7 @@ export default Vue.observable({
           max: BASE_MAX_STEPS,
           stepsPerDegree: BASE_STEPS_PER_DEGREE,
           mesh: null,
+          inverted: true,
           rotationAxis: 'y'
         },
         {
@@ -41,6 +42,7 @@ export default Vue.observable({
           max: SHOULDER_MAX_STEPS,
           stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
           mesh: null,
+          inverted: false,
           rotationAxis: 'x'
         },
         {
@@ -51,6 +53,7 @@ export default Vue.observable({
           max: ELBOW_MAX_STEPS,
           stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
           mesh: null,
+          inverted: false,
           rotationAxis: 'x'
         },
         {
@@ -61,6 +64,7 @@ export default Vue.observable({
           max: WRIST_ROTATE_MAX_STEPS,
           stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
           mesh: null,
+          inverted: false,
           rotationAxis: 'y'
         },
         {
@@ -71,6 +75,7 @@ export default Vue.observable({
           max: WRIST_MAX_STEPS,
           stepsPerDegree: WRIST_STEPS_PER_DEGREE,
           mesh: null,
+          inverted: true,
           rotationAxis: 'x'
         }
       ],
@@ -86,7 +91,7 @@ export default Vue.observable({
   },
   home() {
     this.state.arm.joints.forEach(x => (x.target = 0))
-    this.state.arm.gripper.target = 0
+    this.state.arm.gripper.target = GRIPPER_MIN_POSITION
   },
   getTargetPositions() {
     return this.state.arm.joints.reduce((curr, acc) => {

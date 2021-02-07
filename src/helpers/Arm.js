@@ -21,6 +21,7 @@ export class Arm {
     }, {})
 
     this.firedInPosition = false
+    this.previewSpeed = 0.005
 
     this.arm = arm
   }
@@ -32,6 +33,8 @@ export class Arm {
     this.loadModel()
 
     this.animate()
+
+    eb.on('setPreviewSpeed', e => (this.previewSpeed = e))
   }
 
   animate() {
@@ -46,21 +49,22 @@ export class Arm {
     if (joint.mesh) {
       const rAxis = joint.rotationAxis
       const position = parseFloat(joint.mesh.rotation[rAxis].toFixed(2))
-      const target = this.mapAngle(
+      let target = this.mapAngle(
         joint.target,
         joint.min,
         joint.max,
         -RIGHT_ANGLE_EULER,
         RIGHT_ANGLE_EULER
       )
+      if (joint.inverted) target *= -1
       if (position === target) {
         this.inPosition[joint.name] = true
       } else if (position < target) {
         this.inPosition[joint.name] = false
-        joint.mesh.rotation[rAxis] += 0.01
+        joint.mesh.rotation[rAxis] += this.previewSpeed
       } else if (position > target) {
         this.inPosition[joint.name] = false
-        joint.mesh.rotation[rAxis] -= 0.01
+        joint.mesh.rotation[rAxis] -= this.previewSpeed
       }
     }
 

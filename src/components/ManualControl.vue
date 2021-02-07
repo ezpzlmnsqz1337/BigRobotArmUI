@@ -3,37 +3,31 @@
     <h2>Manual control</h2>
     <b-row>
       <b-col class="my-auto controls">
-        <b-form-group v-for="j in joints" :key="j.name">
+        <b-form-group v-for="j in [...joints, gripper]" :key="j.name">
           <label :for="j.name">{{ j.name }}</label>
-          <b-form-input disabled :value="j.target" />
-          <b-form-input
-            :id="j.name"
-            type="range"
-            :name="j.name"
-            v-model="j.target"
-            @change="sendCommand()"
-            :min="j.min"
-            :max="j.max"
-          />
-        </b-form-group>
-        <b-form-group>
-          <label for="gripper">Gripper</label>
-          <b-form-input disabled :value="gripper.target" />
-          <b-form-input
-            id="gripper"
-            type="range"
-            name="gripper"
-            v-model="gripper.target"
-            @change="sendCommand()"
-            :min="gripper.min"
-            :max="gripper.max"
-          />
+          <b-row>
+            <b-col cols="2">
+              <b-form-input disabled :value="j.target" />
+            </b-col>
+            <b-col>
+              <b-form-input
+                :id="j.name"
+                type="range"
+                :name="j.name"
+                v-model="j.target"
+                @change="sendCommand()"
+                :min="j.min"
+                :max="j.max"
+              />
+            </b-col>
+          </b-row>
         </b-form-group>
       </b-col>
     </b-row>
     <b-row>
       <b-col>
         <b-form-group>
+          <b-button size="large" @click="setZeroPosition()">Set zero</b-button>
           <b-button size="large" @click="sendHomeCommand()">Home</b-button>
         </b-form-group>
       </b-col>
@@ -66,6 +60,12 @@ export default {
     },
     sendHomeCommand() {
       const command = 'G28'
+      this.$root.$emit('ws-message-send', command)
+      this.$store.home()
+      if (ws) ws.send(command)
+    },
+    setZeroPosition() {
+      const command = 'G92'
       this.$root.$emit('ws-message-send', command)
       this.$store.home()
       if (ws) ws.send(command)

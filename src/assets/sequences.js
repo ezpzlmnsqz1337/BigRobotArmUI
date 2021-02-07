@@ -2,6 +2,7 @@ export default [
   {
     name: 'Pick up and move',
     data: [
+      'G0 B0 S0 E0 WR0 W0 G40',
       'G0 B0 S2300 E8000 WR0 W2266 G40',
       'G0 B0 S2300 E8000 WR0 W2150 G125',
       'G0 B0 S1000 E8000 WR0 W2150 G125',

@@ -1,6 +1,20 @@
 <template>
   <b-container fluid>
     <h2>Sequences</h2>
+    <b-form-group>
+      <label for="previewSpeed">Preview speed</label>
+      <b-form-input disabled :value="previewSpeed" />
+      <b-form-input
+        id="previewSpeed"
+        type="range"
+        name="previewSpeed"
+        v-model="previewSpeed"
+        @change="setPreviewSpeed()"
+        min="1"
+        max="10"
+        step="1"
+      />
+    </b-form-group>
     <b-list-group>
       <b-list-group-item
         v-for="(s, index) in sequences"
@@ -35,7 +49,8 @@ export default {
       disabled: true,
       joints: this.$arm.joints,
       gripper: this.$arm.gripper,
-      previewQueue: []
+      previewQueue: [],
+      previewSpeed: 1
     }
   },
   created: function() {
@@ -62,6 +77,9 @@ export default {
     },
     handleMessage(message) {
       if (message.includes('READY')) this.disabled = false
+    },
+    setPreviewSpeed() {
+      eb.emit('setPreviewSpeed', parseFloat(this.previewSpeed) / 1000)
     }
   }
 }
