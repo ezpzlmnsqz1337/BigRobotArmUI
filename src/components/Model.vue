@@ -54,13 +54,6 @@ export default {
   margin: 0 auto;
 }
 
-/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
-@media (min-width: 768px) {
-  .__armWrapper {
-    height: 240px;
-  }
-}
-
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) {
   .__armWrapper {
