@@ -44,6 +44,9 @@ import Terminal from '@/components/Terminal'
 import ManualControl from '@/components/ManualControl'
 import Sequences from '@/components/Sequences'
 import Model from '@/components/Model'
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
+import SerialMessage from '@/constants/SerialMessage'
 
 export default {
   name: 'Main',
@@ -74,16 +77,32 @@ export default {
 
       if (event.data.includes('connectionStatus')) {
         this.connectionStatus = parseInt(event.data.split(':')[1])
+      } else {
+        this.handleMessage(event.data)
       }
-      this.$root.$emit('ws-message-received', event.data)
+
+      eb.emit(EventType.WS_MESSAGE_RECEIVED, event.data)
     }
   },
   methods: {
     connect: function() {
-      if (ws) ws.send('connect')
+      if (ws) ws.send(EventType.WS_CONNECT)
     },
     disconnect: function() {
-      if (ws) ws.send('disconnect')
+      if (ws) ws.send(EventType.WS_DISCONNECT)
+    },
+    handleMessage(message) {
+      console.log(message)
+      if (message.includes(SerialMessage.POSITION)) {
+        message = message
+          .split('\n')
+          .filter(x => x.includes(SerialMessage.POSITION))
+          .pop()
+        if (message) {
+          const positions = this.$store.parsePositionFromCommand(message)
+          this.$store.setTargetPositions(positions)
+        }
+      }
     }
   }
 }

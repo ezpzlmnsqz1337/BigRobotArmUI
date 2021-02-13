@@ -27,6 +27,9 @@
 
 <script>
 import ws from '@/shared'
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
+import SerialMessage from '@/constants/SerialMessage'
 
 export default {
   name: 'Terminal',
@@ -39,8 +42,8 @@ export default {
     }
   },
   created: function() {
-    this.$root.$on('ws-message-received', e => this.handleMessage(e))
-    this.$root.$on('ws-message-send', e => this.addMessage(e))
+    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
+    eb.on(EventType.WS_MESSAGE_SEND, e => this.addMessage(e))
   },
   methods: {
     addMessage(message, send = true) {
@@ -50,9 +53,7 @@ export default {
         const textarea = this.$refs.terminal.$el
         setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
       }
-      if (send) {
-        this.disabled = true
-      }
+      if (send) this.disabled = true
     },
     sendCommand() {
       if (!this.command.length) return
@@ -63,7 +64,7 @@ export default {
       this.disabled = true
     },
     handleMessage(message) {
-      if (message.includes('READY')) this.disabled = false
+      if (message.includes(SerialMessage.READY)) this.disabled = false
       this.addMessage(message, false)
     },
     scrollToBottom() {

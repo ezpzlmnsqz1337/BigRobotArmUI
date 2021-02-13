@@ -11,6 +11,7 @@
   -moz-osx-font-smoothing: grayscale;
   color: #222222;
   background-color: #f5f5f5;
+  min-height: 100vh;
   height: 100%;
 }
 </style>

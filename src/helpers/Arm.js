@@ -3,7 +3,9 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import eb from '../EventBus'
+
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
 
 const RIGHT_ANGLE_EULER = 1.5
 
@@ -35,7 +37,7 @@ export class Arm {
 
     this.animate()
 
-    eb.on('setPreviewSpeed', e => (this.previewSpeed = e))
+    eb.on(EventType.SET_PREVIEW_SPEED, e => (this.previewSpeed = e))
   }
 
   animate() {
@@ -78,7 +80,7 @@ export class Arm {
 
     if (this.isInPosition()) {
       if (!this.firedInPosition) {
-        eb.emit('inPosition')
+        eb.emit(EventType.ARM_IN_POSITION)
         this.firedInPosition = true
       }
     } else {
