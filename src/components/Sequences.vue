@@ -38,7 +38,9 @@
 <script>
 import ws from '@/shared'
 import sequences from '@/assets/sequences'
-import eb from '../EventBus'
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
+import SerialMessage from '@/constants/SerialMessage'
 
 export default {
   name: 'Sequences',
@@ -50,12 +52,14 @@ export default {
       joints: this.$arm.joints,
       gripper: this.$arm.gripper,
       previewQueue: [],
-      previewSpeed: 1
+      previewSpeed: 5
     }
   },
   created: function() {
-    this.$root.$on('ws-message-received', e => this.handleMessage(e))
-    eb.on('inPosition', () => this.previewCommand(this.previewQueue.shift()))
+    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
+    eb.on(EventType.ARM_IN_POSITION, () =>
+      this.previewCommand(this.previewQueue.shift())
+    )
   },
   methods: {
     play() {
@@ -76,10 +80,10 @@ export default {
       if (ws) ws.send(command)
     },
     handleMessage(message) {
-      if (message.includes('READY')) this.disabled = false
+      if (message.includes(SerialMessage.READY)) this.disabled = false
     },
     setPreviewSpeed() {
-      eb.emit('setPreviewSpeed', parseFloat(this.previewSpeed) / 1000)
+      eb.emit(EventType.SET_PREVIEW_SPEED, parseFloat(this.previewSpeed) / 1000)
     }
   }
 }

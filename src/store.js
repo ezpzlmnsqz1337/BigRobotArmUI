@@ -81,7 +81,7 @@ export default Vue.observable({
       ],
       gripper: {
         name: 'gripper',
-        position: 0,
+        position: 40,
         target: 0,
         min: GRIPPER_MIN_POSITION,
         max: GRIPPER_MAX_POSITION,

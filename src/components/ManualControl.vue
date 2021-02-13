@@ -37,6 +37,8 @@
 
 <script>
 import ws from '@/shared'
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
 
 export default {
   name: 'ManualControl',
@@ -46,41 +48,26 @@ export default {
       gripper: this.$arm.gripper
     }
   },
-  created: function() {
-    this.$root.$on('ws-message-received', e => this.handleMessage(e))
-  },
   methods: {
     sendCommand() {
       console.log('Pos: ', this.$store.getTargetPositions())
       const p = this.$store.getTargetPositions()
       const g = this.$arm.gripper.target
       const command = `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
-      this.$root.$emit('ws-message-send', command)
+      eb.emit(EventType.WS_MESSAGE_SEND, command)
       if (ws) ws.send(command)
     },
     sendHomeCommand() {
       const command = 'G28'
-      this.$root.$emit('ws-message-send', command)
+      eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
       if (ws) ws.send(command)
     },
     setZeroPosition() {
       const command = 'G92'
-      this.$root.$emit('ws-message-send', command)
+      eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
       if (ws) ws.send(command)
-    },
-    handleMessage(message) {
-      if (message.includes('B') && message.includes('S')) {
-        message = message
-          .split('\n')
-          .filter(x => !x.includes('BigRobotArm'))
-          .pop()
-        if (message) {
-          const positions = this.$store.parsePositionFromCommand(message[1])
-          this.$store.setTargetPositions(positions)
-        }
-      }
     }
   }
 }

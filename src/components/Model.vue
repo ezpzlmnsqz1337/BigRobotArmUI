@@ -11,6 +11,9 @@
 
 <script>
 import { Arm } from '@/helpers/Arm'
+import eb from '@/EventBus'
+import EventType from '@/constants/types/EventType'
+import SerialMessage from '@/constants/SerialMessage'
 
 export default {
   name: 'Model',
@@ -21,15 +24,15 @@ export default {
     }
   },
   created: function() {
-    this.$root.$on('ws-message-received', e => this.handleMessage(e))
-    window.addEventListener('resize', this.handleResize, false)
+    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
+    window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
   },
   mounted: function() {
     this.setupModel()
   },
   methods: {
     handleMessage(message) {
-      if (message.includes('READY')) this.disabled = false
+      if (message.includes(SerialMessage.READY)) this.disabled = false
     },
     handleResize() {
       if (this.arm) this.arm.handleResize()
@@ -41,7 +44,7 @@ export default {
     }
   },
   destroyed() {
-    window.removeEventListener('resize')
+    window.removeEventListener(EventType.WINDOW_RESIZE)
   }
 }
 </script>
