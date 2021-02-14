@@ -7,8 +7,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
 
-const RIGHT_ANGLE_EULER = 1.5
-
 export class Arm {
   constructor(el, arm) {
     this.el = el
@@ -59,13 +57,10 @@ export class Arm {
     if (joint.mesh) {
       const rAxis = joint.rotationAxis
       const position = parseFloat(joint.mesh.rotation[rAxis].toFixed(2))
-      let target = this.mapAngle(
-        joint.target,
-        joint.min,
-        joint.max,
-        -RIGHT_ANGLE_EULER,
-        RIGHT_ANGLE_EULER
-      )
+
+      let target = (joint.target / joint.stepsPerDegree) * (Math.PI / 180)
+      target = parseFloat(target.toFixed(2))
+
       if (joint.inverted) target *= -1
       if (position === target) {
         this.inPosition[joint.name] = true
@@ -78,13 +73,13 @@ export class Arm {
       }
     }
 
-    if (this.isInPosition()) {
-      if (!this.firedInPosition) {
-        eb.emit(EventType.ARM_IN_POSITION)
-        this.firedInPosition = true
-      }
-    } else {
-      this.firedInPosition = false
+    this.handlePreview()
+  }
+
+  handlePreview() {
+    if (this.arm.preview && this.isInPosition()) {
+      eb.emit(EventType.ARM_IN_POSITION)
+      Object.keys(this.inPosition).forEach(x => (this.inPosition[x] = false))
     }
   }
 
