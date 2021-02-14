@@ -37,7 +37,6 @@
 
 <script>
 import ws from '@/shared'
-import sequences from '@/assets/sequences'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
 import SerialMessage from '@/constants/SerialMessage'
@@ -46,7 +45,7 @@ export default {
   name: 'Sequences',
   data() {
     return {
-      sequences,
+      sequences: this.$store.state.sequences,
       selected: 0,
       disabled: true,
       joints: this.$arm.joints,

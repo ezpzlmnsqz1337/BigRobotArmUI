@@ -18,9 +18,11 @@ import {
   GRIPPER_MIN_POSITION,
   GRIPPER_MAX_POSITION
 } from '@/assets/config'
+import sequences from '@/assets/sequences'
 
 export default Vue.observable({
   state: {
+    sequences,
     arm: {
       joints: [
         {
@@ -31,7 +33,7 @@ export default Vue.observable({
           max: BASE_MAX_STEPS,
           stepsPerDegree: BASE_STEPS_PER_DEGREE,
           mesh: null,
-          inverted: true,
+          inverted: false,
           rotationAxis: 'y'
         },
         {
@@ -139,5 +141,17 @@ export default Vue.observable({
       }
     ]
     return positions
+  },
+  initSequences() {
+    const seqs = localStorage.getItem('sequences')
+    if (seqs) this.state.sequences = JSON.parse(seqs)
+  },
+  saveSequences() {
+    localStorage.setItem('sequences', JSON.stringify(this.state.sequences))
+  },
+  addSequence(sequence) {
+    if (!sequence) return
+    this.state.sequences.push(sequence)
+    this.saveSequences()
   }
 })
