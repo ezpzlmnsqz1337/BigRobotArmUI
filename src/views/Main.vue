@@ -70,7 +70,7 @@ export default {
   },
   data() {
     return {
-      connectionStatus: 1
+      connectionStatus: 0
     }
   },
   computed: {
