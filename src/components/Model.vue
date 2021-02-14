@@ -26,9 +26,10 @@ export default {
   created: function() {
     eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
+    this.$store.initSequences()
   },
   mounted: function() {
-    this.setupModel()
+    setTimeout(() => this.setupModel(), 500)
   },
   methods: {
     handleMessage(message) {

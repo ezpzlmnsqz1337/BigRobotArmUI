@@ -10,21 +10,25 @@
         @click="saveSequence()"
         variant="primary"
         :disabled="!canSaveSequence"
-        >Save sequence</b-button
+        >&#x1F5AB; Save sequence</b-button
       >
     </b-input-group>
-    <b-row>
-      <b-col class="my-auto controls">
-        <b-input-group v-for="(p, index) in positions" :key="'pos' + index">
-          <b-form-input :value="p" disabled></b-form-input>
-          <b-button @click="goTo(p)">Go to</b-button>
-          <b-button @click="remove(index)" variant="danger">Remove</b-button>
-        </b-input-group>
+    <b-row v-for="(p, index) in positions" :key="'pos' + index">
+      <b-col md="8">
+        <b-form-input :value="p" disabled></b-form-input>
+      </b-col>
+      <b-col md="2">
+        <b-button @click="goTo(p)">Go to</b-button>
+      </b-col>
+      <b-col md="2">
+        <b-button @click="remove(index)" variant="danger">Remove</b-button>
       </b-col>
     </b-row>
     <b-input-group>
       <b-form-input :value="currentPosition" disabled></b-form-input>
-      <b-button @click="addPosition()" variant="success">Add position</b-button>
+      <b-button @click="addPosition()" variant="success"
+        >&#x2B; Add position</b-button
+      >
     </b-input-group>
   </b-container>
 </template>
@@ -67,7 +71,11 @@ export default {
       this.positions.push(position)
     },
     saveSequence() {
-      this.$store.saveSequence()
+      this.$store.addSequence({
+        name: this.sequenceName,
+        data: [...this.positions]
+      })
+      this.sequenceName = ''
       this.positions.splice(0)
     }
   }

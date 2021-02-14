@@ -44,8 +44,8 @@ export default Vue.observable({
           max: SHOULDER_MAX_STEPS,
           stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
           mesh: null,
-          inverted: false,
-          rotationAxis: 'x'
+          inverted: true,
+          rotationAxis: 'z'
         },
         {
           name: 'elbow',
@@ -55,8 +55,8 @@ export default Vue.observable({
           max: ELBOW_MAX_STEPS,
           stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
           mesh: null,
-          inverted: false,
-          rotationAxis: 'x'
+          inverted: true,
+          rotationAxis: 'z'
         },
         {
           name: 'wristRotate',
@@ -66,7 +66,7 @@ export default Vue.observable({
           max: WRIST_ROTATE_MAX_STEPS,
           stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
           mesh: null,
-          inverted: false,
+          inverted: true,
           rotationAxis: 'y'
         },
         {
@@ -77,8 +77,8 @@ export default Vue.observable({
           max: WRIST_MAX_STEPS,
           stepsPerDegree: WRIST_STEPS_PER_DEGREE,
           mesh: null,
-          inverted: true,
-          rotationAxis: 'x'
+          inverted: false,
+          rotationAxis: 'z'
         }
       ],
       gripper: {
@@ -88,7 +88,8 @@ export default Vue.observable({
         min: GRIPPER_MIN_POSITION,
         max: GRIPPER_MAX_POSITION,
         mesh: null
-      }
+      },
+      preview: false
     }
   },
   home() {
@@ -152,6 +153,11 @@ export default Vue.observable({
   addSequence(sequence) {
     if (!sequence) return
     this.state.sequences.push(sequence)
+    this.saveSequences()
+  },
+  removeSequence(index) {
+    if (index < 0 && index > this.state.sequences.length - 1) return
+    this.state.sequences.splice(index, 1)
     this.saveSequences()
   }
 })
