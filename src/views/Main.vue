@@ -8,7 +8,7 @@
         >
       </b-col>
     </b-row>
-    <div v-show="isConnected">
+    <div v-if="isConnected">
       <b-row>
         <b-col class="p-lg-5" md="12" lg="6">
           <Model />

@@ -29,6 +29,8 @@ export default Vue.observable({
           name: 'base',
           position: 0,
           target: 0,
+          speed: 100,
+          acceleration: 100,
           min: BASE_MIN_STEPS,
           max: BASE_MAX_STEPS,
           stepsPerDegree: BASE_STEPS_PER_DEGREE,
@@ -40,6 +42,8 @@ export default Vue.observable({
           name: 'shoulder',
           position: 0,
           target: 0,
+          speed: 100,
+          acceleration: 100,
           min: SHOULDER_MIN_STEPS,
           max: SHOULDER_MAX_STEPS,
           stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
@@ -51,6 +55,8 @@ export default Vue.observable({
           name: 'elbow',
           position: 0,
           target: 0,
+          speed: 100,
+          acceleration: 100,
           min: ELBOW_MIN_STEPS,
           max: ELBOW_MAX_STEPS,
           stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
@@ -62,6 +68,8 @@ export default Vue.observable({
           name: 'wristRotate',
           position: 0,
           target: 0,
+          speed: 100,
+          acceleration: 100,
           min: WRIST_ROTATE_MIN_STEPS,
           max: WRIST_ROTATE_MAX_STEPS,
           stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
@@ -73,6 +81,8 @@ export default Vue.observable({
           name: 'wrist',
           position: 0,
           target: 0,
+          speed: 100,
+          acceleration: 100,
           min: WRIST_MIN_STEPS,
           max: WRIST_MAX_STEPS,
           stepsPerDegree: WRIST_STEPS_PER_DEGREE,
@@ -84,21 +94,23 @@ export default Vue.observable({
       gripper: {
         name: 'gripper',
         position: 40,
-        target: 0,
+        target: 40,
+        enable: true,
         min: GRIPPER_MIN_POSITION,
         max: GRIPPER_MAX_POSITION,
         mesh: null
       },
-      preview: false
+      preview: false,
+      syncMotors: false
     }
   },
   home() {
     this.state.arm.joints.forEach(x => (x.target = 0))
     this.state.arm.gripper.target = GRIPPER_MIN_POSITION
   },
-  getTargetPositions() {
+  getJointsAttribute(attribute) {
     return this.state.arm.joints.reduce((curr, acc) => {
-      curr[acc.name] = parseFloat(acc.target)
+      curr[acc.name] = parseFloat(acc[attribute])
       return curr
     }, {})
   },

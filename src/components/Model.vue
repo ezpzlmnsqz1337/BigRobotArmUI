@@ -45,7 +45,7 @@ export default {
     }
   },
   destroyed() {
-    window.removeEventListener(EventType.WINDOW_RESIZE)
+    window.removeEventListener(EventType.WINDOW_RESIZE, this.handleResize)
   }
 }
 </script>

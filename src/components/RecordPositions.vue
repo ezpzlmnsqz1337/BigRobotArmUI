@@ -48,7 +48,7 @@ export default {
   },
   computed: {
     currentPosition() {
-      const p = this.$store.getTargetPositions()
+      const p = this.$store.getJointsAttribute('target')
       const g = this.$arm.gripper.target
       return `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
     },
@@ -65,7 +65,7 @@ export default {
       this.positions.splice(positionIndex, 1)
     },
     addPosition() {
-      const p = this.$store.getTargetPositions()
+      const p = this.$store.getJointsAttribute('target')
       const g = this.$arm.gripper.target
       const position = `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
       this.positions.push(position)
