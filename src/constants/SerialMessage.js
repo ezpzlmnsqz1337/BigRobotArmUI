@@ -1,5 +1,7 @@
 export default Object.freeze({
   POSITION: 'BigRobotArm::POSITION',
-  MOVE_TO: 'BigRobotArm::MOVE_TO',
+  GRIPPER: 'BigRobotArm::GRIPPER',
+  SYNC_MOTORS: 'BigRobotArm::SYNC-MOTORS',
+  MOVING_TO: 'BigRobotArm::MOVING-TO',
   READY: 'BigRobotArm::READY'
 })

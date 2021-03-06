@@ -39,8 +39,10 @@
           </b-button-group>
         </div>
       </b-list-group-item>
-      <b-button @click="play()" :disabled="disabled">Play</b-button>
-      <b-button @click="preview()">Preview</b-button>
+      <b-button-group>
+        <b-button @click="play()" :disabled="disabled">Play</b-button>
+        <b-button @click="preview()">Preview</b-button>
+      </b-button-group>
     </b-list-group>
     <!-- Edit sequence -->
     <b-container v-if="edit && editedSequence" class="__edit">

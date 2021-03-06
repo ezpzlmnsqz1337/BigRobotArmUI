@@ -114,6 +114,16 @@ export default {
           const positions = this.$store.parsePositionFromCommand(message)
           this.$store.setTargetPositions(positions)
         }
+      } else if (message.includes(SerialMessage.GRIPPER)) {
+        message = message
+          .split('\n')
+          .filter(x => x.includes(SerialMessage.GRIPPER))
+          .pop()
+        if (message) {
+          const gripper = this.$store.parseGripperFromCommand(message)
+          this.$store.setGripperEnabled(gripper.enabled)
+          this.$store.setGripperTargetPosition(gripper.target)
+        }
       }
     }
   }

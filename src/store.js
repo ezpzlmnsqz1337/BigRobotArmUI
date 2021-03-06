@@ -120,7 +120,12 @@ export default Vue.observable({
     this.getJointByName('elbow').target = positions[2].value
     this.getJointByName('wristRotate').target = positions[3].value
     this.getJointByName('wrist').target = positions[4].value
-    this.state.arm.gripper.target = positions[5].value
+  },
+  setGripperEnabled(enabled) {
+    this.state.arm.gripper.enable = enabled
+  },
+  setGripperTargetPosition(position) {
+    this.state.arm.gripper.target = position
   },
   getJointByName(name) {
     return this.state.arm.joints.find(x => x.name === name)
@@ -147,13 +152,18 @@ export default Vue.observable({
       {
         name: 'wrist',
         value: parseInt(command[5].substring(1))
-      },
-      {
-        name: 'gripper',
-        value: parseInt(command[6].substring(1))
       }
     ]
     return positions
+  },
+  parseGripperFromCommand(command) {
+    command = command.split(' ')
+    const enabled = parseInt(command[1].substring(1)) == 1 ? true : false
+    const gripper = {
+      enabled,
+      target: parseInt(command[2].substring(1))
+    }
+    return gripper
   },
   initSequences() {
     const seqs = localStorage.getItem('sequences')
