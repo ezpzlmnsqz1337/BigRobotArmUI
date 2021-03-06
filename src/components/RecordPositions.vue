@@ -1,6 +1,6 @@
 <template>
   <b-container fluid>
-    <h2>Record positions</h2>
+    <h2>Record commands</h2>
     <b-input-group>
       <b-form-input
         v-model="sequenceName"
@@ -13,23 +13,57 @@
         >&#x1F5AB; Save sequence</b-button
       >
     </b-input-group>
-    <b-row v-for="(p, index) in positions" :key="'pos' + index">
+    <b-row v-for="(p, index) in commands" :key="'pos' + index">
       <b-col md="8">
         <b-form-input :value="p" disabled></b-form-input>
       </b-col>
       <b-col md="2">
-        <b-button @click="goTo(p)">Go to</b-button>
+        <b-button @click="execute(p)">Execute</b-button>
       </b-col>
       <b-col md="2">
         <b-button @click="remove(index)" variant="danger">Remove</b-button>
       </b-col>
     </b-row>
     <b-input-group>
-      <b-form-input :value="currentPosition" disabled></b-form-input>
-      <b-button @click="addPosition()" variant="success"
-        >&#x2B; Add position</b-button
+      <label>Positions</label>
+      <b-form-input :value="currentPositions" disabled></b-form-input>
+      <b-button @click="addPositions()" variant="success"
+        >&#x2B; Add command</b-button
       >
     </b-input-group>
+
+    <b-input-group>
+      <label>Speeds</label>
+      <b-form-input :value="currentSpeeds" disabled></b-form-input>
+      <b-button @click="addSpeeds()" variant="success"
+        >&#x2B; Add command</b-button
+      >
+    </b-input-group>
+
+    <b-input-group>
+      <label>Accelerations</label>
+      <b-form-input :value="currentAccelerations" disabled></b-form-input>
+      <b-button @click="addAccelerations()" variant="success"
+        >&#x2B; Add command</b-button
+      >
+    </b-input-group>
+
+    <b-input-group>
+      <label>Sync motors</label>
+      <b-form-input :value="currentSyncMotors" disabled></b-form-input>
+      <b-button @click="addSyncMotors()" variant="success"
+        >&#x2B; Add command</b-button
+      >
+    </b-input-group>
+
+    <b-input-group>
+      <label>Gripper</label>
+      <b-form-input :value="currentGripper" disabled></b-form-input>
+      <b-button @click="addGripper()" variant="success"
+        >&#x2B; Add command</b-button
+      >
+    </b-input-group>
+    <b-button @click="addAll()" variant="success">&#x2B; Add all</b-button>
   </b-container>
 </template>
 
@@ -37,46 +71,79 @@
 import ws from '@/shared'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
+import Commands from '@/constants/Commands'
 
 export default {
   name: 'RecordPositions',
   data() {
     return {
       sequenceName: '',
-      positions: []
+      commands: []
     }
   },
   computed: {
-    currentPosition() {
+    currentPositions() {
       const p = this.$store.getJointsAttribute('target')
-      const g = this.$arm.gripper.target
-      return `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
+      return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+    },
+    currentSpeeds() {
+      const s = this.$store.getJointsAttribute('speed')
+      return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
+    },
+    currentAccelerations() {
+      const a = this.$store.getJointsAttribute('acceleration')
+      return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
+    },
+    currentSyncMotors() {
+      const sm = this.$arm.syncMotors ? 1 : 0
+      return `${Commands.SET_SYNC_MOTORS}${sm}`
+    },
+    currentGripper() {
+      const g = this.$arm.gripper
+      const enable = this.$arm.gripper.enable ? 1 : 0
+      return `${Commands.GRIPPER} E${enable} P${g.position}`
     },
     canSaveSequence() {
-      return Boolean(this.positions.length && this.sequenceName.length > 3)
+      return Boolean(this.commands.length && this.sequenceName.length > 3)
     }
   },
   methods: {
-    goTo(position) {
-      eb.emit(EventType.WS_MESSAGE_SEND, position)
-      if (ws) ws.send(position)
+    execute(command) {
+      eb.emit(EventType.WS_MESSAGE_SEND, command)
+      if (ws) ws.send(command)
     },
-    remove(positionIndex) {
-      this.positions.splice(positionIndex, 1)
+    remove(commandIndex) {
+      this.commands.splice(commandIndex, 1)
     },
-    addPosition() {
-      const p = this.$store.getJointsAttribute('target')
-      const g = this.$arm.gripper.target
-      const position = `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
-      this.positions.push(position)
+    addAll() {
+      this.addPositions()
+      this.addSpeeds()
+      this.addAccelerations()
+      this.addSyncMotors()
+      this.addGripper()
+    },
+    addPositions() {
+      this.commands.push(this.currentPositions)
+    },
+    addSpeeds() {
+      this.commands.push(this.currentSpeeds)
+    },
+    addAccelerations() {
+      this.commands.push(this.currentAccelerations)
+    },
+    addSyncMotors() {
+      this.commands.push(this.currentSyncMotors)
+    },
+    addGripper() {
+      this.commands.push(this.currentGripper)
     },
     saveSequence() {
       this.$store.addSequence({
         name: this.sequenceName,
-        data: [...this.positions]
+        data: [...this.commands]
       })
       this.sequenceName = ''
-      this.positions.splice(0)
+      this.commands.splice(0)
     }
   }
 }
