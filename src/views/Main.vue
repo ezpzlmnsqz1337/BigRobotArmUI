@@ -101,7 +101,10 @@ export default {
   },
   methods: {
     connect: function() {
-      if (ws) ws.send(WebsocketMessage.WS_CONNECT)
+      if (ws) {
+        ws.send(WebsocketMessage.WS_CONNECT)
+        ws.send(Commands.STATUS)
+      }
     },
     disconnect: function() {
       if (ws) ws.send(WebsocketMessage.WS_DISCONNECT)
