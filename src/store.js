@@ -114,6 +114,35 @@ export default Vue.observable({
       return curr
     }, {})
   },
+  getJointByName(name) {
+    return this.state.arm.joints.find(x => x.name === name)
+  },
+  parsePositionFromMessage(message) {
+    message = message.split(' ')
+    const positions = [
+      {
+        name: 'base',
+        value: parseInt(message[1].substring(1))
+      },
+      {
+        name: 'shoulder',
+        value: parseInt(message[2].substring(1))
+      },
+      {
+        name: 'elbow',
+        value: parseInt(message[3].substring(1))
+      },
+      {
+        name: 'wristRotate',
+        value: parseInt(message[4].substring(2))
+      },
+      {
+        name: 'wrist',
+        value: parseInt(message[5].substring(1))
+      }
+    ]
+    return positions
+  },
   setTargetPositions(positions) {
     this.getJointByName('base').target = positions[0].value
     this.getJointByName('shoulder').target = positions[1].value
@@ -121,49 +150,95 @@ export default Vue.observable({
     this.getJointByName('wristRotate').target = positions[3].value
     this.getJointByName('wrist').target = positions[4].value
   },
+  parseGripperFromMessage(message) {
+    message = message.split(' ')
+    const enabled = parseInt(message[1].substring(1)) == 1 ? true : false
+    const gripper = {
+      enabled,
+      target: parseInt(message[2].substring(1))
+    }
+    console.log(gripper.target)
+    return gripper
+  },
   setGripperEnabled(enabled) {
     this.state.arm.gripper.enable = enabled
   },
   setGripperTargetPosition(position) {
+    console.log('Position target: ', position)
     this.state.arm.gripper.target = position
   },
-  getJointByName(name) {
-    return this.state.arm.joints.find(x => x.name === name)
-  },
-  parsePositionFromCommand(command) {
-    command = command.split(' ')
-    const positions = [
+  parseSpeedsFromMessage(message) {
+    message = message.split(' ')
+    const speeds = [
       {
         name: 'base',
-        value: parseInt(command[1].substring(1))
+        value: parseInt(message[1].substring(1))
       },
       {
         name: 'shoulder',
-        value: parseInt(command[2].substring(1))
+        value: parseInt(message[2].substring(1))
       },
       {
         name: 'elbow',
-        value: parseInt(command[3].substring(1))
+        value: parseInt(message[3].substring(1))
       },
       {
         name: 'wristRotate',
-        value: parseInt(command[4].substring(2))
+        value: parseInt(message[4].substring(2))
       },
       {
         name: 'wrist',
-        value: parseInt(command[5].substring(1))
+        value: parseInt(message[5].substring(1))
       }
     ]
-    return positions
+    return speeds
   },
-  parseGripperFromCommand(command) {
-    command = command.split(' ')
-    const enabled = parseInt(command[1].substring(1)) == 1 ? true : false
-    const gripper = {
-      enabled,
-      target: parseInt(command[2].substring(1))
-    }
-    return gripper
+  setSpeeds(speeds) {
+    this.getJointByName('base').speed = speeds[0].value
+    this.getJointByName('shoulder').speed = speeds[1].value
+    this.getJointByName('elbow').speed = speeds[2].value
+    this.getJointByName('wristRotate').speed = speeds[3].value
+    this.getJointByName('wrist').speed = speeds[4].value
+  },
+  parseAccelerationsFromMessage(message) {
+    message = message.split(' ')
+    const accelerations = [
+      {
+        name: 'base',
+        value: parseInt(message[1].substring(1))
+      },
+      {
+        name: 'shoulder',
+        value: parseInt(message[2].substring(1))
+      },
+      {
+        name: 'elbow',
+        value: parseInt(message[3].substring(1))
+      },
+      {
+        name: 'wristRotate',
+        value: parseInt(message[4].substring(2))
+      },
+      {
+        name: 'wrist',
+        value: parseInt(message[5].substring(1))
+      }
+    ]
+    return accelerations
+  },
+  setAccelerations(accelerations) {
+    this.getJointByName('base').acceleration = accelerations[0].value
+    this.getJointByName('shoulder').acceleration = accelerations[1].value
+    this.getJointByName('elbow').acceleration = accelerations[2].value
+    this.getJointByName('wristRotate').acceleration = accelerations[3].value
+    this.getJointByName('wrist').acceleration = accelerations[4].value
+  },
+  parseSyncMotorsFromMessage(message) {
+    message = parseInt(message.split(' ')[1]) == 1 ? true : false
+    return message
+  },
+  setSyncMotors(syncMotors) {
+    this.state.arm.syncMotors = syncMotors
   },
   initSequences() {
     const seqs = localStorage.getItem('sequences')

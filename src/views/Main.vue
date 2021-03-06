@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import ws from '@/shared'
+import Commands from '@/constants/Commands'
 import Terminal from '@/components/Terminal'
 import ManualControl from '@/components/ManualControl'
 import Sequences from '@/components/Sequences'
@@ -58,6 +58,7 @@ import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
 import WebsocketMessage from '@/constants/WebsocketMessage'
 import SerialMessage from '@/constants/SerialMessage'
+import ws from '@/shared'
 
 export default {
   name: 'Main',
@@ -79,9 +80,11 @@ export default {
     }
   },
   created() {
+    // const mh = new MessageHandler()
+    // mh.init()
     if (!ws) return
     ws.onopen = () => {
-      if (ws) ws.send('connected')
+      if (ws) ws.send(Commands.STATUS)
     }
 
     ws.onmessage = event => {
@@ -106,25 +109,57 @@ export default {
     handleMessage(message) {
       console.log(message)
       if (message.includes(SerialMessage.POSITION)) {
-        message = message
-          .split('\n')
-          .filter(x => x.includes(SerialMessage.POSITION))
-          .pop()
-        if (message) {
-          const positions = this.$store.parsePositionFromCommand(message)
-          this.$store.setTargetPositions(positions)
-        }
-      } else if (message.includes(SerialMessage.GRIPPER)) {
-        message = message
-          .split('\n')
-          .filter(x => x.includes(SerialMessage.GRIPPER))
-          .pop()
-        if (message) {
-          const gripper = this.$store.parseGripperFromCommand(message)
-          this.$store.setGripperEnabled(gripper.enabled)
-          this.$store.setGripperTargetPosition(gripper.target)
-        }
+        this.handlePositions(message)
       }
+      if (message.includes(SerialMessage.GRIPPER)) {
+        this.handleGripper(message)
+      }
+      if (message.includes(SerialMessage.SPEED)) {
+        this.handleSpeed(message)
+      }
+      if (message.includes(SerialMessage.ACCELERATION)) {
+        this.handleAcceleration(message)
+      }
+      if (message.includes(SerialMessage.SYNC_MOTORS)) {
+        this.handleSyncMotors(message)
+      }
+    },
+    handlePositions(message) {
+      message = this.getMessageRow(message, SerialMessage.POSITION)
+      if (!message) return
+      const positions = this.$store.parsePositionFromMessage(message)
+      this.$store.setTargetPositions(positions)
+    },
+    handleGripper(message) {
+      message = this.getMessageRow(message, SerialMessage.GRIPPER)
+      if (!message) return
+      const gripper = this.$store.parseGripperFromMessage(message)
+      this.$store.setGripperEnabled(gripper.enabled)
+      this.$store.setGripperTargetPosition(gripper.target)
+    },
+    handleSpeed(message) {
+      message = this.getMessageRow(message, SerialMessage.SPEED)
+      if (!message) return
+      const speeds = this.$store.parseSpeedsFromMessage(message)
+      this.$store.setSpeeds(speeds)
+    },
+    handleAcceleration(message) {
+      message = this.getMessageRow(message, SerialMessage.ACCELERATION)
+      if (!message) return
+      const accelerations = this.$store.parseAccelerationsFromMessage(message)
+      this.$store.setAccelerations(accelerations)
+    },
+    handleSyncMotors(message) {
+      message = this.getMessageRow(message, SerialMessage.SYNC_MOTORS)
+      if (!message) return
+      const syncMotors = this.$store.parseSyncMotorsFromMessage(message)
+      this.$store.setSyncMotors(syncMotors)
+    },
+    getMessageRow(message, type) {
+      return message
+        .split('\n')
+        .filter(x => x.includes(type))
+        .pop()
     }
   }
 }

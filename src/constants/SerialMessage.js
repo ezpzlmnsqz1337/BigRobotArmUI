@@ -3,5 +3,7 @@ export default Object.freeze({
   GRIPPER: 'BigRobotArm::GRIPPER',
   SYNC_MOTORS: 'BigRobotArm::SYNC-MOTORS',
   MOVING_TO: 'BigRobotArm::MOVING-TO',
-  READY: 'BigRobotArm::READY'
+  READY: 'BigRobotArm::READY',
+  SPEED: 'BigRobotArm::SPEED',
+  ACCELERATION: 'BigRobotArm::ACCELERATION'
 })

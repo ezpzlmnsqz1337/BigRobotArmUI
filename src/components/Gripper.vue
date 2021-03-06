@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import Commands from '@/constants/Commands'
 import ws from '@/shared'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
@@ -45,7 +46,7 @@ export default {
     sendCommand() {
       const p = this.gripper.target
       const e = this.gripper.enable ? 1 : 0
-      const command = `G1 E${e} P${p}`
+      const command = `${Commands.GRIPPER} E${e} P${p}`
       eb.emit(EventType.WS_MESSAGE_SEND, command)
       if (ws) ws.send(command)
     }

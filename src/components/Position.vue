@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import Commands from '@/constants/Commands'
 import ws from '@/shared'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
@@ -51,18 +52,18 @@ export default {
       console.log('Speeds: ', this.$store.getJointsAttribute('target'))
       const p = this.$store.getJointsAttribute('target')
       const g = this.$arm.gripper.target
-      const command = `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
+      const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
       eb.emit(EventType.WS_MESSAGE_SEND, command)
       if (ws) ws.send(command)
     },
     sendHomeCommand() {
-      const command = 'G28'
+      const command = Commands.HOME
       eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
       if (ws) ws.send(command)
     },
     setZeroPosition() {
-      const command = 'G92'
+      const command = Commands.RESET_POSITION
       eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
       if (ws) ws.send(command)

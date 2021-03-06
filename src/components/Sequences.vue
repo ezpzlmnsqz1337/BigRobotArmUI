@@ -133,7 +133,7 @@ export default {
         this.$arm.preview = false
       } else {
         this.$arm.preview = true
-        const positions = this.$store.parsePositionFromCommand(command)
+        const positions = this.$store.parsePositionFromMessage(command)
         this.$store.setTargetPositions(positions)
       }
     },

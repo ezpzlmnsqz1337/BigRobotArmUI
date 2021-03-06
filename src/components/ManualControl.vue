@@ -19,9 +19,6 @@
 </template>
 
 <script>
-import ws from '@/shared'
-import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
 import Acceleration from '@/components/Acceleration'
 import Speed from '@/components/Speed'
 import Position from '@/components/Position'
@@ -34,34 +31,6 @@ export default {
     Acceleration,
     Position,
     Gripper
-  },
-  data() {
-    return {
-      joints: this.$arm.joints,
-      gripper: this.$arm.gripper
-    }
-  },
-  methods: {
-    sendCommand() {
-      console.log('Speeds: ', this.$store.getJointsAttribute('target'))
-      const p = this.$store.getJointsAttribute('target')
-      const g = this.$arm.gripper.target
-      const command = `G0 B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
-    },
-    sendHomeCommand() {
-      const command = 'G28'
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      this.$store.home()
-      if (ws) ws.send(command)
-    },
-    setZeroPosition() {
-      const command = 'G92'
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      this.$store.home()
-      if (ws) ws.send(command)
-    }
   }
 }
 </script>
