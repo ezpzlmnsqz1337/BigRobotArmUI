@@ -19,6 +19,7 @@
                 min="1"
                 max="500"
                 step="1"
+                :disabled="!ready"
               />
             </b-col>
           </b-row>
@@ -33,30 +34,22 @@
 
 <script>
 import Commands from '@/constants/Commands'
-import ws from '@/shared'
-import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Speed',
-  data() {
-    return {
-      joints: this.$arm.joints
-    }
-  },
+  mixins: [arm],
   methods: {
     sendCommand() {
       console.log('Speeds: ', this.$store.getJointsAttribute('speed'))
       const p = this.$store.getJointsAttribute('speed')
       const command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     },
     sendSyncMotorsCommand() {
       const sync = this.$arm.syncMotors ? 1 : 0
       const command = `${Commands.SET_SYNC_MOTORS}${sync}`
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     }
   }
 }

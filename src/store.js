@@ -101,7 +101,8 @@ export default Vue.observable({
         mesh: null
       },
       preview: false,
-      syncMotors: false
+      syncMotors: false,
+      ready: false
     }
   },
   home() {
@@ -256,5 +257,11 @@ export default Vue.observable({
     if (index < 0 && index > this.state.sequences.length - 1) return
     this.state.sequences.splice(index, 1)
     this.saveSequences()
+  },
+  busy() {
+    this.state.arm.ready = false
+  },
+  ready() {
+    this.state.arm.ready = true
   }
 })

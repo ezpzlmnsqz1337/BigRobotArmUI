@@ -68,13 +68,12 @@
 </template>
 
 <script>
-import ws from '@/shared'
-import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
 import Commands from '@/constants/Commands'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'RecordPositions',
+  mixins: [arm],
   data() {
     return {
       sequenceName: '',
@@ -109,8 +108,7 @@ export default {
   },
   methods: {
     execute(command) {
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     },
     remove(commandIndex) {
       this.commands.splice(commandIndex, 1)

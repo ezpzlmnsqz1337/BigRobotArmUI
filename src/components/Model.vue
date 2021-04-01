@@ -11,20 +11,18 @@
 
 <script>
 import { Arm } from '@/helpers/Arm'
-import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
-import SerialMessage from '@/constants/SerialMessage'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Model',
+  mixins: [arm],
   data() {
     return {
-      arm: null,
-      joints: this.$arm.joints
+      arm: null
     }
   },
   created: function() {
-    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
     this.$store.initSequences()
   },
@@ -32,9 +30,6 @@ export default {
     setTimeout(() => this.setupModel(), 500)
   },
   methods: {
-    handleMessage(message) {
-      if (message.includes(SerialMessage.READY)) this.disabled = false
-    },
     handleResize() {
       if (this.arm) this.arm.handleResize()
     },

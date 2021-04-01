@@ -17,6 +17,7 @@
                 @change="sendCommand()"
                 :min="j.min"
                 :max="j.max"
+                :disabled="!ready"
               />
             </b-col>
           </b-row>
@@ -26,8 +27,12 @@
     <b-row>
       <b-col>
         <b-form-group>
-          <b-button size="large" @click="setZeroPosition()">Set zero</b-button>
-          <b-button size="large" @click="sendHomeCommand()">Home</b-button>
+          <b-button size="large" @click="setZeroPosition()" :disabled="!ready"
+            >Set zero</b-button
+          >
+          <b-button size="large" @click="sendHomeCommand()" :disabled="!ready"
+            >Home</b-button
+          >
         </b-form-group>
       </b-col>
     </b-row>
@@ -36,37 +41,28 @@
 
 <script>
 import Commands from '@/constants/Commands'
-import ws from '@/shared'
-import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Position',
-  data() {
-    return {
-      joints: this.$arm.joints
-    }
-  },
+  mixins: [arm],
   methods: {
     sendCommand() {
       console.log('Speeds: ', this.$store.getJointsAttribute('target'))
       const p = this.$store.getJointsAttribute('target')
       const g = this.$arm.gripper.target
       const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     },
     sendHomeCommand() {
       const command = Commands.HOME
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     },
     setZeroPosition() {
       const command = Commands.RESET_POSITION
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
       this.$store.home()
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     }
   }
 }

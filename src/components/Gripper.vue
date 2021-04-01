@@ -17,8 +17,12 @@
                 @change="sendCommand()"
                 :min="gripper.min"
                 :max="gripper.max"
+                :disabled="!ready"
               />
-              <b-checkbox v-model="gripper.enable" @change="sendCommand()"
+              <b-checkbox
+                v-model="gripper.enable"
+                @change="sendCommand()"
+                :disabled="!ready"
                 >Enabled</b-checkbox
               >
             </b-col>
@@ -31,24 +35,17 @@
 
 <script>
 import Commands from '@/constants/Commands'
-import ws from '@/shared'
-import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Gripper',
-  data() {
-    return {
-      gripper: this.$arm.gripper
-    }
-  },
+  mixins: [arm],
   methods: {
     sendCommand() {
       const p = this.gripper.target
       const e = this.gripper.enable ? 1 : 0
       const command = `${Commands.GRIPPER} E${e} P${p}`
-      eb.emit(EventType.WS_MESSAGE_SEND, command)
-      if (ws) ws.send(command)
+      this.sendCommandToArm(command)
     }
   }
 }

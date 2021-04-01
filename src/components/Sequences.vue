@@ -40,7 +40,7 @@
         </div>
       </b-list-group-item>
       <b-button-group>
-        <b-button @click="play()" :disabled="disabled">Play</b-button>
+        <b-button @click="play()" :disabled="!ready">Play</b-button>
         <b-button @click="preview()">Preview</b-button>
       </b-button-group>
     </b-list-group>
@@ -86,20 +86,17 @@
 </template>
 
 <script>
-import ws from '@/shared'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
-import SerialMessage from '@/constants/SerialMessage'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Sequences',
+  mixins: [arm],
   data() {
     return {
       sequences: this.$store.state.sequences,
       selected: 0,
-      disabled: true,
-      joints: this.$arm.joints,
-      gripper: this.$arm.gripper,
       previewQueue: [],
       previewSpeed: 5,
       edit: false,
@@ -107,7 +104,6 @@ export default {
     }
   },
   created: function() {
-    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
     eb.on(EventType.ARM_IN_POSITION, () =>
       this.previewCommand(this.previewQueue.shift())
     )
@@ -121,7 +117,6 @@ export default {
     play() {
       const sequence = this.sequences[this.selected].data
       sequence.forEach(x => this.sendCommand(x))
-      this.disabled = true
     },
     preview() {
       this.previewQueue = this.sequences[this.selected].data.map(x => x)
@@ -138,10 +133,7 @@ export default {
       }
     },
     sendCommand(command) {
-      if (ws) ws.send(command)
-    },
-    handleMessage(message) {
-      if (message.includes(SerialMessage.READY)) this.disabled = false
+      this.sendCommandToArm(command)
     },
     setPreviewSpeed() {
       eb.emit(EventType.SET_PREVIEW_SPEED, parseFloat(this.previewSpeed) / 1000)

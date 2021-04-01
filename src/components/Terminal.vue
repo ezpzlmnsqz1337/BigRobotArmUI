@@ -15,7 +15,7 @@
             v-model="command"
             v-on:keyup.native.enter="sendCommand()"
           ></b-form-input>
-          <b-button @click="sendCommand()" :disabled="disabled">Send</b-button>
+          <b-button @click="sendCommand()" :disabled="!ready">Send</b-button>
           <b-button @click="scrollToBottom()" :pressed.sync="autoscroll"
             >Autoscroll</b-button
           >
@@ -26,16 +26,15 @@
 </template>
 
 <script>
-import ws from '@/shared'
 import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
-import SerialMessage from '@/constants/SerialMessage'
+import arm from '@/mixins/arm.mixin'
 
 export default {
   name: 'Terminal',
+  mixins: [arm],
   data() {
     return {
-      disabled: true,
       serialOutput: '',
       command: '',
       autoscroll: true
@@ -53,18 +52,14 @@ export default {
         const textarea = this.$refs.terminal.$el
         setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
       }
-      if (send) this.disabled = true
     },
     sendCommand() {
       if (!this.command.length) return
 
-      if (ws) ws.send(`${this.command}\r`)
-      this.addMessage(this.command)
+      this.sendCommandToArm(this.command)
       this.command = ''
-      this.disabled = true
     },
     handleMessage(message) {
-      if (message.includes(SerialMessage.READY)) this.disabled = false
       this.addMessage(message, false)
     },
     scrollToBottom() {

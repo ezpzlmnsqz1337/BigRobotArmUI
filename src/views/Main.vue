@@ -58,10 +58,12 @@ import eb from '@/EventBus'
 import EventType from '@/constants/types/EventType'
 import WebsocketMessage from '@/constants/WebsocketMessage'
 import SerialMessage from '@/constants/SerialMessage'
+import arm from '@/mixins/arm.mixin'
 import ws from '@/shared'
 
 export default {
   name: 'Main',
+  mixins: [arm],
   components: {
     ManualControl,
     Terminal,
@@ -80,13 +82,6 @@ export default {
     }
   },
   created() {
-    // const mh = new MessageHandler()
-    // mh.init()
-    if (!ws) return
-    ws.onopen = () => {
-      if (ws) ws.send(Commands.STATUS)
-    }
-
     ws.onmessage = event => {
       console.log('Response from server: ', event.data)
 
@@ -101,31 +96,25 @@ export default {
   },
   methods: {
     connect: function() {
-      if (ws) {
+      {
         ws.send(WebsocketMessage.WS_CONNECT)
         ws.send(Commands.STATUS)
       }
     },
     disconnect: function() {
-      if (ws) ws.send(WebsocketMessage.WS_DISCONNECT)
+      ws.send(WebsocketMessage.WS_DISCONNECT)
     },
     handleMessage(message) {
       console.log(message)
-      if (message.includes(SerialMessage.POSITION)) {
+      if (message.includes(SerialMessage.READY)) this.$store.ready()
+      if (message.includes(SerialMessage.POSITION))
         this.handlePositions(message)
-      }
-      if (message.includes(SerialMessage.GRIPPER)) {
-        this.handleGripper(message)
-      }
-      if (message.includes(SerialMessage.SPEED)) {
-        this.handleSpeed(message)
-      }
-      if (message.includes(SerialMessage.ACCELERATION)) {
+      if (message.includes(SerialMessage.GRIPPER)) this.handleGripper(message)
+      if (message.includes(SerialMessage.SPEED)) this.handleSpeed(message)
+      if (message.includes(SerialMessage.ACCELERATION))
         this.handleAcceleration(message)
-      }
-      if (message.includes(SerialMessage.SYNC_MOTORS)) {
+      if (message.includes(SerialMessage.SYNC_MOTORS))
         this.handleSyncMotors(message)
-      }
     },
     handlePositions(message) {
       message = this.getMessageRow(message, SerialMessage.POSITION)
