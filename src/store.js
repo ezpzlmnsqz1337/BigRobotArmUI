@@ -158,14 +158,12 @@ export default Vue.observable({
       enabled,
       target: parseInt(message[2].substring(1))
     }
-    console.log(gripper.target)
     return gripper
   },
   setGripperEnabled(enabled) {
     this.state.arm.gripper.enable = enabled
   },
   setGripperTargetPosition(position) {
-    console.log('Position target: ', position)
     this.state.arm.gripper.target = position
   },
   parseSpeedsFromMessage(message) {

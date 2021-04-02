@@ -38,7 +38,6 @@ export default {
   mixins: [arm],
   methods: {
     sendCommand() {
-      console.log('Speeds: ', this.$store.getJointsAttribute('acceleration'))
       const p = this.$store.getJointsAttribute('acceleration')
       const command = `${Commands.SET_ACCELERATIONS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
       this.sendCommandToArm(command)

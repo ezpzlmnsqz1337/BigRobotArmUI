@@ -158,7 +158,7 @@ export class Arm {
     const center = new THREE.Vector3()
     new THREE.Box3().setFromObject(arm).getCenter(center)
     this.camera.lookAt(center)
-    console.log(arm)
+    // console.log(arm)
   }
 
   setupShafts() {

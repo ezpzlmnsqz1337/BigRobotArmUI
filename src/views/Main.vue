@@ -105,7 +105,6 @@ export default {
       ws.send(WebsocketMessage.WS_DISCONNECT)
     },
     handleMessage(message) {
-      console.log(message)
       if (message.includes(SerialMessage.READY)) this.$store.ready()
       if (message.includes(SerialMessage.POSITION))
         this.handlePositions(message)

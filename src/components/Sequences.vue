@@ -123,7 +123,6 @@ export default {
       this.previewCommand(this.previewQueue.shift())
     },
     previewCommand(command) {
-      console.log('Comm: ', command)
       if (!command) {
         this.$arm.preview = false
       } else {
