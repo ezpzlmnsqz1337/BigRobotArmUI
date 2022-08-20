@@ -32,25 +32,25 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import arm from '@/mixins/arm.mixin'
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Command } from '@/store'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Speed',
-  mixins: [arm],
-  methods: {
-    sendCommand() {
-      console.log('Speeds: ', this.$store.getJointsAttribute('speed'))
-      const p = this.$store.getJointsAttribute('speed')
-      const command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
-      this.sendCommandToArm(command)
-    },
-    sendSyncMotorsCommand() {
-      const sync = this.$arm.syncMotors ? 1 : 0
-      const command = `${Commands.SET_SYNC_MOTORS}${sync}`
-      this.sendCommandToArm(command)
-    }
+@Component
+export default class Speed extends ArmMixin {
+  sendCommand() {
+    console.log('Speeds: ', this.$store.getJointsAttribute('speed'))
+    const p = this.$store.getJointsAttribute('speed')
+    const command: Command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+    this.sendCommandToArm(command)
+  }
+
+  sendSyncMotorsCommand() {
+    const sync = this.$arm.syncMotors ? 1 : 0
+    const command: Command = `${Commands.SET_SYNC_MOTORS}${sync}`
+    this.sendCommandToArm(command)
   }
 }
 </script>

@@ -1,14 +1,31 @@
 import * as THREE from 'three'
-import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import Stats from 'three/examples/jsm/libs/stats.module.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
+import { Joint, RobotArmData } from '@/store'
+import { Camera, Mesh, PerspectiveCamera, Renderer, Scene } from 'three'
+
+type InPosition = Record<string, boolean>
+type RotationAxis = 'x' | 'y' | 'z'
 
 export class Arm {
-  constructor(el, arm) {
+  protected el: HTMLElement
+  protected scene: Scene | null = null
+  protected camera: PerspectiveCamera | null = null
+  protected renderer: Renderer | null = null
+  protected stats: Stats | null = null
+  protected controls: OrbitControls | null = null
+
+  protected inPosition: InPosition
+  protected firedInPosition = false
+  protected previewSpeed = 0.005
+  protected arm: RobotArmData
+
+  constructor(el: HTMLElement, arm: RobotArmData) {
     this.el = el
     this.scene = null
     this.camera = null
@@ -16,13 +33,10 @@ export class Arm {
     this.stats = null
     this.controls = null
 
-    this.inPosition = arm.joints.reduce((prev, next) => {
+    this.inPosition = arm.joints.reduce((prev: InPosition, next) => {
       prev[next.name] = true
       return prev
     }, {})
-
-    this.firedInPosition = false
-    this.previewSpeed = 0.005
 
     this.arm = arm
   }
@@ -39,6 +53,8 @@ export class Arm {
   }
 
   animate() {
+    if (!this.renderer || !this.scene || !this.camera) return
+
     requestAnimationFrame(this.animate.bind(this))
 
     this.arm.joints.forEach(x => this.handleJoint(x))
@@ -47,15 +63,17 @@ export class Arm {
   }
 
   handleResize() {
+    if (!this.renderer || !this.camera) return
+
     this.camera.aspect = this.el.offsetWidth / this.el.offsetHeight
     this.camera.updateProjectionMatrix()
 
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
   }
 
-  handleJoint(joint) {
+  handleJoint(joint: Joint) {
     if (joint.mesh) {
-      const rAxis = joint.rotationAxis
+      const rAxis = joint.rotationAxis as RotationAxis
       const position = parseFloat(joint.mesh.rotation[rAxis].toFixed(2))
 
       let target = (joint.target / joint.stepsPerDegree) * (Math.PI / 180)
@@ -87,7 +105,7 @@ export class Arm {
     return !Object.values(this.inPosition).includes(false)
   }
 
-  mapAngle(value, x1, y1, x2, y2) {
+  mapAngle(value: number, x1: number, y1: number, x2: number, y2: number) {
     return parseFloat((((value - x1) * (y2 - x2)) / (y1 - x1) + x2).toFixed(2))
   }
 
@@ -115,14 +133,16 @@ export class Arm {
   }
 
   setupStats() {
-    this.stats = new Stats()
-    this.stats.dom.height = '48px'
+    this.stats = Stats()
+    this.stats.dom.style.height = '48px'
     // [].forEach.call(
     //   this.stats.dom.children,
     //   child => (child.style.display = '')
     // )
   }
   setupControls() {
+    if (!this.renderer || !this.camera) return
+
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.autoRotate = false
     this.controls.autoRotateSpeed = -10
@@ -140,6 +160,7 @@ export class Arm {
     gltfLoader.load(
       require('@/assets/models/BigRobotArmWebCompressed.glb'),
       gltf => {
+        if (!this.scene) return
         this.scene.add(gltf.scene)
         // console.log(this.scene, gltf)
         gltf.scene.name = 'BigRobotArm'
@@ -154,7 +175,10 @@ export class Arm {
   }
 
   centerCamera() {
+    if (!this.scene || !this.camera) return
+
     const arm = this.scene.getObjectByName('BigRobotArm')
+    if (!arm) return
     const center = new THREE.Vector3()
     new THREE.Box3().setFromObject(arm).getCenter(center)
     this.camera.lookAt(center)
@@ -162,21 +186,23 @@ export class Arm {
   }
 
   setupShafts() {
+    if (!this.scene || !this.camera) return
+
     this.arm.joints.find(
       x => x.name === 'base'
-    ).mesh = this.scene.getObjectByName('ShaftBase')
+    )!.mesh = this.scene.getObjectByName('ShaftBase')
     this.arm.joints.find(
       x => x.name === 'shoulder'
-    ).mesh = this.scene.getObjectByName('ShaftShoulder')
+    )!.mesh = this.scene.getObjectByName('ShaftShoulder')
     this.arm.joints.find(
       x => x.name === 'elbow'
-    ).mesh = this.scene.getObjectByName('ShaftElbow')
+    )!.mesh = this.scene.getObjectByName('ShaftElbow')
     this.arm.joints.find(
       x => x.name === 'wristRotate'
-    ).mesh = this.scene.getObjectByName('ShaftWristRotate')
+    )!.mesh = this.scene.getObjectByName('ShaftWristRotate')
     this.arm.joints.find(
       x => x.name === 'wrist'
-    ).mesh = this.scene.getObjectByName('ShaftWrist')
+    )!.mesh = this.scene.getObjectByName('ShaftWrist')
   }
 
   setPosition() {}

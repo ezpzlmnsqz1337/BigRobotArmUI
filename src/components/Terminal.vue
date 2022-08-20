@@ -1,6 +1,5 @@
 <template>
   <b-container fluid>
-    <h2>Terminal</h2>
     <b-row>
       <b-col class="my-auto controls">
         <b-textarea
@@ -25,49 +24,55 @@
   </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
-import arm from '@/mixins/arm.mixin'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Command, Message } from '@/store'
+import { BFormTextarea } from 'bootstrap-vue'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Terminal',
-  mixins: [arm],
-  data() {
-    return {
-      serialOutput: '',
-      command: '',
-      autoscroll: true
-    }
-  },
-  created: function() {
-    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.handleMessage(e))
+@Component
+export default class Terminal extends ArmMixin {
+  $refs!: {
+    terminal: BFormTextarea
+  }
+
+  serialOutput = ''
+  command: Command = ''
+  autoscroll = true
+  initialized = false
+
+  created() {
+    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.addMessage(e, false))
     eb.on(EventType.WS_MESSAGE_SEND, e => this.addMessage(e))
-  },
-  methods: {
-    addMessage(message, send = true) {
-      message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
-      this.serialOutput += message
-      if (this.autoscroll) {
-        const textarea = this.$refs.terminal.$el
-        setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
-      }
-    },
-    sendCommand() {
-      if (!this.command.length) return
+  }
 
-      this.sendCommandToArm(this.command)
-      this.command = ''
-    },
-    handleMessage(message) {
-      this.addMessage(message, false)
-    },
-    scrollToBottom() {
-      if (this.autoscroll) {
-        const textarea = this.$refs.terminal.$el
-        setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
-      }
-    }
+  mounted() {
+    if (!this.initialized) this.sendCommandToArm(Commands.STATUS)
+    this.initialized = true
+  }
+
+  addMessage(message: Message, send = true) {
+    if (!this.$store.state.connected) return
+    message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
+    this.serialOutput += message
+    this.scrollToBottom()
+  }
+
+  sendCommand() {
+    if (!this.command.length) return
+
+    this.sendCommandToArm(this.command)
+    this.command = ''
+  }
+
+  scrollToBottom() {
+    if (!this.$refs.terminal || !this.autoscroll) return
+
+    const textarea = this.$refs.terminal.$el
+    setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
   }
 }
 </script>

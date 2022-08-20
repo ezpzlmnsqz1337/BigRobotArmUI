@@ -20,7 +20,7 @@
                 :disabled="!ready"
               />
               <b-checkbox
-                v-model="gripper.enable"
+                v-model="gripper.enabled"
                 @change="sendCommand()"
                 :disabled="!ready"
                 >Enabled</b-checkbox
@@ -33,20 +33,16 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import arm from '@/mixins/arm.mixin'
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import ArmMixin from '@/mixins/ArmMixin.vue'
 
-export default {
-  name: 'Gripper',
-  mixins: [arm],
-  methods: {
-    sendCommand() {
-      const p = this.gripper.target
-      const e = this.gripper.enable ? 1 : 0
-      const command = `${Commands.GRIPPER} E${e} P${p}`
-      this.sendCommandToArm(command)
-    }
+export default class Gripper extends ArmMixin {
+  sendCommand() {
+    const p = this.gripper.target
+    const e = this.gripper.enabled ? 1 : 0
+    const command = `${Commands.GRIPPER} E${e} P${p}`
+    this.sendCommandToArm(command)
   }
 }
 </script>

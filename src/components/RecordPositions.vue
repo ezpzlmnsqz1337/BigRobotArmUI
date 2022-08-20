@@ -67,82 +67,90 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import arm from '@/mixins/arm.mixin'
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Command } from '@/store'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'RecordPositions',
-  mixins: [arm],
-  data() {
-    return {
-      sequenceName: '',
-      commands: []
-    }
-  },
-  computed: {
-    currentPositions() {
-      const p = this.$store.getJointsAttribute('target')
-      return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
-    },
-    currentSpeeds() {
-      const s = this.$store.getJointsAttribute('speed')
-      return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
-    },
-    currentAccelerations() {
-      const a = this.$store.getJointsAttribute('acceleration')
-      return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
-    },
-    currentSyncMotors() {
-      const sm = this.$arm.syncMotors ? 1 : 0
-      return `${Commands.SET_SYNC_MOTORS}${sm}`
-    },
-    currentGripper() {
-      const g = this.$arm.gripper
-      const enable = this.$arm.gripper.enable ? 1 : 0
-      return `${Commands.GRIPPER} E${enable} P${g.position}`
-    },
-    canSaveSequence() {
-      return Boolean(this.commands.length && this.sequenceName.length > 3)
-    }
-  },
-  methods: {
-    execute(command) {
-      this.sendCommandToArm(command)
-    },
-    remove(commandIndex) {
-      this.commands.splice(commandIndex, 1)
-    },
-    addAll() {
-      this.addPositions()
-      this.addSpeeds()
-      this.addAccelerations()
-      this.addSyncMotors()
-      this.addGripper()
-    },
-    addPositions() {
-      this.commands.push(this.currentPositions)
-    },
-    addSpeeds() {
-      this.commands.push(this.currentSpeeds)
-    },
-    addAccelerations() {
-      this.commands.push(this.currentAccelerations)
-    },
-    addSyncMotors() {
-      this.commands.push(this.currentSyncMotors)
-    },
-    addGripper() {
-      this.commands.push(this.currentGripper)
-    },
-    saveSequence() {
-      this.$store.addSequence({
-        name: this.sequenceName,
-        data: [...this.commands]
-      })
-      this.sequenceName = ''
-      this.commands.splice(0)
-    }
+@Component
+export default class RecordPositions extends ArmMixin {
+  sequenceName = ''
+  commands: Command[] = []
+
+  get currentPositions() {
+    const p = this.$store.getJointsAttribute('target')
+    return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+  }
+
+  get currentSpeeds() {
+    const s = this.$store.getJointsAttribute('speed')
+    return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
+  }
+
+  get currentAccelerations() {
+    const a = this.$store.getJointsAttribute('acceleration')
+    return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
+  }
+
+  get currentSyncMotors() {
+    const sm = this.$arm.syncMotors ? 1 : 0
+    return `${Commands.SET_SYNC_MOTORS}${sm}`
+  }
+
+  get currentGripper() {
+    const g = this.$arm.gripper
+    const enable = this.$arm.gripper.enabled ? 1 : 0
+    return `${Commands.GRIPPER} E${enable} P${g.position}`
+  }
+
+  get canSaveSequence() {
+    return Boolean(this.commands.length && this.sequenceName.length > 3)
+  }
+
+  execute(command: Command) {
+    this.sendCommandToArm(command)
+  }
+
+  remove(commandIndex: number) {
+    this.commands.splice(commandIndex, 1)
+  }
+
+  addAll() {
+    this.addPositions()
+    this.addSpeeds()
+    this.addAccelerations()
+    this.addSyncMotors()
+    this.addGripper()
+  }
+
+  addPositions() {
+    this.commands.push(this.currentPositions)
+  }
+
+  addSpeeds() {
+    this.commands.push(this.currentSpeeds)
+  }
+
+  addAccelerations() {
+    this.commands.push(this.currentAccelerations)
+  }
+
+  addSyncMotors() {
+    this.commands.push(this.currentSyncMotors)
+  }
+
+  addGripper() {
+    this.commands.push(this.currentGripper)
+  }
+
+  saveSequence() {
+    this.$store.addSequence({
+      name: this.sequenceName,
+      data: [...this.commands]
+    })
+    this.sequenceName = ''
+    this.commands.splice(0)
   }
 }
 </script>

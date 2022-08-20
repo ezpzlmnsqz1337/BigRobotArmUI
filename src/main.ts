@@ -5,12 +5,10 @@ import './plugins/bootstrap-vue'
 import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
-import store from './store'
+import { storePlugin } from './plugins/store-plugin'
 
 Vue.config.productionTip = false
-
-Vue.prototype.$store = store
-Vue.prototype.$arm = store.state.arm
+Vue.use(storePlugin)
 
 new Vue({
   router,

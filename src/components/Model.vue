@@ -9,36 +9,35 @@
   </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import { EventType } from '@/constants/types/EventType'
 import { Arm } from '@/helpers/Arm'
-import EventType from '@/constants/types/EventType'
-import arm from '@/mixins/arm.mixin'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Model',
-  mixins: [arm],
-  data() {
-    return {
-      arm: null
-    }
-  },
-  created: function() {
+@Component
+export default class Model extends ArmMixin {
+  arm!: Arm
+
+  created() {
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
     this.$store.initSequences()
-  },
-  mounted: function() {
+  }
+
+  mounted() {
     setTimeout(() => this.setupModel(), 500)
-  },
-  methods: {
-    handleResize() {
-      if (this.arm) this.arm.handleResize()
-    },
-    setupModel() {
-      const armWrapper = this.$refs.armWrapper
-      this.arm = new Arm(armWrapper, this.$arm)
-      this.arm.init()
-    }
-  },
+  }
+
+  handleResize() {
+    if (this.arm) this.arm.handleResize()
+  }
+
+  setupModel() {
+    const armWrapper = this.$refs.armWrapper
+    this.arm = new Arm(armWrapper, this.$arm)
+    this.arm.init()
+  }
+
   destroyed() {
     window.removeEventListener(EventType.WINDOW_RESIZE, this.handleResize)
   }
