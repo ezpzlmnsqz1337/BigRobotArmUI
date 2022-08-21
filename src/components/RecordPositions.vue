@@ -79,17 +79,17 @@ export default class RecordPositions extends ArmMixin {
   commands: Command[] = []
 
   get currentPositions() {
-    const p = this.$store.getJointsAttribute('target')
+    const p = this.$store.getJointsAttribute('position', 'target')
     return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
   }
 
   get currentSpeeds() {
-    const s = this.$store.getJointsAttribute('speed')
+    const s = this.$store.getJointsAttribute('speed', 'value')
     return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
   }
 
   get currentAccelerations() {
-    const a = this.$store.getJointsAttribute('acceleration')
+    const a = this.$store.getJointsAttribute('acceleration', 'value')
     return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
   }
 
@@ -101,7 +101,7 @@ export default class RecordPositions extends ArmMixin {
   get currentGripper() {
     const g = this.$arm.gripper
     const enable = this.$arm.gripper.enabled ? 1 : 0
-    return `${Commands.GRIPPER} E${enable} P${g.position}`
+    return `${Commands.GRIPPER} E${enable} P${g.position.value}`
   }
 
   get canSaveSequence() {

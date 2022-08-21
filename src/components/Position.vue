@@ -2,26 +2,11 @@
   <b-container fluid>
     <b-row>
       <b-col class="my-auto controls">
-        <b-form-group v-for="j in joints" :key="j.name">
-          <label :for="j.name">{{ j.name }}</label>
-          <b-row>
-            <b-col md="12" lg="2">
-              <b-form-input disabled :value="j.target" />
-            </b-col>
-            <b-col md="12" lg="10">
-              <b-form-input
-                :id="j.name"
-                type="range"
-                :name="j.name"
-                v-model="j.target"
-                @change="sendCommand()"
-                :min="j.min"
-                :max="j.max"
-                :disabled="!ready"
-              />
-            </b-col>
-          </b-row>
-        </b-form-group>
+        <RangeSliders
+          valueName="position"
+          valueKey="target"
+          @on-change="sendCommand()"
+        />
       </b-col>
     </b-row>
     <b-row>
@@ -42,14 +27,19 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
+import RangeSliders from '@/components/RangeSliders.vue'
 import { Component } from 'vue-property-decorator'
 
-@Component
+@Component({
+  components: {
+    RangeSliders
+  }
+})
 export default class Position extends ArmMixin {
   sendCommand() {
-    const p = this.$store.getJointsAttribute('target')
-    const g = this.$arm.gripper.target
-    const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
+    const p = this.$store.getJointsAttribute('position', 'target')
+    console.log(p)
+    const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
     this.sendCommandToArm(command)
   }
 

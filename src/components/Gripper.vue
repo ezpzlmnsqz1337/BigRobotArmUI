@@ -6,14 +6,14 @@
           <label :for="gripper.name">{{ gripper.name }}</label>
           <b-row>
             <b-col md="12" lg="2">
-              <b-form-input disabled :value="gripper.target" />
+              <b-form-input disabled :value="gripper.position.target" />
             </b-col>
             <b-col md="12" lg="10">
               <b-form-input
                 :id="gripper.name"
                 type="range"
                 :name="gripper.name"
-                v-model="gripper.target"
+                v-model="gripper.position.target"
                 @change="sendCommand()"
                 :min="gripper.min"
                 :max="gripper.max"
@@ -39,7 +39,7 @@ import ArmMixin from '@/mixins/ArmMixin.vue'
 
 export default class Gripper extends ArmMixin {
   sendCommand() {
-    const p = this.gripper.target
+    const p = this.gripper.position.target
     const e = this.gripper.enabled ? 1 : 0
     const command = `${Commands.GRIPPER} E${e} P${p}`
     this.sendCommandToArm(command)

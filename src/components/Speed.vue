@@ -1,29 +1,8 @@
 <template>
   <b-container fluid>
-    <h2>Speed</h2>
     <b-row>
       <b-col class="my-auto controls">
-        <b-form-group v-for="j in joints" :key="j.name">
-          <label :for="j.name">{{ j.name }}</label>
-          <b-row>
-            <b-col md="12" lg="2">
-              <b-form-input disabled :value="j.speed" />
-            </b-col>
-            <b-col md="12" lg="10">
-              <b-form-input
-                :id="j.name"
-                type="range"
-                :name="j.name"
-                v-model="j.speed"
-                @change="sendCommand()"
-                min="1"
-                max="500"
-                step="1"
-                :disabled="!ready"
-              />
-            </b-col>
-          </b-row>
-        </b-form-group>
+        <RangeSliders valueName="speed" @on-change="sendCommand()" />
         <b-checkbox v-model="$arm.syncMotors" @change="sendSyncMotorsCommand()"
           >Sync motors</b-checkbox
         >
@@ -35,14 +14,18 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
+import RangeSliders from '@/components/RangeSliders.vue'
 import { Command } from '@/store'
 import { Component } from 'vue-property-decorator'
 
-@Component
+@Component({
+  components: {
+    RangeSliders
+  }
+})
 export default class Speed extends ArmMixin {
   sendCommand() {
-    console.log('Speeds: ', this.$store.getJointsAttribute('speed'))
-    const p = this.$store.getJointsAttribute('speed')
+    const p = this.$store.getJointsAttribute('speed', 'value')
     const command: Command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
     this.sendCommandToArm(command)
   }

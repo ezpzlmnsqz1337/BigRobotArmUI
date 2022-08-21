@@ -1,14 +1,19 @@
 <template>
   <b-container fluid class="text-center my-auto" style="height: 100%">
-    <h1>Big Robot Arm UI</h1>
-    <b-row v-show="!isConnected">
-      <b-col>
-        <b-button variant="success" size="lg" @click="connect()"
-          >Connect</b-button
-        >
-      </b-col>
-    </b-row>
-    <div v-if="isConnected">
+    <b-card
+      v-show="!isConnected"
+      header="Big Robot Arm UI"
+      class="text-center mx-auto mt-4"
+      style="max-width: 50vw;"
+    >
+      <b-button variant="success" @click="connect()" :disabled="isConnecting">
+        <b-spinner v-if="isConnecting" small variant="light"></b-spinner>
+        Connect</b-button
+      >
+    </b-card>
+    <div v-if="isConnected" class="mt-4">
+      <h1>Big Robot Arm UI</h1>
+      <b-button variant="danger" @click="disconnect()">Disconnect</b-button>
       <b-row>
         <b-col class="p-lg-5" md="12" lg="6">
           <Model />
@@ -36,15 +41,6 @@
           </b-row>
         </b-col>
       </b-row>
-      <br />
-      <b-row>
-        <b-col>
-          <b-button variant="danger" size="lg" @click="disconnect()"
-            >Disconnect</b-button
-          >
-        </b-col>
-      </b-row>
-      <br />
     </div>
   </b-container>
 </template>
@@ -61,7 +57,6 @@ import { EventType } from '@/constants/types/EventType'
 import { WebsocketMessage } from '@/constants/WebsocketMessage'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-
 import ws from '@/shared'
 import { MessageRow } from '@/store'
 import { Component } from 'vue-property-decorator'
@@ -76,6 +71,8 @@ import { Component } from 'vue-property-decorator'
   }
 })
 export default class Main extends ArmMixin {
+  isConnecting = false
+
   get isConnected(): boolean {
     return this.$store.state.connected
   }
@@ -85,9 +82,9 @@ export default class Main extends ArmMixin {
       console.log('Response from server: ', event.data)
 
       if (event.data.includes('connectionStatus')) {
-        this.$store.setConnectionStatus(
-          parseInt(event.data.split(':')[1]) === 1
-        )
+        const connectionStatus = parseInt(event.data.split(':')[1]) === 1
+        this.$store.setConnectionStatus(connectionStatus)
+        if (connectionStatus) this.isConnecting = false
       } else {
         this.handleMessage(event.data)
       }
@@ -97,6 +94,7 @@ export default class Main extends ArmMixin {
   }
 
   connect() {
+    this.isConnecting = true
     ws.send(WebsocketMessage.WS_CONNECT)
     ws.send(Commands.STATUS)
   }
@@ -164,4 +162,4 @@ export default class Main extends ArmMixin {
 }
 </script>
 
-<style></style>
+<style scoped lang="scss"></style>

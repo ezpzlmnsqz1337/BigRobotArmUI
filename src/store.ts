@@ -24,17 +24,19 @@ import Vue from 'vue'
 export interface StoreMethods {
   setConnectionStatus(status: boolean): void
   home(): void
-  getJointsAttribute(attribute: string): JointsAttribute
+  getJointsAttribute(attribute: string, key?: string): JointsAttribute
   getJointByName(name: string): Joint | undefined
-  parsePositionFromMessageRow(messageRow: MessageRow): JointPosition[]
-  setTargetPositions(positions: JointPosition[]): void
+  parsePositionFromMessageRow(messageRow: MessageRow): JointPositionInfo[]
+  setTargetPositions(positions: JointPositionInfo[]): void
   parseGripperFromMessageRow(messageRow: MessageRow): GripperMessageData
   setGripperEnabled(enabled: boolean): void
   setGripperTargetPosition(position: number): void
-  parseSpeedsFromMessageRow(messageRow: MessageRow): JointSpeed[]
-  setSpeeds(speeds: JointSpeed[]): void
-  parseAccelerationsFromMessageRow(messageRow: MessageRow): JointAcceleration[]
-  setAccelerations(accelerations: JointAcceleration[]): void
+  parseSpeedsFromMessageRow(messageRow: MessageRow): JointSpeedInfo[]
+  setSpeeds(speeds: JointSpeedInfo[]): void
+  parseAccelerationsFromMessageRow(
+    messageRow: MessageRow
+  ): JointAccelerationInfo[]
+  setAccelerations(accelerations: JointAccelerationInfo[]): void
   parseSyncMotorsFromMessageRow(messageRow: MessageRow): boolean
   setSyncMotors(syncMotors: boolean): void
   initSequences(): void
@@ -70,12 +72,9 @@ export interface RobotArmData {
 
 export interface Joint {
   name: string
-  position: number
-  target: number
-  speed: number
-  acceleration: number
-  min: number
-  max: number
+  position: JointPosition
+  speed: JointSpeed
+  acceleration: JointAcceleration
   stepsPerDegree: number
   mesh?: Object3D
   inverted: boolean
@@ -84,12 +83,16 @@ export interface Joint {
 
 export interface Gripper {
   name: string
-  position: number
-  target: number
+  position: GripperPosition
   enabled: boolean
+  mesh: any
+}
+
+export interface GripperPosition {
+  value: number
   min: number
   max: number
-  mesh: any
+  target: number
 }
 
 export interface EditedSequence {
@@ -112,19 +115,38 @@ export interface JointsAttribute {
   wrist?: number | string | boolean
 }
 
-export interface JointPosition {
+export interface JointPositionInfo {
   name: string
   value: number
+}
+
+export interface JointSpeedInfo {
+  name: string
+  value: number
+}
+
+export interface JointAccelerationInfo {
+  name: string
+  value: number
+}
+
+export interface JointPosition {
+  value: number
+  min: number
+  max: number
+  target: number
 }
 
 export interface JointSpeed {
-  name: string
   value: number
+  min: number
+  max: number
 }
 
 export interface JointAcceleration {
-  name: string
   value: number
+  min: number
+  max: number
 }
 
 export type Message = string
@@ -137,12 +159,22 @@ const state: StoreState = {
     joints: [
       {
         name: 'base',
-        position: 0,
-        target: 0,
-        speed: 100,
-        acceleration: 100,
-        min: BASE_MIN_STEPS,
-        max: BASE_MAX_STEPS,
+        position: {
+          value: 0,
+          min: BASE_MIN_STEPS,
+          max: BASE_MAX_STEPS,
+          target: 0
+        },
+        speed: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
+        acceleration: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
         stepsPerDegree: BASE_STEPS_PER_DEGREE,
         mesh: undefined,
         inverted: false,
@@ -150,12 +182,22 @@ const state: StoreState = {
       },
       {
         name: 'shoulder',
-        position: 0,
-        target: 0,
-        speed: 100,
-        acceleration: 100,
-        min: SHOULDER_MIN_STEPS,
-        max: SHOULDER_MAX_STEPS,
+        position: {
+          value: 0,
+          min: SHOULDER_MIN_STEPS,
+          max: SHOULDER_MAX_STEPS,
+          target: 0
+        },
+        speed: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
+        acceleration: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
         stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
         mesh: undefined,
         inverted: true,
@@ -163,12 +205,22 @@ const state: StoreState = {
       },
       {
         name: 'elbow',
-        position: 0,
-        target: 0,
-        speed: 100,
-        acceleration: 100,
-        min: ELBOW_MIN_STEPS,
-        max: ELBOW_MAX_STEPS,
+        position: {
+          value: 0,
+          min: ELBOW_MIN_STEPS,
+          max: ELBOW_MAX_STEPS,
+          target: 0
+        },
+        speed: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
+        acceleration: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
         stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
         mesh: undefined,
         inverted: true,
@@ -176,12 +228,22 @@ const state: StoreState = {
       },
       {
         name: 'wristRotate',
-        position: 0,
-        target: 0,
-        speed: 100,
-        acceleration: 100,
-        min: WRIST_ROTATE_MIN_STEPS,
-        max: WRIST_ROTATE_MAX_STEPS,
+        position: {
+          value: 0,
+          min: WRIST_ROTATE_MIN_STEPS,
+          max: WRIST_ROTATE_MAX_STEPS,
+          target: 0
+        },
+        speed: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
+        acceleration: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
         stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
         mesh: undefined,
         inverted: true,
@@ -189,12 +251,22 @@ const state: StoreState = {
       },
       {
         name: 'wrist',
-        position: 0,
-        target: 0,
-        speed: 100,
-        acceleration: 100,
-        min: WRIST_MIN_STEPS,
-        max: WRIST_MAX_STEPS,
+        position: {
+          value: 0,
+          min: WRIST_MIN_STEPS,
+          max: WRIST_MAX_STEPS,
+          target: 0
+        },
+        speed: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
+        acceleration: {
+          value: 100,
+          min: 10,
+          max: 500
+        },
         stepsPerDegree: WRIST_STEPS_PER_DEGREE,
         mesh: undefined,
         inverted: false,
@@ -203,11 +275,13 @@ const state: StoreState = {
     ],
     gripper: {
       name: 'gripper',
-      position: 40,
-      target: 40,
+      position: {
+        value: 40,
+        min: GRIPPER_MIN_POSITION,
+        max: GRIPPER_MAX_POSITION,
+        target: 40
+      },
       enabled: true,
-      min: GRIPPER_MIN_POSITION,
-      max: GRIPPER_MAX_POSITION,
       mesh: null
     },
     preview: false,
@@ -222,22 +296,23 @@ const store: AppStore = Vue.observable({
     this.state.connected = status
   },
   home() {
-    this.state.arm.joints.forEach(x => (x.target = 0))
-    this.state.arm.gripper.target = GRIPPER_MIN_POSITION
+    this.state.arm.joints.forEach(x => (x.position.target = 0))
+    this.state.arm.gripper.position.target = GRIPPER_MIN_POSITION
   },
-  getJointsAttribute(attribute: string): JointsAttribute {
+  getJointsAttribute(attribute: string, key?: string): JointsAttribute {
     return this.state.arm.joints.reduce((curr: any, acc: any) => {
-      curr[acc.name] = parseFloat(acc[attribute])
+      const value = key ? acc[attribute][key] : acc[attribute]
+      curr[acc.name] = parseFloat(value)
       return curr
     }, {})
   },
   getJointByName(name: string): Joint | undefined {
     return this.state.arm.joints.find(x => x.name === name)
   },
-  parsePositionFromMessageRow(messageRow: MessageRow): JointPosition[] {
+  parsePositionFromMessageRow(messageRow: MessageRow): JointPositionInfo[] {
     const splitted = messageRow.split(' ')
     if (splitted[0] !== 'G0') return []
-    const positions: JointPosition[] = [
+    const positions: JointPositionInfo[] = [
       {
         name: 'base',
         value: parseInt(splitted[1].substring(1))
@@ -261,12 +336,12 @@ const store: AppStore = Vue.observable({
     ]
     return positions
   },
-  setTargetPositions(positions: JointPosition[]) {
-    this.getJointByName('base')!.target = positions[0].value
-    this.getJointByName('shoulder')!.target = positions[1].value
-    this.getJointByName('elbow')!.target = positions[2].value
-    this.getJointByName('wristRotate')!.target = positions[3].value
-    this.getJointByName('wrist')!.target = positions[4].value
+  setTargetPositions(positions: JointPositionInfo[]) {
+    this.getJointByName('base')!.position.target = positions[0].value
+    this.getJointByName('shoulder')!.position.target = positions[1].value
+    this.getJointByName('elbow')!.position.target = positions[2].value
+    this.getJointByName('wristRotate')!.position.target = positions[3].value
+    this.getJointByName('wrist')!.position.target = positions[4].value
   },
   parseGripperFromMessageRow(messageRow: MessageRow): GripperMessageData {
     const splitted = messageRow.split(' ')
@@ -281,11 +356,11 @@ const store: AppStore = Vue.observable({
     this.state.arm.gripper.enabled = enabled
   },
   setGripperTargetPosition(position: number) {
-    this.state.arm.gripper.target = position
+    this.state.arm.gripper.position.target = position
   },
-  parseSpeedsFromMessageRow(messageRow: MessageRow): JointSpeed[] {
+  parseSpeedsFromMessageRow(messageRow: MessageRow): JointSpeedInfo[] {
     const splitted = messageRow.split(' ')
-    const speeds: JointSpeed[] = [
+    const speeds: JointSpeedInfo[] = [
       {
         name: 'base',
         value: parseInt(splitted[1].substring(1))
@@ -309,18 +384,18 @@ const store: AppStore = Vue.observable({
     ]
     return speeds
   },
-  setSpeeds(speeds: JointSpeed[]) {
-    this.getJointByName('base')!.speed = speeds[0].value
-    this.getJointByName('shoulder')!.speed = speeds[1].value
-    this.getJointByName('elbow')!.speed = speeds[2].value
-    this.getJointByName('wristRotate')!.speed = speeds[3].value
-    this.getJointByName('wrist')!.speed = speeds[4].value
+  setSpeeds(speeds: JointSpeedInfo[]) {
+    this.getJointByName('base')!.speed.value = speeds[0].value
+    this.getJointByName('shoulder')!.speed.value = speeds[1].value
+    this.getJointByName('elbow')!.speed.value = speeds[2].value
+    this.getJointByName('wristRotate')!.speed.value = speeds[3].value
+    this.getJointByName('wrist')!.speed.value = speeds[4].value
   },
   parseAccelerationsFromMessageRow(
     messageRow: MessageRow
-  ): JointAcceleration[] {
+  ): JointAccelerationInfo[] {
     const splitted = messageRow.split(' ')
-    const accelerations: JointAcceleration[] = [
+    const accelerations: JointAccelerationInfo[] = [
       {
         name: 'base',
         value: parseInt(splitted[1].substring(1))
@@ -344,12 +419,13 @@ const store: AppStore = Vue.observable({
     ]
     return accelerations
   },
-  setAccelerations(accelerations: JointAcceleration[]) {
-    this.getJointByName('base')!.acceleration = accelerations[0].value
-    this.getJointByName('shoulder')!.acceleration = accelerations[1].value
-    this.getJointByName('elbow')!.acceleration = accelerations[2].value
-    this.getJointByName('wristRotate')!.acceleration = accelerations[3].value
-    this.getJointByName('wrist')!.acceleration = accelerations[4].value
+  setAccelerations(accelerations: JointAccelerationInfo[]) {
+    this.getJointByName('base')!.acceleration.value = accelerations[0].value
+    this.getJointByName('shoulder')!.acceleration.value = accelerations[1].value
+    this.getJointByName('elbow')!.acceleration.value = accelerations[2].value
+    this.getJointByName('wristRotate')!.acceleration.value =
+      accelerations[3].value
+    this.getJointByName('wrist')!.acceleration.value = accelerations[4].value
   },
   parseSyncMotorsFromMessageRow(messageRow: MessageRow): boolean {
     return parseInt(messageRow.split(' ')[1]) == 1 ? true : false

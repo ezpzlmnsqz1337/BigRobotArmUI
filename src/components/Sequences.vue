@@ -180,7 +180,7 @@ export default class Sequences extends ArmMixin {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.__sequences::v-deep .list-group {
+.__sequences :deep(.list-group) {
   height: 22rem;
   overflow-y: scroll;
 }

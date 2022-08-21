@@ -76,7 +76,8 @@ export class Arm {
       const rAxis = joint.rotationAxis as RotationAxis
       const position = parseFloat(joint.mesh.rotation[rAxis].toFixed(2))
 
-      let target = (joint.target / joint.stepsPerDegree) * (Math.PI / 180)
+      let target =
+        (joint.position.target / joint.stepsPerDegree) * (Math.PI / 180)
       target = parseFloat(target.toFixed(2))
 
       if (joint.inverted) target *= -1
