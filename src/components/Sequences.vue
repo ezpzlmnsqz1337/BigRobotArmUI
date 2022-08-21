@@ -1,6 +1,5 @@
 <template>
   <b-container fluid>
-    <h2>Sequences</h2>
     <b-form-group>
       <label for="previewSpeed">Preview speed</label>
       <b-form-input disabled :value="previewSpeed" />
@@ -15,35 +14,40 @@
         step="1"
       />
     </b-form-group>
-    <b-list-group v-if="!edit">
-      <b-list-group-item
-        v-for="(s, index) in sequences"
-        :key="`seq-${index}`"
-        href="#"
-        :active="index == selected"
-        class="flex-column align-items-start"
-        @click="selected = index"
-      >
-        <div class="d-flex w-100 justify-content-between">
-          <div class="text-left">
-            <h5 class="mb-1">{{ s.name }}</h5>
-            <small>{{ s.data.length }} commands</small>
+    <b-container v-if="!edit" class="__sequences">
+      <b-list-group>
+        <b-list-group-item
+          v-for="(s, index) in sequences"
+          :key="`seq-${index}`"
+          href="#"
+          :active="index == selected"
+          class="flex-column align-items-start"
+          @click="selected = index"
+        >
+          <div class="d-flex w-100 justify-content-between">
+            <div class="text-left">
+              <h5 class="mb-1">{{ s.name }}</h5>
+              <small>{{ s.data.length }} commands</small>
+            </div>
+            <b-button-group>
+              <b-button size="sm" @click="editSequence(index)"
+                >&#9998; Edit</b-button
+              >
+              <b-button
+                variant="danger"
+                size="sm"
+                v-b-modal.remove-sequence-modal
+                >&#x1F5D1; Remove</b-button
+              >
+            </b-button-group>
           </div>
-          <b-button-group>
-            <b-button size="sm" @click="editSequence(index)"
-              >&#9998; Edit</b-button
-            >
-            <b-button variant="danger" size="sm" v-b-modal.remove-sequence-modal
-              >&#x1F5D1; Remove</b-button
-            >
-          </b-button-group>
-        </div>
-      </b-list-group-item>
+        </b-list-group-item>
+      </b-list-group>
       <b-button-group>
         <b-button @click="play()" :disabled="!ready">Play</b-button>
         <b-button @click="preview()">Preview</b-button>
       </b-button-group>
-    </b-list-group>
+    </b-container>
     <!-- Edit sequence -->
     <b-container v-if="edit && editedSequence" class="__edit">
       <h2>Edit sequence</h2>
@@ -85,92 +89,102 @@
   </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
-import arm from '@/mixins/arm.mixin'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Command, EditedSequence } from '@/store'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Sequences',
-  mixins: [arm],
-  data() {
-    return {
-      sequences: this.$store.state.sequences,
-      selected: 0,
-      previewQueue: [],
-      previewSpeed: 5,
-      edit: false,
-      editedSequence: null
-    }
-  },
-  created: function() {
+@Component
+export default class Sequences extends ArmMixin {
+  sequences = this.$store.state.sequences
+  selected = 0
+  previewQueue: Command[] = []
+  previewSpeed = '5'
+  edit = false
+  editedSequence: EditedSequence | null = null
+
+  created() {
     eb.on(EventType.ARM_IN_POSITION, () =>
       this.previewCommand(this.previewQueue.shift())
     )
-  },
-  computed: {
-    editedSequenceRows: function() {
-      return this.editedSequence.data.split('\n').length
+  }
+
+  get editedSequenceRows() {
+    return this.editedSequence!.data.split('\n').length
+  }
+
+  play() {
+    const sequence = this.sequences[this.selected].data
+    sequence.forEach(x => this.sendCommand(x))
+  }
+
+  preview() {
+    this.previewQueue = this.sequences[this.selected].data.map(x => x)
+    this.previewCommand(this.previewQueue.shift())
+  }
+
+  previewCommand(command: Command | undefined) {
+    if (!command) {
+      this.$arm.preview = false
+    } else {
+      this.$arm.preview = true
+      const positions = this.$store.parsePositionFromMessageRow(command)
+      if (!positions.length) return
+      this.$store.setTargetPositions(positions)
     }
-  },
-  methods: {
-    play() {
-      const sequence = this.sequences[this.selected].data
-      sequence.forEach(x => this.sendCommand(x))
-    },
-    preview() {
-      this.previewQueue = this.sequences[this.selected].data.map(x => x)
-      this.previewCommand(this.previewQueue.shift())
-    },
-    previewCommand(command) {
-      if (!command) {
-        this.$arm.preview = false
-      } else {
-        this.$arm.preview = true
-        const positions = this.$store.parsePositionFromMessage(command)
-        this.$store.setTargetPositions(positions)
-      }
-    },
-    sendCommand(command) {
-      this.sendCommandToArm(command)
-    },
-    setPreviewSpeed() {
-      eb.emit(EventType.SET_PREVIEW_SPEED, parseFloat(this.previewSpeed) / 1000)
-    },
-    removeSequence(index) {
-      this.$store.removeSequence(index)
-      this.$bvModal.hide('remove-sequence-modal')
-    },
-    editSequence(index) {
-      this.selected = index
-      this.editedSequence = {
-        name: this.sequences[index].name,
-        data: this.sequences[index].data.join('\n')
-      }
-      this.edit = true
-    },
-    saveSequence() {
-      this.sequences[this.selected].name = this.editedSequence.name
-      this.sequences[this.selected].data.splice(0)
-      this.sequences[this.selected].data.push(
-        ...this.editedSequence.data.split('\n')
-      )
-      this.edit = false
-      this.$store.saveSequences()
-    },
-    cancelEditSequence() {
-      this.edit = false
-      this.editedSequence = null
+  }
+
+  sendCommand(command: Command) {
+    this.sendCommandToArm(command)
+  }
+
+  setPreviewSpeed() {
+    eb.emit(
+      EventType.SET_PREVIEW_SPEED,
+      parseInt(`${this.previewSpeed}`) / 1000
+    )
+  }
+
+  removeSequence(index: number) {
+    this.$store.removeSequence(index)
+    this.$bvModal.hide('remove-sequence-modal')
+  }
+
+  editSequence(index: number) {
+    this.selected = index
+    this.editedSequence = {
+      name: this.sequences[index].name,
+      data: this.sequences[index].data.join('\n')
     }
+    this.edit = true
+  }
+
+  saveSequence() {
+    this.sequences[this.selected].name = this.editedSequence!.name
+    this.sequences[this.selected].data.splice(0)
+    this.sequences[this.selected].data.push(
+      ...this.editedSequence!.data.split('\n')
+    )
+    this.edit = false
+    this.$store.saveSequences()
+  }
+
+  cancelEditSequence() {
+    this.edit = false
+    this.editedSequence = null
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.__sequence {
-  height: 15rem;
+.__sequences::v-deep .list-group {
+  height: 22rem;
+  overflow-y: scroll;
 }
+
 .__edit {
   text-align: left;
 }

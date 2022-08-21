@@ -29,19 +29,17 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import arm from '@/mixins/arm.mixin'
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Acceleration',
-  mixins: [arm],
-  methods: {
-    sendCommand() {
-      const p = this.$store.getJointsAttribute('acceleration')
-      const command = `${Commands.SET_ACCELERATIONS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
-      this.sendCommandToArm(command)
-    }
+@Component
+export default class Acceleration extends ArmMixin {
+  sendCommand() {
+    const p = this.$store.getJointsAttribute('acceleration')
+    const command = `${Commands.SET_ACCELERATIONS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+    this.sendCommandToArm(command)
   }
 }
 </script>

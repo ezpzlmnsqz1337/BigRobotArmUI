@@ -39,30 +39,30 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import arm from '@/mixins/arm.mixin'
+<script lang="ts">
+import { Commands } from '@/constants/Commands'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Component } from 'vue-property-decorator'
 
-export default {
-  name: 'Position',
-  mixins: [arm],
-  methods: {
-    sendCommand() {
-      const p = this.$store.getJointsAttribute('target')
-      const g = this.$arm.gripper.target
-      const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
-      this.sendCommandToArm(command)
-    },
-    sendHomeCommand() {
-      const command = Commands.HOME
-      this.$store.home()
-      this.sendCommandToArm(command)
-    },
-    setZeroPosition() {
-      const command = Commands.RESET_POSITION
-      this.$store.home()
-      this.sendCommandToArm(command)
-    }
+@Component
+export default class Position extends ArmMixin {
+  sendCommand() {
+    const p = this.$store.getJointsAttribute('target')
+    const g = this.$arm.gripper.target
+    const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist} G${g}`
+    this.sendCommandToArm(command)
+  }
+
+  sendHomeCommand() {
+    const command = Commands.HOME
+    this.$store.home()
+    this.sendCommandToArm(command)
+  }
+
+  setZeroPosition() {
+    const command = Commands.RESET_POSITION
+    this.$store.home()
+    this.sendCommandToArm(command)
   }
 }
 </script>

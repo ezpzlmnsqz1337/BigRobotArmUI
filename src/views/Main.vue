@@ -14,7 +14,14 @@
           <Model />
         </b-col>
         <b-col class="p-lg-5" md="12" lg="6">
-          <Terminal />
+          <b-tabs>
+            <b-tab title="Terminal" class="my-4">
+              <Terminal />
+            </b-tab>
+            <b-tab title="Sequences" class="my-4">
+              <Sequences />
+            </b-tab>
+          </b-tabs>
         </b-col>
       </b-row>
       <b-row>
@@ -22,11 +29,6 @@
           <ManualControl />
         </b-col>
         <b-col class="p-lg-5" md="12" lg="6">
-          <b-row>
-            <b-col>
-              <Sequences />
-            </b-col>
-          </b-row>
           <b-row>
             <b-col class="mt-5">
               <RecordPositions />
@@ -47,111 +49,117 @@
   </b-container>
 </template>
 
-<script>
-import Commands from '@/constants/Commands'
-import Terminal from '@/components/Terminal'
-import ManualControl from '@/components/ManualControl'
-import Sequences from '@/components/Sequences'
-import RecordPositions from '@/components/RecordPositions'
-import Model from '@/components/Model'
+<script lang="ts">
+import ManualControl from '@/components/ManualControl.vue'
+import Model from '@/components/Model.vue'
+import RecordPositions from '@/components/RecordPositions.vue'
+import Sequences from '@/components/Sequences.vue'
+import Terminal from '@/components/Terminal.vue'
+import { Commands } from '@/constants/Commands'
+import { SerialMessage } from '@/constants/SerialMessage'
+import { EventType } from '@/constants/types/EventType'
+import { WebsocketMessage } from '@/constants/WebsocketMessage'
 import eb from '@/EventBus'
-import EventType from '@/constants/types/EventType'
-import WebsocketMessage from '@/constants/WebsocketMessage'
-import SerialMessage from '@/constants/SerialMessage'
-import arm from '@/mixins/arm.mixin'
-import ws from '@/shared'
+import ArmMixin from '@/mixins/ArmMixin.vue'
 
-export default {
-  name: 'Main',
-  mixins: [arm],
+import ws from '@/shared'
+import { MessageRow } from '@/store'
+import { Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     ManualControl,
     Terminal,
     Sequences,
     Model,
     RecordPositions
-  },
-  data() {
-    return {
-      connectionStatus: 0
-    }
-  },
-  computed: {
-    isConnected: function() {
-      return this.connectionStatus == 1
-    }
-  },
+  }
+})
+export default class Main extends ArmMixin {
+  get isConnected(): boolean {
+    return this.$store.state.connected
+  }
+
   created() {
     ws.onmessage = event => {
       console.log('Response from server: ', event.data)
 
       if (event.data.includes('connectionStatus')) {
-        this.connectionStatus = parseInt(event.data.split(':')[1])
+        this.$store.setConnectionStatus(
+          parseInt(event.data.split(':')[1]) === 1
+        )
       } else {
         this.handleMessage(event.data)
       }
 
       eb.emit(EventType.WS_MESSAGE_RECEIVED, event.data)
     }
-  },
-  methods: {
-    connect: function() {
-      {
-        ws.send(WebsocketMessage.WS_CONNECT)
-        ws.send(Commands.STATUS)
-      }
-    },
-    disconnect: function() {
-      ws.send(WebsocketMessage.WS_DISCONNECT)
-    },
-    handleMessage(message) {
-      if (message.includes(SerialMessage.READY)) this.$store.ready()
-      if (message.includes(SerialMessage.POSITION))
-        this.handlePositions(message)
-      if (message.includes(SerialMessage.GRIPPER)) this.handleGripper(message)
-      if (message.includes(SerialMessage.SPEED)) this.handleSpeed(message)
-      if (message.includes(SerialMessage.ACCELERATION))
-        this.handleAcceleration(message)
-      if (message.includes(SerialMessage.SYNC_MOTORS))
-        this.handleSyncMotors(message)
-    },
-    handlePositions(message) {
-      message = this.getMessageRow(message, SerialMessage.POSITION)
-      if (!message) return
-      const positions = this.$store.parsePositionFromMessage(message)
-      this.$store.setTargetPositions(positions)
-    },
-    handleGripper(message) {
-      message = this.getMessageRow(message, SerialMessage.GRIPPER)
-      if (!message) return
-      const gripper = this.$store.parseGripperFromMessage(message)
-      this.$store.setGripperEnabled(gripper.enabled)
-      this.$store.setGripperTargetPosition(gripper.target)
-    },
-    handleSpeed(message) {
-      message = this.getMessageRow(message, SerialMessage.SPEED)
-      if (!message) return
-      const speeds = this.$store.parseSpeedsFromMessage(message)
-      this.$store.setSpeeds(speeds)
-    },
-    handleAcceleration(message) {
-      message = this.getMessageRow(message, SerialMessage.ACCELERATION)
-      if (!message) return
-      const accelerations = this.$store.parseAccelerationsFromMessage(message)
-      this.$store.setAccelerations(accelerations)
-    },
-    handleSyncMotors(message) {
-      message = this.getMessageRow(message, SerialMessage.SYNC_MOTORS)
-      if (!message) return
-      const syncMotors = this.$store.parseSyncMotorsFromMessage(message)
-      this.$store.setSyncMotors(syncMotors)
-    },
-    getMessageRow(message, type) {
-      return message
-        .split('\n')
-        .filter(x => x.includes(type))
-        .pop()
-    }
+  }
+
+  connect() {
+    ws.send(WebsocketMessage.WS_CONNECT)
+    ws.send(Commands.STATUS)
+  }
+
+  disconnect() {
+    ws.send(WebsocketMessage.WS_DISCONNECT)
+  }
+
+  handleMessage(message: string) {
+    if (message.includes(SerialMessage.READY)) this.$store.ready()
+    if (message.includes(SerialMessage.POSITION)) this.handlePositions(message)
+    if (message.includes(SerialMessage.GRIPPER)) this.handleGripper(message)
+    if (message.includes(SerialMessage.SPEED)) this.handleSpeed(message)
+    if (message.includes(SerialMessage.ACCELERATION))
+      this.handleAcceleration(message)
+    if (message.includes(SerialMessage.SYNC_MOTORS))
+      this.handleSyncMotors(message)
+  }
+
+  handlePositions(message: string) {
+    const messageRow = this.getMessageRow(message, SerialMessage.POSITION)
+    if (!messageRow) return
+    const positions = this.$store.parsePositionFromMessageRow(messageRow)
+    if (!positions.length) return
+    this.$store.setTargetPositions(positions)
+  }
+
+  handleGripper(message: string) {
+    const messageRow = this.getMessageRow(message, SerialMessage.GRIPPER)
+    if (!messageRow) return
+    const gripper = this.$store.parseGripperFromMessageRow(messageRow)
+    this.$store.setGripperEnabled(gripper.enabled)
+    this.$store.setGripperTargetPosition(gripper.target)
+  }
+
+  handleSpeed(message: string) {
+    const messageRow = this.getMessageRow(message, SerialMessage.SPEED)
+    if (!messageRow) return
+    const speeds = this.$store.parseSpeedsFromMessageRow(messageRow)
+    this.$store.setSpeeds(speeds)
+  }
+
+  handleAcceleration(message: string) {
+    const messageRow = this.getMessageRow(message, SerialMessage.ACCELERATION)
+    if (!messageRow) return
+    const accelerations = this.$store.parseAccelerationsFromMessageRow(
+      messageRow
+    )
+    this.$store.setAccelerations(accelerations)
+  }
+
+  handleSyncMotors(message: string) {
+    const messageRow = this.getMessageRow(message, SerialMessage.SYNC_MOTORS)
+    if (!messageRow) return
+    const syncMotors = this.$store.parseSyncMotorsFromMessageRow(messageRow)
+    this.$store.setSyncMotors(syncMotors)
+  }
+
+  getMessageRow(message: string, type: SerialMessage): MessageRow | undefined {
+    return message
+      .split('\n')
+      .filter(x => x.includes(type))
+      .pop()
   }
 }
 </script>

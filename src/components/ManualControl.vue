@@ -18,21 +18,23 @@
   </b-container>
 </template>
 
-<script>
-import Acceleration from '@/components/Acceleration'
-import Speed from '@/components/Speed'
-import Position from '@/components/Position'
-import Gripper from '@/components/Gripper'
+<script lang="ts">
+import Acceleration from '@/components/Acceleration.vue'
+import Gripper from '@/components/Gripper.vue'
+import Position from '@/components/Position.vue'
+import Speed from '@/components/Speed.vue'
 
-export default {
-  name: 'ManualControl',
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     Speed,
     Acceleration,
     Position,
     Gripper
   }
-}
+})
+export default class ManualControl extends Vue {}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
