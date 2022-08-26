@@ -15,12 +15,12 @@
             v-on:keyup.native.enter="sendCommand()"
           ></b-form-input>
           <b-button @click="sendCommand()" variant="primary" :disabled="!ready"
-            ><b-icon icon="play-fill"></b-icon>Send</b-button
+            ><fa-icon icon="fa-solid fa-play" />Send</b-button
           >
-          <b-button @click="scrollToBottom()" :pressed.sync="autoscroll"
-            ><b-icon v-if="autoscroll" icon="lock-fill"></b-icon>
-            <b-icon v-if="!autoscroll" icon="unlock-fill"></b-icon
-            >Autoscroll</b-button
+          <b-button @click="scrollToBottom()" :pressed.sync="autoscroll">
+            <fa-icon v-if="autoscroll" icon="fa-solid fa-lock" />
+            <fa-icon v-if="!autoscroll" icon="fa-solid fa-lock-open" />
+            Autoscroll</b-button
           >
         </b-input-group>
       </b-col>

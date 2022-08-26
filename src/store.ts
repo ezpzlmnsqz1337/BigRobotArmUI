@@ -25,6 +25,9 @@ export interface StoreMethods {
   setConnectionStatus(status: boolean): void
   startConnecting(): void
   stopConnecting(): void
+  startEditSequence(sequence: EditedSequence): void
+  stopEditSequence(): void
+  saveEditedSequence(sequenceId: number): void
   home(): void
   getJointsAttribute(attribute: string, key?: string): JointsAttribute
   getJointByName(name: string): Joint | undefined
@@ -42,9 +45,9 @@ export interface StoreMethods {
   parseSyncMotorsFromMessageRow(messageRow: MessageRow): boolean
   setSyncMotors(syncMotors: boolean): void
   initSequences(): void
-  saveSequences(): void
+  saveSequencesToLocalStorage(): void
   addSequence(sequence: Sequence): void
-  removeSequence(index: number): void
+  removeSequence(sequenceId: number): void
   busy(): void
   ready(): void
 }
@@ -57,6 +60,7 @@ export interface StoreState {
   sequences: Sequence[]
   connected: boolean
   isConnecting: boolean
+  editedSequence?: EditedSequence | null
   arm: RobotArmData
 }
 
@@ -159,6 +163,7 @@ const state: StoreState = {
   sequences,
   connected: false,
   isConnecting: false,
+  editedSequence: null,
   arm: {
     joints: [
       {
@@ -305,6 +310,43 @@ const store: AppStore = Vue.observable({
   stopConnecting() {
     this.state.isConnecting = false
   },
+  initSequences() {
+    const seqs = localStorage.getItem('sequences')
+    this.state.sequences = seqs ? JSON.parse(seqs) : sequences
+  },
+  startEditSequence(sequence: EditedSequence) {
+    this.state.editedSequence = sequence
+  },
+  stopEditSequence() {
+    this.state.editedSequence = null
+  },
+  saveEditedSequence(sequenceId: number) {
+    if (sequenceId < 0 || sequenceId > this.state.sequences.length - 1) return
+
+    const editedSequence = this.state.editedSequence
+    if (!editedSequence) return
+
+    const sequence = this.state.sequences[sequenceId]
+    sequence.name = editedSequence.name
+    sequence.data.splice(0)
+    sequence.data.push(...editedSequence.data.split('\n'))
+
+    this.stopEditSequence()
+    this.saveSequencesToLocalStorage()
+  },
+  saveSequencesToLocalStorage() {
+    localStorage.setItem('sequences', JSON.stringify(this.state.sequences))
+  },
+  addSequence(sequence: Sequence) {
+    if (!sequence) return
+    this.state.sequences.push(sequence)
+    this.saveSequencesToLocalStorage()
+  },
+  removeSequence(sequenceId: number) {
+    if (sequenceId < 0 || sequenceId > this.state.sequences.length - 1) return
+    this.state.sequences.splice(sequenceId, 1)
+    this.saveSequencesToLocalStorage()
+  },
   home() {
     this.state.arm.joints.forEach(x => (x.position.target = 0))
     this.state.arm.gripper.position.target = GRIPPER_MIN_POSITION
@@ -442,25 +484,6 @@ const store: AppStore = Vue.observable({
   },
   setSyncMotors(syncMotors: boolean) {
     this.state.arm.syncMotors = syncMotors
-  },
-  initSequences() {
-    const seqs = localStorage.getItem('sequences')
-    if (seqs) {
-      this.state.sequences = JSON.parse(seqs)
-    }
-  },
-  saveSequences() {
-    localStorage.setItem('sequences', JSON.stringify(this.state.sequences))
-  },
-  addSequence(sequence: Sequence) {
-    if (!sequence) return
-    this.state.sequences.push(sequence)
-    this.saveSequences()
-  },
-  removeSequence(index: number) {
-    if (index < 0 && index > this.state.sequences.length - 1) return
-    this.state.sequences.splice(index, 1)
-    this.saveSequences()
   },
   busy() {
     this.state.arm.ready = false

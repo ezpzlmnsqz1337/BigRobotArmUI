@@ -19,4 +19,8 @@ export default class App extends Vue {}
   text-align: center;
   color: #2c3e50;
 }
+
+#app .svg-inline--fa {
+  margin: 0 0.3rem;
+}
 </style>
