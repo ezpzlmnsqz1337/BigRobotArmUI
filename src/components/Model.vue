@@ -1,12 +1,8 @@
 <template>
-  <b-container fluid>
+  <div>
     <h2>Model</h2>
-    <b-row>
-      <b-col class="my-auto controls"
-        ><div ref="armWrapper" class="__armWrapper"
-      /></b-col>
-    </b-row>
-  </b-container>
+    <div ref="armWrapper" class="__armWrapper" />
+  </div>
 </template>
 
 <script lang="ts">

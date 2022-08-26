@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid>
+  <div>
     <b-form-group v-for="j in joints" :key="j.name">
       <label :for="j.name">{{ j.name }}</label>
       <b-row>
@@ -21,7 +21,7 @@
         </b-col>
       </b-row>
     </b-form-group>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

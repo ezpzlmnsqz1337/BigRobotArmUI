@@ -1,31 +1,27 @@
 <template>
-  <b-container fluid>
-    <b-row>
-      <b-col class="my-auto controls">
-        <b-textarea
-          readonly
-          v-model="serialOutput"
-          class="__serialOutput"
-          ref="terminal"
-        ></b-textarea>
-        <b-input-group>
-          <b-form-input
-            placeholder="Enter command..."
-            v-model="command"
-            v-on:keyup.native.enter="sendCommand()"
-          ></b-form-input>
-          <b-button @click="sendCommand()" variant="primary" :disabled="!ready"
-            ><fa-icon icon="fa-solid fa-play" />Send</b-button
-          >
-          <b-button @click="scrollToBottom()" :pressed.sync="autoscroll">
-            <fa-icon v-if="autoscroll" icon="fa-solid fa-lock" />
-            <fa-icon v-if="!autoscroll" icon="fa-solid fa-lock-open" />
-            Autoscroll</b-button
-          >
-        </b-input-group>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div>
+    <b-textarea
+      readonly
+      v-model="serialOutput"
+      class="__serialOutput"
+      ref="terminal"
+    ></b-textarea>
+    <b-input-group>
+      <b-form-input
+        placeholder="Enter command..."
+        v-model="command"
+        v-on:keyup.native.enter="sendCommand()"
+      ></b-form-input>
+      <b-button @click="sendCommand()" variant="primary" :disabled="!ready"
+        ><fa-icon icon="fa-solid fa-play" />Send</b-button
+      >
+      <b-button @click="scrollToBottom()" :pressed.sync="autoscroll">
+        <fa-icon v-if="autoscroll" icon="fa-solid fa-lock" />
+        <fa-icon v-if="!autoscroll" icon="fa-solid fa-lock-open" />
+        Autoscroll</b-button
+      >
+    </b-input-group>
+  </div>
 </template>
 
 <script lang="ts">

@@ -1,36 +1,32 @@
 <template>
-  <b-container fluid>
-    <b-row>
-      <b-col class="my-auto controls">
-        <b-form-group>
-          <label :for="gripper.name">{{ gripper.name }}</label>
-          <b-row>
-            <b-col md="12" lg="2">
-              <b-form-input disabled :value="gripper.position.target" />
-            </b-col>
-            <b-col md="12" lg="10">
-              <b-form-input
-                :id="gripper.name"
-                type="range"
-                :name="gripper.name"
-                v-model="gripper.position.target"
-                @change="sendCommand()"
-                :min="gripper.min"
-                :max="gripper.max"
-                :disabled="!ready"
-              />
-              <b-checkbox
-                v-model="gripper.enabled"
-                @change="sendCommand()"
-                :disabled="!ready"
-                >Enabled</b-checkbox
-              >
-            </b-col>
-          </b-row>
-        </b-form-group>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div class="my-4">
+    <b-form-group>
+      <label :for="gripper.name">{{ gripper.name }}</label>
+      <b-row>
+        <b-col md="12" lg="2">
+          <b-form-input disabled :value="gripper.position.target" />
+        </b-col>
+        <b-col md="12" lg="10">
+          <b-form-input
+            :id="gripper.name"
+            type="range"
+            :name="gripper.name"
+            v-model="gripper.position.target"
+            @change="sendCommand()"
+            :min="gripper.min"
+            :max="gripper.max"
+            :disabled="!ready"
+          />
+          <b-checkbox
+            v-model="gripper.enabled"
+            @change="sendCommand()"
+            :disabled="!ready"
+            >Enabled</b-checkbox
+          >
+        </b-col>
+      </b-row>
+    </b-form-group>
+  </div>
 </template>
 
 <script lang="ts">

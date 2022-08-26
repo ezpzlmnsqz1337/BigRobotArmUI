@@ -1,6 +1,5 @@
 <template>
-  <b-container fluid>
-    <h2>Record commands</h2>
+  <div>
     <b-input-group>
       <b-form-input
         v-model="sequenceName"
@@ -66,7 +65,7 @@
     <b-button @click="addAll()" variant="success"
       ><fa-icon icon="fa-solid fa-plus" />Add all</b-button
     >
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

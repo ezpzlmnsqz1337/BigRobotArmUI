@@ -3,34 +3,28 @@
     <Connect />
     <div v-if="isConnected" class="mt-4">
       <h1>Big Robot Arm UI</h1>
-      <b-button variant="danger" @click="disconnect()"
+      <b-button variant="danger" @click="disconnect()" class="mb-4"
         ><fa-icon icon="fa-solid fa-ban" />Disconnect</b-button
       >
       <b-row>
-        <b-col class="p-lg-5" md="12" lg="6">
+        <b-col class="p-lg-5 mb-4" md="12" lg="6">
           <Model />
         </b-col>
         <b-col class="p-lg-5" md="12" lg="6">
-          <b-tabs>
-            <b-tab title="Terminal" class="my-4">
+          <b-tabs pills fill>
+            <b-tab title="Terminal" class="my-3">
               <Terminal />
             </b-tab>
-            <b-tab title="Sequences" class="my-4">
+            <b-tab title="Manual Control" class="my-3">
+              <ManualControl />
+            </b-tab>
+            <b-tab title="Sequences" class="my-3">
               <Sequences />
             </b-tab>
-          </b-tabs>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col class="p-lg-5" md="12" lg="6">
-          <ManualControl />
-        </b-col>
-        <b-col class="p-lg-5" md="12" lg="6">
-          <b-row>
-            <b-col class="mt-5">
+            <b-tab title="Record commands" class="my-3">
               <RecordCommands />
-            </b-col>
-          </b-row>
+            </b-tab>
+          </b-tabs>
         </b-col>
       </b-row>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid>
+  <div>
     <b-row>
       <b-col class="my-auto controls">
         <RangeSliders valueName="speed" @on-change="sendCommand()" />
@@ -8,7 +8,7 @@
         >
       </b-col>
     </b-row>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

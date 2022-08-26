@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid>
+  <div>
     <b-form-group>
       <label for="previewSpeed">Preview speed</label>
       <b-form-input disabled :value="previewSpeed" />
@@ -71,7 +71,7 @@
         >
       </div>
     </b-modal>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

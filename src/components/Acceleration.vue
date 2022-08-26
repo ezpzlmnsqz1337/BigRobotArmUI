@@ -1,11 +1,11 @@
 <template>
-  <b-container fluid>
+  <div class="my-4">
     <b-row>
       <b-col class="my-auto controls">
         <RangeSliders valueName="acceleration" @on-change="sendCommand()" />
       </b-col>
     </b-row>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

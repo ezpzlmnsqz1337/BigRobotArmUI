@@ -1,27 +1,23 @@
 <template>
-  <b-container fluid>
-    <b-row>
-      <b-col class="my-auto controls">
-        <RangeSliders
-          valueName="position"
-          valueKey="target"
-          @on-change="sendCommand()"
-        />
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col>
-        <b-form-group>
-          <b-button size="large" @click="setZeroPosition()" :disabled="!ready"
-            ><fa-icon icon="fa-solid fa-crosshairs" />Set zero</b-button
-          >
-          <b-button size="large" @click="sendHomeCommand()" :disabled="!ready"
-            ><fa-icon icon="fa-solid fa-house" />Home</b-button
-          >
-        </b-form-group>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div>
+    <div>
+      <RangeSliders
+        valueName="position"
+        valueKey="target"
+        @on-change="sendCommand()"
+      />
+    </div>
+    <div>
+      <b-form-group>
+        <b-button size="large" @click="setZeroPosition()" :disabled="!ready"
+          ><fa-icon icon="fa-solid fa-crosshairs" />Set zero</b-button
+        >
+        <b-button size="large" @click="sendHomeCommand()" :disabled="!ready"
+          ><fa-icon icon="fa-solid fa-house" />Home</b-button
+        >
+      </b-form-group>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
