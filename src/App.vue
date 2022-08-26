@@ -21,6 +21,6 @@ export default class App extends Vue {}
 }
 
 #app .svg-inline--fa {
-  margin: 0 0.3rem;
+  margin-right: 0.3rem;
 }
 </style>

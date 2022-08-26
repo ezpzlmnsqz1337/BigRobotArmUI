@@ -6,8 +6,8 @@
     style="max-width: 50vw;"
   >
     <b-button variant="success" @click="connect()" :disabled="isConnecting">
-      <b-spinner v-if="isConnecting" small variant="light"></b-spinner>
-      Connect</b-button
+      <fa-icon v-if="isConnecting" icon="fa-solid fa-circle-notch" spin />
+      <fa-icon v-if="!isConnecting" icon="fa-solid fa-plug" />Connect</b-button
     >
   </b-card>
 </template>

@@ -3,7 +3,9 @@
     <Connect />
     <div v-if="isConnected" class="mt-4">
       <h1>Big Robot Arm UI</h1>
-      <b-button variant="danger" @click="disconnect()">Disconnect</b-button>
+      <b-button variant="danger" @click="disconnect()"
+        ><fa-icon icon="fa-solid fa-ban" />Disconnect</b-button
+      >
       <b-row>
         <b-col class="p-lg-5" md="12" lg="6">
           <Model />

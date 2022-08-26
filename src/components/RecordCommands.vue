@@ -10,7 +10,7 @@
         @click="saveSequence()"
         variant="primary"
         :disabled="!canSaveSequence"
-        >&#x1F5AB; Save sequence</b-button
+        ><fa-icon icon="fa-solid fa-floppy-disk" />Save sequence</b-button
       >
     </b-input-group>
     <b-row v-for="(p, index) in commands" :key="'pos' + index">
@@ -28,7 +28,7 @@
       <label>Positions</label>
       <b-form-input :value="currentPositions" disabled></b-form-input>
       <b-button @click="addPositions()" variant="success"
-        >&#x2B; Add command</b-button
+        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
       >
     </b-input-group>
 
@@ -36,7 +36,7 @@
       <label>Speeds</label>
       <b-form-input :value="currentSpeeds" disabled></b-form-input>
       <b-button @click="addSpeeds()" variant="success"
-        >&#x2B; Add command</b-button
+        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
       >
     </b-input-group>
 
@@ -44,7 +44,7 @@
       <label>Accelerations</label>
       <b-form-input :value="currentAccelerations" disabled></b-form-input>
       <b-button @click="addAccelerations()" variant="success"
-        >&#x2B; Add command</b-button
+        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
       >
     </b-input-group>
 
@@ -52,7 +52,7 @@
       <label>Sync motors</label>
       <b-form-input :value="currentSyncMotors" disabled></b-form-input>
       <b-button @click="addSyncMotors()" variant="success"
-        >&#x2B; Add command</b-button
+        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
       >
     </b-input-group>
 
@@ -60,10 +60,12 @@
       <label>Gripper</label>
       <b-form-input :value="currentGripper" disabled></b-form-input>
       <b-button @click="addGripper()" variant="success"
-        >&#x2B; Add command</b-button
+        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
       >
     </b-input-group>
-    <b-button @click="addAll()" variant="success">&#x2B; Add all</b-button>
+    <b-button @click="addAll()" variant="success"
+      ><fa-icon icon="fa-solid fa-plus" />Add all</b-button
+    >
   </b-container>
 </template>
 

@@ -13,10 +13,10 @@
       <b-col>
         <b-form-group>
           <b-button size="large" @click="setZeroPosition()" :disabled="!ready"
-            >Set zero</b-button
+            ><fa-icon icon="fa-solid fa-crosshairs" />Set zero</b-button
           >
           <b-button size="large" @click="sendHomeCommand()" :disabled="!ready"
-            >Home</b-button
+            ><fa-icon icon="fa-solid fa-house" />Home</b-button
           >
         </b-form-group>
       </b-col>

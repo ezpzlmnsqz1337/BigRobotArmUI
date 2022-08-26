@@ -15,7 +15,12 @@ import {
   faTrashCan,
   faVideo,
   faFloppyDisk,
-  faBan
+  faBan,
+  faPlus,
+  faPlug,
+  faCircleNotch,
+  faHouse,
+  faCrosshairs
 } from '@fortawesome/free-solid-svg-icons'
 import { faAmazon } from '@fortawesome/free-brands-svg-icons'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
@@ -31,7 +36,12 @@ library.add(
   faTrashCan,
   faVideo,
   faFloppyDisk,
-  faBan
+  faBan,
+  faPlus,
+  faPlug,
+  faCircleNotch,
+  faHouse,
+  faCrosshairs
 )
 
 /* add font awesome icon component */
