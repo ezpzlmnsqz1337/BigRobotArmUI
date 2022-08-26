@@ -3,7 +3,7 @@
     <b-row>
       <b-col class="my-auto controls">
         <RangeSliders valueName="speed" @on-change="sendCommand()" />
-        <b-checkbox v-model="$arm.syncMotors" @change="sendSyncMotorsCommand()"
+        <b-checkbox v-model="syncMotors" @change="sendSyncMotorsCommand()"
           >Sync motors</b-checkbox
         >
       </b-col>
@@ -24,14 +24,18 @@ import { Component } from 'vue-property-decorator'
   }
 })
 export default class Speed extends ArmMixin {
+  get syncMotors() {
+    return this.$armControlStore.arm.syncMotors
+  }
+
   sendCommand() {
-    const p = this.$store.getJointsAttribute('speed', 'value')
+    const p = this.$armControlStore.getJointsAttribute('speed', 'value')
     const command: Command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
     this.sendCommandToArm(command)
   }
 
   sendSyncMotorsCommand() {
-    const sync = this.$arm.syncMotors ? 1 : 0
+    const sync = this.$armControlStore.arm.syncMotors ? 1 : 0
     const command: Command = `${Commands.SET_SYNC_MOTORS}${sync}`
     this.sendCommandToArm(command)
   }

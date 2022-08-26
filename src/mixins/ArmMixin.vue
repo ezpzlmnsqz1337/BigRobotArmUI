@@ -8,17 +8,17 @@ import { Command } from '@/store'
 
 @Component
 export default class ArmMixin extends Vue {
-  joints = this.$arm.joints
-  gripper = this.$arm.gripper
+  joints = this.$armControlStore.arm.joints
+  gripper = this.$armControlStore.arm.gripper
 
   get ready() {
-    return this.$arm.ready
+    return this.$armControlStore.arm.isReady
   }
 
   sendCommandToArm(command: Command) {
     eb.emit(EventType.WS_MESSAGE_SEND, command)
     ws.send(command)
-    this.$store.busy()
+    this.$armControlStore.busy()
   }
 }
 </script>

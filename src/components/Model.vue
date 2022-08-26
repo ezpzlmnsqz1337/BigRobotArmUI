@@ -17,11 +17,14 @@ import { Component } from 'vue-property-decorator'
 
 @Component
 export default class Model extends ArmMixin {
+  $refs!: {
+    armWrapper: HTMLDivElement
+  }
   arm!: Arm
 
   created() {
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
-    this.$store.initSequences()
+    this.$sequencesStore.initSequences()
   }
 
   mounted() {
@@ -34,7 +37,7 @@ export default class Model extends ArmMixin {
 
   setupModel() {
     const armWrapper = this.$refs.armWrapper
-    this.arm = new Arm(armWrapper, this.$arm)
+    this.arm = new Arm(armWrapper, this.$armControlStore.arm)
     this.arm.init()
   }
 

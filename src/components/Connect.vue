@@ -24,11 +24,11 @@ import { EventType } from '@/constants/types/EventType'
 @Component
 export default class Connect extends Vue {
   get isConnected() {
-    return this.$store.state.connected
+    return this.$connectionStore.connected
   }
 
   get isConnecting() {
-    return this.$store.state.isConnecting
+    return this.$connectionStore.isConnecting
   }
 
   created() {
@@ -38,13 +38,13 @@ export default class Connect extends Vue {
   handleMessage(message: string) {
     if (message.includes(SerialMessage.CONNECTION_STATUS)) {
       const connectionStatus = parseInt(message.split(':')[1]) === 1
-      this.$store.setConnectionStatus(connectionStatus)
-      this.$store.stopConnecting()
+      this.$connectionStore.setConnectionStatus(connectionStatus)
+      this.$connectionStore.stopConnecting()
     }
   }
 
   connect() {
-    this.$store.startConnecting()
+    this.$connectionStore.startConnecting()
     ws.send(WebsocketMessage.WS_CONNECT)
     ws.send(Commands.STATUS)
   }

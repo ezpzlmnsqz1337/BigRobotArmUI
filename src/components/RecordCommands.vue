@@ -81,28 +81,28 @@ export default class RecordPositions extends ArmMixin {
   commands: Command[] = []
 
   get currentPositions() {
-    const p = this.$store.getJointsAttribute('position', 'target')
+    const p = this.$armControlStore.getJointsAttribute('position', 'target')
     return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
   }
 
   get currentSpeeds() {
-    const s = this.$store.getJointsAttribute('speed', 'value')
+    const s = this.$armControlStore.getJointsAttribute('speed', 'value')
     return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
   }
 
   get currentAccelerations() {
-    const a = this.$store.getJointsAttribute('acceleration', 'value')
+    const a = this.$armControlStore.getJointsAttribute('acceleration', 'value')
     return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
   }
 
   get currentSyncMotors() {
-    const sm = this.$arm.syncMotors ? 1 : 0
+    const sm = this.$armControlStore.arm.syncMotors ? 1 : 0
     return `${Commands.SET_SYNC_MOTORS}${sm}`
   }
 
   get currentGripper() {
-    const g = this.$arm.gripper
-    const enable = this.$arm.gripper.enabled ? 1 : 0
+    const g = this.$armControlStore.arm.gripper
+    const enable = this.$armControlStore.arm.gripper.enabled ? 1 : 0
     return `${Commands.GRIPPER} E${enable} P${g.position.value}`
   }
 
@@ -147,7 +147,7 @@ export default class RecordPositions extends ArmMixin {
   }
 
   saveSequence() {
-    this.$store.addSequence({
+    this.$sequencesStore.addSequence({
       name: this.sequenceName,
       data: [...this.commands]
     })

@@ -65,7 +65,7 @@ import eb from '@/EventBus'
 })
 export default class Main extends ArmMixin {
   get isConnected() {
-    return this.$store.state.connected
+    return this.$connectionStore.connected
   }
 
   created() {
@@ -79,7 +79,7 @@ export default class Main extends ArmMixin {
   handleMessage(message: string) {
     console.log('Response from server: ', message)
 
-    if (message.includes(SerialMessage.READY)) this.$store.ready()
+    if (message.includes(SerialMessage.READY)) this.$armControlStore.ready()
     if (message.includes(SerialMessage.POSITION)) this.handlePositions(message)
     if (message.includes(SerialMessage.GRIPPER)) this.handleGripper(message)
     if (message.includes(SerialMessage.SPEED)) this.handleSpeed(message)
@@ -92,40 +92,44 @@ export default class Main extends ArmMixin {
   handlePositions(message: string) {
     const messageRow = this.getMessageRow(message, SerialMessage.POSITION)
     if (!messageRow) return
-    const positions = this.$store.parsePositionFromMessageRow(messageRow)
+    const positions = this.$serialCommStore.parsePositionFromMessageRow(
+      messageRow
+    )
     if (!positions.length) return
-    this.$store.setTargetPositions(positions)
+    this.$armControlStore.setTargetPositions(positions)
   }
 
   handleGripper(message: string) {
     const messageRow = this.getMessageRow(message, SerialMessage.GRIPPER)
     if (!messageRow) return
-    const gripper = this.$store.parseGripperFromMessageRow(messageRow)
-    this.$store.setGripperEnabled(gripper.enabled)
-    this.$store.setGripperTargetPosition(gripper.target)
+    const gripper = this.$serialCommStore.parseGripperFromMessageRow(messageRow)
+    this.$armControlStore.setGripperEnabled(gripper.enabled)
+    this.$armControlStore.setGripperTargetPosition(gripper.target)
   }
 
   handleSpeed(message: string) {
     const messageRow = this.getMessageRow(message, SerialMessage.SPEED)
     if (!messageRow) return
-    const speeds = this.$store.parseSpeedsFromMessageRow(messageRow)
-    this.$store.setSpeeds(speeds)
+    const speeds = this.$serialCommStore.parseSpeedsFromMessageRow(messageRow)
+    this.$armControlStore.setSpeeds(speeds)
   }
 
   handleAcceleration(message: string) {
     const messageRow = this.getMessageRow(message, SerialMessage.ACCELERATION)
     if (!messageRow) return
-    const accelerations = this.$store.parseAccelerationsFromMessageRow(
+    const accelerations = this.$serialCommStore.parseAccelerationsFromMessageRow(
       messageRow
     )
-    this.$store.setAccelerations(accelerations)
+    this.$armControlStore.setAccelerations(accelerations)
   }
 
   handleSyncMotors(message: string) {
     const messageRow = this.getMessageRow(message, SerialMessage.SYNC_MOTORS)
     if (!messageRow) return
-    const syncMotors = this.$store.parseSyncMotorsFromMessageRow(messageRow)
-    this.$store.setSyncMotors(syncMotors)
+    const syncMotors = this.$serialCommStore.parseSyncMotorsFromMessageRow(
+      messageRow
+    )
+    this.$armControlStore.setSyncMotors(syncMotors)
   }
 
   getMessageRow(message: string, type: SerialMessage): MessageRow | undefined {

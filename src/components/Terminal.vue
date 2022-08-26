@@ -59,7 +59,7 @@ export default class Terminal extends ArmMixin {
   }
 
   addMessage(message: Message, send = true) {
-    if (!this.$store.state.connected) return
+    if (!this.$connectionStore.connected) return
     message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
     this.serialOutput += message
     this.scrollToBottom()

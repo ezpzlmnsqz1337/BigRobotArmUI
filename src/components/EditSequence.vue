@@ -28,7 +28,7 @@ export default class Sequences extends Vue {
   @Prop() sequenceId = 0
 
   get editedSequence() {
-    return this.$store.state.editedSequence
+    return this.$sequencesStore.editedSequence
   }
 
   get editedSequenceRows() {
@@ -36,11 +36,11 @@ export default class Sequences extends Vue {
   }
 
   saveSequence() {
-    this.$store.saveEditedSequence(this.sequenceId)
+    this.$sequencesStore.saveEditedSequence(this.sequenceId)
   }
 
   cancelEditSequence() {
-    this.$store.stopEditSequence()
+    this.$sequencesStore.stopEditSequence()
   }
 }
 </script>

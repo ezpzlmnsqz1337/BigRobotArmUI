@@ -37,7 +37,7 @@ import { Component } from 'vue-property-decorator'
 })
 export default class Position extends ArmMixin {
   sendCommand() {
-    const p = this.$store.getJointsAttribute('position', 'target')
+    const p = this.$armControlStore.getJointsAttribute('position', 'target')
     console.log(p)
     const command = `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
     this.sendCommandToArm(command)
@@ -45,13 +45,13 @@ export default class Position extends ArmMixin {
 
   sendHomeCommand() {
     const command = Commands.HOME
-    this.$store.home()
+    this.$armControlStore.home()
     this.sendCommandToArm(command)
   }
 
   setZeroPosition() {
     const command = Commands.RESET_POSITION
-    this.$store.home()
+    this.$armControlStore.home()
     this.sendCommandToArm(command)
   }
 }

@@ -21,7 +21,7 @@ import { Component } from 'vue-property-decorator'
 })
 export default class Acceleration extends ArmMixin {
   sendCommand() {
-    const p = this.$store.getJointsAttribute('acceleration', 'value')
+    const p = this.$armControlStore.getJointsAttribute('acceleration', 'value')
     const command = `${Commands.SET_ACCELERATIONS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
     this.sendCommandToArm(command)
   }

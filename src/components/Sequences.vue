@@ -88,7 +88,7 @@ import { Component } from 'vue-property-decorator'
   }
 })
 export default class Sequences extends ArmMixin {
-  sequences = this.$store.state.sequences
+  sequences = this.$sequencesStore.sequences
   selected = 0
   previewQueue: Command[] = []
   previewSpeed = '5'
@@ -100,7 +100,7 @@ export default class Sequences extends ArmMixin {
   }
 
   get editedSequence() {
-    return this.$store.state.editedSequence
+    return this.$sequencesStore.editedSequence
   }
 
   play() {
@@ -115,12 +115,14 @@ export default class Sequences extends ArmMixin {
 
   previewCommand(command: Command | undefined) {
     if (!command) {
-      this.$arm.preview = false
+      this.$armControlStore.arm.preview = false
     } else {
-      this.$arm.preview = true
-      const positions = this.$store.parsePositionFromMessageRow(command)
+      this.$armControlStore.arm.preview = true
+      const positions = this.$serialCommStore.parsePositionFromMessageRow(
+        command
+      )
       if (!positions.length) return
-      this.$store.setTargetPositions(positions)
+      this.$armControlStore.setTargetPositions(positions)
     }
   }
 
@@ -136,13 +138,13 @@ export default class Sequences extends ArmMixin {
   }
 
   removeSequence(sequenceId: number) {
-    this.$store.removeSequence(sequenceId)
+    this.$sequencesStore.removeSequence(sequenceId)
     this.$bvModal.hide('remove-sequence-modal')
   }
 
   editSequence(sequenceId: number) {
     this.selected = sequenceId
-    this.$store.startEditSequence({
+    this.$sequencesStore.startEditSequence({
       name: this.sequences[sequenceId].name,
       data: this.sequences[sequenceId].data.join('\n')
     })
