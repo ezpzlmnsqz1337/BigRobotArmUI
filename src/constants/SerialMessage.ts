@@ -5,5 +5,6 @@ export enum SerialMessage {
   MOVING_TO = 'BigRobotArm::MOVING-TO',
   READY = 'BigRobotArm::READY',
   SPEED = 'BigRobotArm::SPEED',
-  ACCELERATION = 'BigRobotArm::ACCELERATION'
+  ACCELERATION = 'BigRobotArm::ACCELERATION',
+  CONNECTION_STATUS = 'connectionStatus'
 }

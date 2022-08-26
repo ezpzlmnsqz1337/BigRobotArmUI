@@ -23,6 +23,8 @@ import Vue from 'vue'
 
 export interface StoreMethods {
   setConnectionStatus(status: boolean): void
+  startConnecting(): void
+  stopConnecting(): void
   home(): void
   getJointsAttribute(attribute: string, key?: string): JointsAttribute
   getJointByName(name: string): Joint | undefined
@@ -54,6 +56,7 @@ export interface AppStore extends StoreMethods {
 export interface StoreState {
   sequences: Sequence[]
   connected: boolean
+  isConnecting: boolean
   arm: RobotArmData
 }
 
@@ -155,6 +158,7 @@ export type MessageRow = string
 const state: StoreState = {
   sequences,
   connected: false,
+  isConnecting: false,
   arm: {
     joints: [
       {
@@ -294,6 +298,12 @@ const store: AppStore = Vue.observable({
   state,
   setConnectionStatus(status: boolean) {
     this.state.connected = status
+  },
+  startConnecting() {
+    this.state.isConnecting = true
+  },
+  stopConnecting() {
+    this.state.isConnecting = false
   },
   home() {
     this.state.arm.joints.forEach(x => (x.position.target = 0))
