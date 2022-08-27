@@ -3,10 +3,17 @@
     <b-form-group v-for="j in joints" :key="j.name">
       <label :for="j.name">{{ j.name }}</label>
       <b-row>
-        <b-col md="12" lg="2">
-          <b-form-input disabled :value="j[valueName][valueKey]" />
+        <b-col cols="12">
+          <b-form-spinbutton
+            :value="j[valueName][valueKey]"
+            @change="onChange($event, j)"
+            :min="j[valueName].min"
+            :max="j[valueName].max"
+            :step="step"
+            :disabled="!ready"
+          ></b-form-spinbutton>
         </b-col>
-        <b-col md="12" lg="10">
+        <b-col cols="12">
           <b-form-input
             :id="j.name"
             type="range"

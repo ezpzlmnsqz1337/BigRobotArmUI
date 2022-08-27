@@ -11,7 +11,7 @@
         <Acceleration />
       </b-tab>
       <b-tab title="Gripper">
-        <Gripper />
+        <Gripper step="20" />
       </b-tab>
     </b-tabs>
   </div>

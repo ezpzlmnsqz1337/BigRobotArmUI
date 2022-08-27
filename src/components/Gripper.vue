@@ -3,10 +3,18 @@
     <b-form-group>
       <label :for="gripper.name">{{ gripper.name }}</label>
       <b-row>
-        <b-col md="12" lg="2">
-          <b-form-input disabled :value="gripper.position.target" />
+        <b-col md="12">
+          <b-form-spinbutton
+            v-model="gripper.position.target"
+            @change="sendCommand()"
+            :min="gripper.min"
+            :max="gripper.max"
+            :step="step"
+            :disabled="!gripper.enabled || !ready"
+          ></b-form-spinbutton>
+          {{ step }}
         </b-col>
-        <b-col md="12" lg="10">
+        <b-col md="12">
           <b-form-input
             :id="gripper.name"
             type="range"
@@ -15,12 +23,14 @@
             @change="sendCommand()"
             :min="gripper.min"
             :max="gripper.max"
+            :step="step"
             :disabled="!ready"
           />
           <b-checkbox
             v-model="gripper.enabled"
             @change="sendCommand()"
             :disabled="!ready"
+            size="lg"
             >Enabled</b-checkbox
           >
         </b-col>
@@ -32,9 +42,13 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Prop } from 'vue-property-decorator'
 
 export default class Gripper extends ArmMixin {
+  @Prop({ default: 20 }) readonly step!: number
+
   sendCommand() {
+    console.log(this.step)
     const p = this.gripper.position.target
     const e = this.gripper.enabled ? 1 : 0
     const command = `${Commands.GRIPPER} E${e} P${p}`
