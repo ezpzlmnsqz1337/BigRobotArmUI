@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <div ref="armWrapper" class="__armWrapper" />
-  </div>
+  <div ref="armWrapper" class="__armWrapper" />
 </template>
 
 <script lang="ts">
@@ -45,16 +43,11 @@ export default class Model extends ArmMixin {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .__armWrapper {
-  width: 100%;
-  height: 240px;
-  margin: 0 auto;
-}
-
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  .__armWrapper {
-    height: 480px;
-    width: 40vw;
-  }
+  z-index: -999;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 </style>

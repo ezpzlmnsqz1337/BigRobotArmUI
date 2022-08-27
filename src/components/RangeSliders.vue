@@ -25,8 +25,8 @@
 </template>
 
 <script lang="ts">
+import { Joint } from '@/assets/joints'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Joint } from '@/store'
 import { Component, Emit, Prop } from 'vue-property-decorator'
 
 @Component

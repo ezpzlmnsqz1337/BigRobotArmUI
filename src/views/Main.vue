@@ -1,73 +1,34 @@
 <template>
-  <b-container fluid class="text-center my-auto" style="height: 100%">
+  <b-container fluid class="text-center my-auto">
     <Connect />
-    <div v-if="isConnected" class="pt-4">
-      <h1>Big Robot Arm UI</h1>
-      <b-button variant="danger" @click="disconnect()" class="mb-4"
-        ><fa-icon icon="fa-solid fa-ban" />&nbsp;Disconnect</b-button
-      >
-      <b-row>
-        <b-col class="p-lg-5 mb-4" md="12" lg="6">
-          <Model />
-        </b-col>
-        <b-col class="p-lg-5" md="12" lg="6">
-          <b-card>
-            <b-tabs pills fill>
-              <b-tab class="my-3">
-                <template #title>
-                  <fa-icon icon="fa-solid fa-terminal" />
-                </template>
-                <Terminal />
-              </b-tab>
-              <b-tab class="my-3">
-                <template #title>
-                  <fa-icon icon="fa-solid fa-gamepad" />
-                </template>
-                <ManualControl />
-              </b-tab>
-              <b-tab class="my-3">
-                <template #title>
-                  <fa-icon icon="fa-solid fa-sliders" />
-                </template>
-                <Sequences />
-              </b-tab>
-              <b-tab class="my-3">
-                <template #title>
-                  <fa-icon icon="fa-solid fa-square-plus" />
-                </template>
-                <RecordCommands />
-              </b-tab>
-            </b-tabs>
-          </b-card>
-        </b-col>
-      </b-row>
+
+    <div v-if="isConnected" class="__background">
+      <Model />
+      <Sidebar v-if="isConnected" />
+      <div class="text-right m-3">
+        <b-button v-b-toggle.sidebar-footer size="lg">
+          <fa-icon icon="fa-solid fa-bars" />
+        </b-button>
+      </div>
     </div>
   </b-container>
 </template>
 
 <script lang="ts">
-import ManualControl from '@/components/ManualControl.vue'
-import Model from '@/components/Model.vue'
-import RecordCommands from '@/components/RecordCommands.vue'
-import Sequences from '@/components/Sequences.vue'
-import Terminal from '@/components/Terminal.vue'
 import Connect from '@/components/Connect.vue'
+import Model from '@/components/Model.vue'
+import Sidebar from '@/components/Sidebar.vue'
 import { SerialMessage } from '@/constants/SerialMessage'
 import { EventType } from '@/constants/types/EventType'
-import { WebsocketMessage } from '@/constants/WebsocketMessage'
-import ArmMixin from '@/mixins/ArmMixin.vue'
-import ws from '@/shared'
-import { Component } from 'vue-property-decorator'
 import eb from '@/EventBus'
+import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Component } from 'vue-property-decorator'
 
 @Component({
   components: {
-    ManualControl,
-    Terminal,
-    Sequences,
     Model,
-    RecordCommands,
-    Connect
+    Connect,
+    Sidebar
   }
 })
 export default class Main extends ArmMixin {
@@ -77,10 +38,6 @@ export default class Main extends ArmMixin {
 
   created() {
     eb.on(EventType.WS_MESSAGE_RECEIVED, message => this.handleMessage(message))
-  }
-
-  disconnect() {
-    ws.send(WebsocketMessage.WS_DISCONNECT)
   }
 
   handleMessage(message: string) {
@@ -138,4 +95,13 @@ export default class Main extends ArmMixin {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.__background {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+</style>

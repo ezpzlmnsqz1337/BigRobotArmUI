@@ -24,7 +24,8 @@ import {
   faTerminal,
   faGamepad,
   faSliders,
-  faSquarePlus
+  faSquarePlus,
+  faBars
 } from '@fortawesome/free-solid-svg-icons'
 import { faAmazon } from '@fortawesome/free-brands-svg-icons'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
@@ -49,7 +50,8 @@ library.add(
   faTerminal,
   faGamepad,
   faSliders,
-  faSquarePlus
+  faSquarePlus,
+  faBars
 )
 
 /* add font awesome icon component */
