@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Model</h2>
     <div ref="armWrapper" class="__armWrapper" />
   </div>
 </template>

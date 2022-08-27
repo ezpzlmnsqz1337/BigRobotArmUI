@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-tabs pills fill>
+    <b-tabs pills fill small>
       <b-tab title="Position">
         <Position />
       </b-tab>

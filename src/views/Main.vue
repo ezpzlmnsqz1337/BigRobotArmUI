@@ -1,7 +1,7 @@
 <template>
   <b-container fluid class="text-center my-auto" style="height: 100%">
     <Connect />
-    <div v-if="isConnected" class="mt-4">
+    <div v-if="isConnected" class="pt-4">
       <h1>Big Robot Arm UI</h1>
       <b-button variant="danger" @click="disconnect()" class="mb-4"
         ><fa-icon icon="fa-solid fa-ban" />Disconnect</b-button
@@ -11,20 +11,34 @@
           <Model />
         </b-col>
         <b-col class="p-lg-5" md="12" lg="6">
-          <b-tabs pills fill>
-            <b-tab title="Terminal" class="my-3">
-              <Terminal />
-            </b-tab>
-            <b-tab title="Manual Control" class="my-3">
-              <ManualControl />
-            </b-tab>
-            <b-tab title="Sequences" class="my-3">
-              <Sequences />
-            </b-tab>
-            <b-tab title="Record commands" class="my-3">
-              <RecordCommands />
-            </b-tab>
-          </b-tabs>
+          <b-card>
+            <b-tabs pills fill>
+              <b-tab class="my-3">
+                <template #title>
+                  <fa-icon icon="fa-solid fa-terminal" />
+                </template>
+                <Terminal />
+              </b-tab>
+              <b-tab class="my-3">
+                <template #title>
+                  <fa-icon icon="fa-solid fa-gamepad" />
+                </template>
+                <ManualControl />
+              </b-tab>
+              <b-tab class="my-3">
+                <template #title>
+                  <fa-icon icon="fa-solid fa-sliders" />
+                </template>
+                <Sequences />
+              </b-tab>
+              <b-tab class="my-3">
+                <template #title>
+                  <fa-icon icon="fa-solid fa-square-plus" />
+                </template>
+                <RecordCommands />
+              </b-tab>
+            </b-tabs>
+          </b-card>
         </b-col>
       </b-row>
     </div>

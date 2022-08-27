@@ -20,7 +20,11 @@ import {
   faPlug,
   faCircleNotch,
   faHouse,
-  faCrosshairs
+  faCrosshairs,
+  faTerminal,
+  faGamepad,
+  faSliders,
+  faSquarePlus
 } from '@fortawesome/free-solid-svg-icons'
 import { faAmazon } from '@fortawesome/free-brands-svg-icons'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
@@ -41,7 +45,11 @@ library.add(
   faPlug,
   faCircleNotch,
   faHouse,
-  faCrosshairs
+  faCrosshairs,
+  faTerminal,
+  faGamepad,
+  faSliders,
+  faSquarePlus
 )
 
 /* add font awesome icon component */
