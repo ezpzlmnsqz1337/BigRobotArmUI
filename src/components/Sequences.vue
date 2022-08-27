@@ -119,8 +119,9 @@ export default class Sequences extends ArmMixin {
       this.$armControlStore.arm.preview = false
     } else {
       this.$armControlStore.arm.preview = true
+
       const positions = this.$serialCommStore.parseJointsData(
-        command,
+        command.replace('G0', SerialMessage.POSITION),
         SerialMessage.POSITION
       )
       if (!positions) return

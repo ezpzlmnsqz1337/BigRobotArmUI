@@ -11,17 +11,11 @@ export interface RobotArmData {
   isReady: boolean
 }
 
-export interface JointsAttribute {
-  base?: number | string | boolean
-  shoulder?: number | string | boolean
-  elbow?: number | string | boolean
-  wristRotate?: number | string | boolean
-  wrist?: number | string | boolean
-}
-
 export interface ArmControlStore {
   arm: RobotArmData
   home(): void
+  busy(): void
+  ready(): void
   getJoints(): Joint[]
   getJointByName(name: string): Joint | undefined
   setTargetPositions(positions: JointMessageData[]): void
@@ -30,8 +24,6 @@ export interface ArmControlStore {
   setSpeeds(speeds: JointMessageData[]): void
   setAccelerations(accelerations: JointMessageData[]): void
   setSyncMotors(syncMotors: boolean): void
-  busy(): void
-  ready(): void
 }
 
 export const armControlStore: ArmControlStore = {
@@ -45,6 +37,15 @@ export const armControlStore: ArmControlStore = {
   home() {
     this.arm.joints.forEach(x => (x.position.target = 0))
     this.arm.gripper.position.target = GRIPPER_MIN_POSITION
+  },
+  busy() {
+    this.arm.isReady = false
+  },
+  ready() {
+    this.arm.isReady = true
+  },
+  setSyncMotors(syncMotors: boolean) {
+    this.arm.syncMotors = syncMotors
   },
   getJoints() {
     return this.arm.joints
@@ -72,14 +73,5 @@ export const armControlStore: ArmControlStore = {
     joints.forEach((joint, index) => {
       joint.acceleration.value = accelerations[index].value
     })
-  },
-  setSyncMotors(syncMotors: boolean) {
-    this.arm.syncMotors = syncMotors
-  },
-  busy() {
-    this.arm.isReady = false
-  },
-  ready() {
-    this.arm.isReady = true
   }
 }

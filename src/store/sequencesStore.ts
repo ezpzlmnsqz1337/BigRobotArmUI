@@ -1,5 +1,7 @@
 import sequences from '@/assets/sequences'
 
+export const SEQUENCES_LOCAL_STORAGE_KEY = 'sequences'
+
 export interface Sequence {
   name: string
   data: string[]
@@ -26,7 +28,7 @@ export const sequencesStore: SequencesStore = {
   sequences: [],
   editedSequence: null,
   initSequences() {
-    const seqs = localStorage.getItem('sequences')
+    const seqs = localStorage.getItem(SEQUENCES_LOCAL_STORAGE_KEY)
     this.sequences = seqs ? JSON.parse(seqs) : sequences
   },
   startEditSequence(sequence: EditedSequence) {
@@ -50,10 +52,12 @@ export const sequencesStore: SequencesStore = {
     this.saveSequencesToLocalStorage()
   },
   saveSequencesToLocalStorage() {
-    localStorage.setItem('sequences', JSON.stringify(this.sequences))
+    localStorage.setItem(
+      SEQUENCES_LOCAL_STORAGE_KEY,
+      JSON.stringify(this.sequences)
+    )
   },
   addSequence(sequence: Sequence) {
-    if (!sequence) return
     this.sequences.push(sequence)
     this.saveSequencesToLocalStorage()
   },
