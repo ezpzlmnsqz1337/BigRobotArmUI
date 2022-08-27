@@ -79,8 +79,9 @@ import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import EditSequence from '@/components/EditSequence.vue'
-import { Command } from '@/store'
+import { Command } from '@/store/serialCommStore'
 import { Component } from 'vue-property-decorator'
+import { SerialMessage } from '@/constants/SerialMessage'
 
 @Component({
   components: {
@@ -118,10 +119,11 @@ export default class Sequences extends ArmMixin {
       this.$armControlStore.arm.preview = false
     } else {
       this.$armControlStore.arm.preview = true
-      const positions = this.$serialCommStore.parsePositionFromMessageRow(
-        command
+      const positions = this.$serialCommStore.parseJointsData(
+        command,
+        SerialMessage.POSITION
       )
-      if (!positions.length) return
+      if (!positions) return
       this.$armControlStore.setTargetPositions(positions)
     }
   }

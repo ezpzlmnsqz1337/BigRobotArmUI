@@ -15,7 +15,7 @@
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import RangeSliders from '@/components/RangeSliders.vue'
-import { Command } from '@/store'
+import { Command } from '@/store/serialCommStore'
 import { Component } from 'vue-property-decorator'
 
 @Component({
@@ -29,8 +29,10 @@ export default class Speed extends ArmMixin {
   }
 
   sendCommand() {
-    const p = this.$armControlStore.getJointsAttribute('speed', 'value')
-    const command: Command = `${Commands.SET_SPEEDS} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+    const s = this.$armControlStore
+      .getJoints()
+      .map(x => `${x.code}${x.speed.value}`)
+    const command: Command = `${Commands.SET_SPEEDS} ${s.join(' ')}`
     this.sendCommandToArm(command)
   }
 

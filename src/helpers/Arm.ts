@@ -7,7 +7,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import { PerspectiveCamera, Renderer, Scene } from 'three'
-import { Joint, RobotArmData } from '@/store/armControlStore'
+import { RobotArmData } from '@/store/armControlStore'
+import { Joint } from '@/assets/joints'
 
 type InPosition = Record<string, boolean>
 type RotationAxis = 'x' | 'y' | 'z'

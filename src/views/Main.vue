@@ -57,7 +57,6 @@ import { EventType } from '@/constants/types/EventType'
 import { WebsocketMessage } from '@/constants/WebsocketMessage'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import ws from '@/shared'
-import { MessageRow } from '@/store'
 import { Component } from 'vue-property-decorator'
 import eb from '@/EventBus'
 
@@ -98,53 +97,43 @@ export default class Main extends ArmMixin {
   }
 
   handlePositions(message: string) {
-    const messageRow = this.getMessageRow(message, SerialMessage.POSITION)
-    if (!messageRow) return
-    const positions = this.$serialCommStore.parsePositionFromMessageRow(
-      messageRow
+    const positions = this.$serialCommStore.parseJointsData(
+      message,
+      SerialMessage.POSITION
     )
-    if (!positions.length) return
+    if (!positions) return
     this.$armControlStore.setTargetPositions(positions)
   }
 
-  handleGripper(message: string) {
-    const messageRow = this.getMessageRow(message, SerialMessage.GRIPPER)
-    if (!messageRow) return
-    const gripper = this.$serialCommStore.parseGripperFromMessageRow(messageRow)
-    this.$armControlStore.setGripperEnabled(gripper.enabled)
-    this.$armControlStore.setGripperTargetPosition(gripper.target)
-  }
-
   handleSpeed(message: string) {
-    const messageRow = this.getMessageRow(message, SerialMessage.SPEED)
-    if (!messageRow) return
-    const speeds = this.$serialCommStore.parseSpeedsFromMessageRow(messageRow)
+    const speeds = this.$serialCommStore.parseJointsData(
+      message,
+      SerialMessage.SPEED
+    )
+    if (!speeds) return
     this.$armControlStore.setSpeeds(speeds)
   }
 
   handleAcceleration(message: string) {
-    const messageRow = this.getMessageRow(message, SerialMessage.ACCELERATION)
-    if (!messageRow) return
-    const accelerations = this.$serialCommStore.parseAccelerationsFromMessageRow(
-      messageRow
+    const accelerations = this.$serialCommStore.parseJointsData(
+      message,
+      SerialMessage.ACCELERATION
     )
+    if (!accelerations) return
     this.$armControlStore.setAccelerations(accelerations)
   }
 
-  handleSyncMotors(message: string) {
-    const messageRow = this.getMessageRow(message, SerialMessage.SYNC_MOTORS)
-    if (!messageRow) return
-    const syncMotors = this.$serialCommStore.parseSyncMotorsFromMessageRow(
-      messageRow
-    )
-    this.$armControlStore.setSyncMotors(syncMotors)
+  handleGripper(message: string) {
+    const gripper = this.$serialCommStore.parseGripper(message)
+    if (!gripper) return
+    this.$armControlStore.setGripperEnabled(gripper.enabled)
+    this.$armControlStore.setGripperTargetPosition(gripper.target)
   }
 
-  getMessageRow(message: string, type: SerialMessage): MessageRow | undefined {
-    return message
-      .split('\n')
-      .filter(x => x.includes(type))
-      .pop()
+  handleSyncMotors(message: string) {
+    const syncMotors = this.$serialCommStore.parseSyncMotors(message)
+    if (!syncMotors) return
+    this.$armControlStore.setSyncMotors(syncMotors)
   }
 }
 </script>

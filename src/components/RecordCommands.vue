@@ -71,7 +71,7 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Command } from '@/store'
+import { Command } from '@/store/serialCommStore'
 import { Component } from 'vue-property-decorator'
 
 @Component
@@ -80,18 +80,24 @@ export default class RecordPositions extends ArmMixin {
   commands: Command[] = []
 
   get currentPositions() {
-    const p = this.$armControlStore.getJointsAttribute('position', 'target')
-    return `${Commands.GO_TO} B${p.base} S${p.shoulder} E${p.elbow} WR${p.wristRotate} W${p.wrist}`
+    const p = this.$armControlStore
+      .getJoints()
+      .map(x => `${x.code}${x.position.target}`)
+    return `${Commands.GO_TO} ${p.join(' ')}`
   }
 
   get currentSpeeds() {
-    const s = this.$armControlStore.getJointsAttribute('speed', 'value')
-    return `${Commands.SET_SPEEDS} B${s.base} S${s.shoulder} E${s.elbow} WR${s.wristRotate} W${s.wrist}`
+    const s = this.$armControlStore
+      .getJoints()
+      .map(x => `${x.code}${x.speed.value}`)
+    return `${Commands.SET_SPEEDS} ${s.join(' ')}`
   }
 
   get currentAccelerations() {
-    const a = this.$armControlStore.getJointsAttribute('acceleration', 'value')
-    return `${Commands.SET_ACCELERATIONS} B${a.base} S${a.shoulder} E${a.elbow} WR${a.wristRotate} W${a.wrist}`
+    const acc = this.$armControlStore
+      .getJoints()
+      .map(x => `${x.code}${x.acceleration.value}`)
+    return `${Commands.SET_ACCELERATIONS} ${acc.join(' ')}`
   }
 
   get currentSyncMotors() {
