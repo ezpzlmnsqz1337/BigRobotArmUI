@@ -4,7 +4,7 @@
     <div v-if="isConnected" class="pt-4">
       <h1>Big Robot Arm UI</h1>
       <b-button variant="danger" @click="disconnect()" class="mb-4"
-        ><fa-icon icon="fa-solid fa-ban" />Disconnect</b-button
+        ><fa-icon icon="fa-solid fa-ban" />&nbsp;Disconnect</b-button
       >
       <b-row>
         <b-col class="p-lg-5 mb-4" md="12" lg="6">

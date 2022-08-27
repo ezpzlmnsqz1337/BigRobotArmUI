@@ -40,14 +40,15 @@
           </div>
         </b-list-group-item>
       </b-list-group>
-      <b-button-group>
+
+      <div class="my-4">
         <b-button @click="play()" :disabled="!ready"
-          ><fa-icon icon="fa-solid fa-play" />Play</b-button
+          ><fa-icon icon="fa-solid fa-play" />&nbsp;Play</b-button
         >
         <b-button @click="preview()"
-          ><fa-icon icon="fa-solid fa-video" />Preview</b-button
+          ><fa-icon icon="fa-solid fa-video" />&nbsp;Preview</b-button
         >
-      </b-button-group>
+      </div>
     </div>
 
     <EditSequence :sequenceId="selected" />
@@ -160,5 +161,7 @@ export default class Sequences extends ArmMixin {
 .__sequences :deep(.list-group) {
   height: 22rem;
   overflow-y: scroll;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 4px;
 }
 </style>

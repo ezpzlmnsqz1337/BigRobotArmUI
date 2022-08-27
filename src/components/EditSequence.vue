@@ -12,10 +12,10 @@
       <b-textarea v-model="editedSequence.data" :rows="editedSequenceRows" />
     </div>
     <b-button variant="success" @click="saveSequence()"
-      ><fa-icon icon="fa-solid fa-floppy-disk" />Save</b-button
+      ><fa-icon icon="fa-solid fa-floppy-disk" />&nbsp;Save</b-button
     >
     <b-button variant="danger" @click="cancelEditSequence()"
-      ><fa-icon icon="fa-solid fa-ban" />Cancel</b-button
+      ><fa-icon icon="fa-solid fa-ban" />&nbsp;Cancel</b-button
     >
   </div>
 </template>

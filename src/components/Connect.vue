@@ -7,7 +7,10 @@
   >
     <b-button variant="success" @click="connect()" :disabled="isConnecting">
       <fa-icon v-if="isConnecting" icon="fa-solid fa-circle-notch" spin />
-      <fa-icon v-if="!isConnecting" icon="fa-solid fa-plug" />Connect</b-button
+      <fa-icon
+        v-if="!isConnecting"
+        icon="fa-solid fa-plug"
+      />&nbsp;Connect</b-button
     >
   </b-card>
 </template>

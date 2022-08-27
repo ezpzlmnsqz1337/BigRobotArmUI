@@ -1,70 +1,90 @@
 <template>
   <div>
-    <b-input-group>
-      <b-form-input
-        v-model="sequenceName"
-        placeholder="Sequence name..."
-      ></b-form-input>
-      <b-button
-        @click="saveSequence()"
-        variant="primary"
-        :disabled="!canSaveSequence"
-        ><fa-icon icon="fa-solid fa-floppy-disk" />Save sequence</b-button
-      >
-    </b-input-group>
-    <b-row v-for="(p, index) in commands" :key="'pos' + index">
-      <b-col md="8">
-        <b-form-input :value="p" disabled></b-form-input>
-      </b-col>
-      <b-col md="2">
-        <b-button @click="execute(p)">Execute</b-button>
-      </b-col>
-      <b-col md="2">
-        <b-button @click="remove(index)" variant="danger">Remove</b-button>
-      </b-col>
-    </b-row>
-    <b-input-group>
-      <label>Positions</label>
-      <b-form-input :value="currentPositions" disabled></b-form-input>
-      <b-button @click="addPositions()" variant="success"
-        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
-      >
-    </b-input-group>
-
-    <b-input-group>
-      <label>Speeds</label>
-      <b-form-input :value="currentSpeeds" disabled></b-form-input>
-      <b-button @click="addSpeeds()" variant="success"
-        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
-      >
-    </b-input-group>
-
-    <b-input-group>
-      <label>Accelerations</label>
-      <b-form-input :value="currentAccelerations" disabled></b-form-input>
-      <b-button @click="addAccelerations()" variant="success"
-        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
-      >
-    </b-input-group>
-
-    <b-input-group>
-      <label>Sync motors</label>
-      <b-form-input :value="currentSyncMotors" disabled></b-form-input>
-      <b-button @click="addSyncMotors()" variant="success"
-        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
-      >
-    </b-input-group>
-
-    <b-input-group>
-      <label>Gripper</label>
-      <b-form-input :value="currentGripper" disabled></b-form-input>
-      <b-button @click="addGripper()" variant="success"
-        ><fa-icon icon="fa-solid fa-plus" />Add command</b-button
-      >
-    </b-input-group>
-    <b-button @click="addAll()" variant="success"
-      ><fa-icon icon="fa-solid fa-plus" />Add all</b-button
+    <b-form-group
+      label-cols-sm="12"
+      label="Sequence name"
+      class="text-left mt-2"
     >
+      <b-input-group>
+        <b-form-input
+          v-model="sequenceName"
+          placeholder="*My awesome sequence*"
+        ></b-form-input>
+        <b-button
+          @click="saveSequence()"
+          variant="primary"
+          :disabled="!canSaveSequence"
+          ><fa-icon icon="fa-solid fa-floppy-disk"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group
+      label-cols-sm="12"
+      label="Sequence commands"
+      class="text-left mt-2"
+    >
+      <b-input-group v-for="(p, index) in commands" :key="'pos' + index">
+        <b-form-input :value="p" disabled></b-form-input>
+        <b-button @click="execute(p)"
+          ><fa-icon icon="fa-solid fa-play"
+        /></b-button>
+        <b-button @click="remove(index)" variant="danger"
+          ><fa-icon icon="fa-solid fa-ban"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group label-cols-lg="3" label-cols-sm="12" label="Positions">
+      <b-input-group>
+        <b-form-input :value="currentPositions" disabled></b-form-input>
+        <b-button @click="addPositions()" variant="success"
+          ><fa-icon icon="fa-solid fa-plus"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group label-cols-lg="3" label-cols-sm="12" label="Speeds">
+      <b-input-group>
+        <b-form-input :value="currentSpeeds" disabled></b-form-input>
+        <b-button @click="addSpeeds()" variant="success"
+          ><fa-icon icon="fa-solid fa-plus"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group label-cols-lg="3" label-cols-sm="12" label="Accelerations">
+      <b-input-group>
+        <b-form-input :value="currentAccelerations" disabled></b-form-input>
+        <b-button @click="addAccelerations()" variant="success"
+          ><fa-icon icon="fa-solid fa-plus"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group label-cols-lg="3" label-cols-sm="12" label="Sync motors">
+      <b-input-group>
+        <b-form-input :value="currentSyncMotors" disabled></b-form-input>
+        <b-button @click="addSyncMotors()" variant="success"
+          ><fa-icon icon="fa-solid fa-plus"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group label-cols-lg="3" label-cols-sm="12" label="Gripper">
+      <b-input-group>
+        <b-form-input :value="currentGripper" disabled></b-form-input>
+        <b-button @click="addGripper()" variant="success"
+          ><fa-icon icon="fa-solid fa-plus"
+        /></b-button>
+      </b-input-group>
+    </b-form-group>
+
+    <b-form-group>
+      <b-button @click="addAll()" variant="success"
+        ><fa-icon icon="fa-solid fa-plus" />&nbsp;Add all</b-button
+      >
+    </b-form-group>
   </div>
 </template>
 
