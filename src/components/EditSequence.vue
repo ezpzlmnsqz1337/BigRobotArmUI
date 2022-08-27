@@ -25,7 +25,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component
 export default class Sequences extends Vue {
-  @Prop() sequenceId = 0
+  @Prop({ type: Number, default: -1 }) sequenceId!: number
 
   get editedSequence() {
     return this.$sequencesStore.editedSequence

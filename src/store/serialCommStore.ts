@@ -1,5 +1,6 @@
 import { SerialMessage } from '@/constants/SerialMessage'
 import joints from '@/assets/joints'
+import { Commands } from '@/constants/Commands'
 
 export type Message = string
 export type MessageRow = string

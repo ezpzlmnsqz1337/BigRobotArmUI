@@ -4,7 +4,7 @@ import eb from '@/EventBus'
 import ws from '@/shared'
 import { Component, Vue } from 'vue-property-decorator'
 
-import { Command } from '@/store'
+import { Command } from '@/store/serialCommStore'
 
 @Component
 export default class ArmMixin extends Vue {

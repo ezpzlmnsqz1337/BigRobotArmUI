@@ -80,24 +80,15 @@ export default class RecordPositions extends ArmMixin {
   commands: Command[] = []
 
   get currentPositions() {
-    const p = this.$armControlStore
-      .getJoints()
-      .map(x => `${x.code}${x.position.target}`)
-    return `${Commands.GO_TO} ${p.join(' ')}`
+    return this.$armControlStore.createPositionCommand()
   }
 
   get currentSpeeds() {
-    const s = this.$armControlStore
-      .getJoints()
-      .map(x => `${x.code}${x.speed.value}`)
-    return `${Commands.SET_SPEEDS} ${s.join(' ')}`
+    return this.$armControlStore.createSpeedCommand()
   }
 
   get currentAccelerations() {
-    const acc = this.$armControlStore
-      .getJoints()
-      .map(x => `${x.code}${x.acceleration.value}`)
-    return `${Commands.SET_ACCELERATIONS} ${acc.join(' ')}`
+    return this.$armControlStore.createAccelerationCommand()
   }
 
   get currentSyncMotors() {

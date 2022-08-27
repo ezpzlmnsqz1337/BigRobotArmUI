@@ -9,9 +9,8 @@
 </template>
 
 <script lang="ts">
-import { Commands } from '@/constants/Commands'
-import ArmMixin from '@/mixins/ArmMixin.vue'
 import RangeSliders from '@/components/RangeSliders.vue'
+import ArmMixin from '@/mixins/ArmMixin.vue'
 import { Component } from 'vue-property-decorator'
 
 @Component({
@@ -21,10 +20,7 @@ import { Component } from 'vue-property-decorator'
 })
 export default class Acceleration extends ArmMixin {
   sendCommand() {
-    const acc = this.$armControlStore
-      .getJoints()
-      .map(x => `${x.code}${x.acceleration.value}`)
-    const command = `${Commands.SET_ACCELERATIONS} ${acc.join(' ')}`
+    const command = this.$armControlStore.createAccelerationCommand()
     this.sendCommandToArm(command)
   }
 }

@@ -1,7 +1,9 @@
 import { GRIPPER_MIN_POSITION } from '@/assets/config'
 import gripper from '@/assets/gripper'
 import joints, { Gripper, Joint } from '@/assets/joints'
-import { JointMessageData } from './serialCommStore'
+import { Commands } from '@/constants/Commands'
+import { SerialMessage } from '@/constants/SerialMessage'
+import { Command, JointMessageData } from './serialCommStore'
 
 export interface RobotArmData {
   joints: Joint[]
@@ -24,6 +26,9 @@ export interface ArmControlStore {
   setSpeeds(speeds: JointMessageData[]): void
   setAccelerations(accelerations: JointMessageData[]): void
   setSyncMotors(syncMotors: boolean): void
+  createPositionCommand(): Command
+  createSpeedCommand(): Command
+  createAccelerationCommand(): Command
 }
 
 export const armControlStore: ArmControlStore = {
@@ -60,18 +65,30 @@ export const armControlStore: ArmControlStore = {
     this.arm.gripper.position.target = position
   },
   setTargetPositions(positions: JointMessageData[]) {
-    joints.forEach((joint, index) => {
+    this.arm.joints.forEach((joint, index) => {
       joint.position.target = positions[index].value
     })
   },
   setSpeeds(speeds: JointMessageData[]) {
-    joints.forEach((joint, index) => {
+    this.arm.joints.forEach((joint, index) => {
       joint.speed.value = speeds[index].value
     })
   },
   setAccelerations(accelerations: JointMessageData[]) {
-    joints.forEach((joint, index) => {
+    this.arm.joints.forEach((joint, index) => {
       joint.acceleration.value = accelerations[index].value
     })
+  },
+  createPositionCommand() {
+    const p = this.arm.joints.map(x => `${x.code}${x.position.target}`)
+    return `${Commands.GO_TO} ${p.join(' ')}`
+  },
+  createSpeedCommand() {
+    const p = this.arm.joints.map(x => `${x.code}${x.speed.value}`)
+    return `${Commands.SET_SPEEDS} ${p.join(' ')}`
+  },
+  createAccelerationCommand() {
+    const p = this.arm.joints.map(x => `${x.code}${x.acceleration.value}`)
+    return `${Commands.SET_ACCELERATIONS} ${p.join(' ')}`
   }
 }
