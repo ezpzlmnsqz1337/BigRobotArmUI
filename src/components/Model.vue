@@ -44,7 +44,7 @@ export default class Model extends ArmMixin {
 <style scoped lang="scss">
 .__armWrapper {
   z-index: -999;
-  position: fixed;
+  position: absolute;
   top: 0;
   bottom: 0;
   left: 0;

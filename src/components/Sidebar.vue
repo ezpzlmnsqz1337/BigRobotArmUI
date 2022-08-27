@@ -4,7 +4,7 @@
     title="Big Robot Arm UI"
     shadow
     right
-    width="40vw"
+    @change="change()"
   >
     <template #footer>
       <div class="d-flex justify-content-end px-3 py-3">
@@ -49,7 +49,7 @@ import Sequences from '@/components/Sequences.vue'
 import Terminal from '@/components/Terminal.vue'
 import { WebsocketMessage } from '@/constants/WebsocketMessage'
 import ws from '@/shared'
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Emit } from 'vue-property-decorator'
 
 @Component({
   components: {
@@ -60,6 +60,9 @@ import { Vue, Component } from 'vue-property-decorator'
   }
 })
 export default class Sidebar extends Vue {
+  @Emit('change')
+  change() {}
+
   disconnect() {
     ws.send(WebsocketMessage.WS_DISCONNECT)
   }

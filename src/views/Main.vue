@@ -2,11 +2,11 @@
   <b-container fluid class="text-center my-auto">
     <Connect />
 
-    <div v-if="isConnected" class="__background">
-      <Model />
-      <Sidebar v-if="isConnected" />
+    <div v-if="isConnected" class="__model" :class="{ __shrink: menuOpen }">
+      <Model ref="model" />
+      <Sidebar @change="menuOpen ? closeMenu() : openMenu()" />
       <div class="text-right m-3">
-        <b-button v-b-toggle.sidebar-footer size="lg">
+        <b-button v-show="!menuOpen" v-b-toggle.sidebar-footer size="lg">
           <fa-icon icon="fa-solid fa-bars" />
         </b-button>
       </div>
@@ -32,6 +32,12 @@ import { Component } from 'vue-property-decorator'
   }
 })
 export default class Main extends ArmMixin {
+  $refs!: {
+    model: Model
+  }
+
+  menuOpen = false
+
   get isConnected() {
     return this.$connectionStore.connected
   }
@@ -92,6 +98,16 @@ export default class Main extends ArmMixin {
     if (!syncMotors) return
     this.$armControlStore.setSyncMotors(syncMotors)
   }
+
+  openMenu() {
+    this.menuOpen = true
+    setTimeout(() => this.$refs.model.handleResize(), 300)
+  }
+
+  closeMenu() {
+    this.menuOpen = false
+    setTimeout(() => this.$refs.model.handleResize())
+  }
 }
 </script>
 
@@ -103,5 +119,36 @@ export default class Main extends ArmMixin {
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.__model {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  :deep(div#sidebar-footer) {
+    width: 40vw;
+  }
+}
+
+@media only screen and (min-width: 1024px) {
+  .__model.__shrink {
+    right: 40vw;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .__model :deep(div#sidebar-footer) {
+    position: fixed;
+    width: 100%;
+    height: 60vh;
+    left: 0;
+    right: 0;
+    top: 40vh;
+    bottom: 0;
+  }
 }
 </style>

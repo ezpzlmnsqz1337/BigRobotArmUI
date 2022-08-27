@@ -80,6 +80,12 @@ export default class Terminal extends ArmMixin {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .__serialOutput {
-  height: 15rem;
+  height: 68vh;
+}
+
+@media only screen and (max-width: 600px) {
+  .__serialOutput {
+    height: 25vh;
+  }
 }
 </style>

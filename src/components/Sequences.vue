@@ -159,9 +159,15 @@ export default class Sequences extends ArmMixin {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .__sequences :deep(.list-group) {
-  height: 22rem;
+  height: 50vh;
   overflow-y: scroll;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 4px;
+}
+
+@media only screen and (max-width: 600px) {
+  .__sequences :deep(.list-group) {
+    height: 20vh;
+  }
 }
 </style>
