@@ -35,6 +35,12 @@ export class Arm {
   static readonly SCENE_NAME = 'BigRobotArm'
   static readonly BACKGROUND_COLOR: ColorRepresentation = 0xe9e9e9
   static readonly LIGHT_COLOR: ColorRepresentation = 0xffffff
+  static readonly DEFAULT_CAMERA_POSITION: THREE.Vector3Tuple = [0.7, 1, 0.7]
+  static readonly DEFAULT_CAMERA_ROTATION: THREE.Vector3Tuple = [
+    -0.49,
+    0.72,
+    0.34
+  ]
 
   constructor(el: HTMLElement, arm: RobotArmData) {
     this.el = el
@@ -61,6 +67,7 @@ export class Arm {
     this.animate()
 
     eb.on(EventType.SET_PREVIEW_SPEED, e => (this.previewSpeed = e))
+    eb.on(EventType.CENTER_CAMERA, () => this.centerCamera())
   }
 
   animate() {
@@ -172,7 +179,7 @@ export class Arm {
     this.scene.add(pLight)
     this.scene.add(helper)
 
-    this.camera.position.set(0.5, 0.5, 0.5)
+    this.camera.position.set(...Arm.DEFAULT_CAMERA_POSITION)
   }
 
   private _createPointLight(
@@ -200,7 +207,6 @@ export class Arm {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.autoRotate = false
-    this.controls.autoRotateSpeed = -10
     this.controls.screenSpacePanning = true
   }
 
@@ -241,8 +247,9 @@ export class Arm {
     if (!arm) return
     const center = new THREE.Vector3()
     new THREE.Box3().setFromObject(arm).getCenter(center)
-    this.camera.lookAt(center)
-    // console.log(arm)
+    this.controls?.target.set(center.x, center.y, center.z)
+    this.camera.position.set(...Arm.DEFAULT_CAMERA_POSITION)
+    this.camera.rotation.set(...Arm.DEFAULT_CAMERA_ROTATION)
   }
 
   setupShafts() {

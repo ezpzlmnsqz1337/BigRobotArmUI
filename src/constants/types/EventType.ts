@@ -4,6 +4,7 @@ export enum EventType {
   // arm events
   ARM_IN_POSITION = 'arm-in-position',
   SET_PREVIEW_SPEED = 'arm-set-preview-speed',
+  CENTER_CAMERA = 'center-camera',
   // window events
   WINDOW_RESIZE = 'resize'
 }

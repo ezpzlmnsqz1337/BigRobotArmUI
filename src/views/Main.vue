@@ -5,9 +5,15 @@
     <div v-if="isConnected" class="__model" :class="{ __shrink: menuOpen }">
       <Model ref="model" />
       <Sidebar @change="menuOpen ? closeMenu() : openMenu()" />
-      <div class="text-right m-3">
-        <b-button v-show="!menuOpen" v-b-toggle.sidebar-footer size="lg">
+      <div class="__menu">
+        <b-button v-b-toggle.sidebar-footer size="lg">
           <fa-icon icon="fa-solid fa-bars" />
+        </b-button>
+      </div>
+
+      <div class="__controls">
+        <b-button size="lg" @click="resetCamera()">
+          <fa-icon icon="fa-solid fa-crosshairs" />
         </b-button>
       </div>
     </div>
@@ -108,6 +114,10 @@ export default class Main extends ArmMixin {
     this.menuOpen = false
     setTimeout(() => this.$refs.model.handleResize())
   }
+
+  resetCamera() {
+    eb.emit(EventType.CENTER_CAMERA)
+  }
 }
 </script>
 
@@ -134,6 +144,18 @@ export default class Main extends ArmMixin {
   }
 }
 
+.__menu {
+  position: fixed;
+  right: 1rem;
+  top: 1rem;
+}
+
+.__controls {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+}
+
 @media only screen and (min-width: 1024px) {
   .__model.__shrink {
     right: 40vw;
@@ -141,6 +163,10 @@ export default class Main extends ArmMixin {
 }
 
 @media only screen and (max-width: 600px) {
+  .__model.__shrink {
+    bottom: 60vh;
+  }
+
   .__model :deep(div#sidebar-footer) {
     position: fixed;
     width: 100%;
@@ -149,6 +175,18 @@ export default class Main extends ArmMixin {
     right: 0;
     top: 40vh;
     bottom: 0;
+  }
+
+  .__model :deep(.b-sidebar) {
+    transform: translateY(0);
+  }
+
+  .__model :deep(.b-sidebar.slide) {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .__model :deep(.b-sidebar.b-sidebar-right.slide:not(.show)) {
+    transform: translateY(100%);
   }
 }
 </style>
