@@ -145,8 +145,10 @@ export class Arm {
   setupControls() {
     if (!this.renderer || !this.camera) return
 
+    console.log('MY COTNROLS')
+
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.autoRotate = false
+    this.controls.autoRotate = true
     this.controls.autoRotateSpeed = -10
     this.controls.screenSpacePanning = true
   }
@@ -190,21 +192,9 @@ export class Arm {
   setupShafts() {
     if (!this.scene || !this.camera) return
 
-    this.arm.joints.find(
-      x => x.name === 'base'
-    )!.mesh = this.scene.getObjectByName('ShaftBase')
-    this.arm.joints.find(
-      x => x.name === 'shoulder'
-    )!.mesh = this.scene.getObjectByName('ShaftShoulder')
-    this.arm.joints.find(
-      x => x.name === 'elbow'
-    )!.mesh = this.scene.getObjectByName('ShaftElbow')
-    this.arm.joints.find(
-      x => x.name === 'wristRotate'
-    )!.mesh = this.scene.getObjectByName('ShaftWristRotate')
-    this.arm.joints.find(
-      x => x.name === 'wrist'
-    )!.mesh = this.scene.getObjectByName('ShaftWrist')
+    this.arm.joints.forEach(x => {
+      x.mesh = this.scene?.getObjectByName(x.meshId)
+    })
   }
 
   setPosition() {}

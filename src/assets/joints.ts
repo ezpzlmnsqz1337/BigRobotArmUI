@@ -24,7 +24,8 @@ export interface Joint {
   speed: JointSpeed
   acceleration: JointAcceleration
   stepsPerDegree: number
-  mesh?: Object3D
+  meshId: string
+  mesh?: Object3D | null
   inverted: boolean
   rotationAxis: string
 }
@@ -72,7 +73,8 @@ export default [
       max: 500
     },
     stepsPerDegree: BASE_STEPS_PER_DEGREE,
-    mesh: undefined,
+    meshId: 'ShaftBase',
+    mesh: null,
     inverted: false,
     rotationAxis: 'y'
   },
@@ -96,7 +98,8 @@ export default [
       max: 500
     },
     stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
-    mesh: undefined,
+    meshId: 'ShaftShoulder',
+    mesh: null,
     inverted: true,
     rotationAxis: 'z'
   },
@@ -120,7 +123,8 @@ export default [
       max: 500
     },
     stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
-    mesh: undefined,
+    meshId: 'ShaftElbow',
+    mesh: null,
     inverted: true,
     rotationAxis: 'z'
   },
@@ -144,7 +148,8 @@ export default [
       max: 500
     },
     stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
-    mesh: undefined,
+    meshId: 'ShaftWristRotate',
+    mesh: null,
     inverted: true,
     rotationAxis: 'y'
   },
@@ -168,7 +173,8 @@ export default [
       max: 500
     },
     stepsPerDegree: WRIST_STEPS_PER_DEGREE,
-    mesh: undefined,
+    meshId: 'ShaftWrist',
+    mesh: null,
     inverted: false,
     rotationAxis: 'z'
   }

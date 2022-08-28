@@ -2,7 +2,6 @@ import { GRIPPER_MIN_POSITION } from '@/assets/config'
 import gripper from '@/assets/gripper'
 import joints, { Gripper, Joint } from '@/assets/joints'
 import { Commands } from '@/constants/Commands'
-import { SerialMessage } from '@/constants/SerialMessage'
 import { Command, JointMessageData } from './serialCommStore'
 
 export interface RobotArmData {
