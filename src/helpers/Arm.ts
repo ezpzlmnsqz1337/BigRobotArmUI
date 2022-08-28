@@ -4,11 +4,17 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+import { Joint } from '@/assets/joints'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
-import { PerspectiveCamera, Renderer, Scene } from 'three'
 import { RobotArmData } from '@/store/armControlStore'
-import { Joint } from '@/assets/joints'
+import {
+  ColorRepresentation,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  Renderer,
+  Scene
+} from 'three'
 
 type InPosition = Record<string, boolean>
 type RotationAxis = 'x' | 'y' | 'z'
@@ -25,6 +31,10 @@ export class Arm {
   protected firedInPosition = false
   protected previewSpeed = 0.005
   protected arm: RobotArmData
+
+  static readonly SCENE_NAME = 'BigRobotArm'
+  static readonly BACKGROUND_COLOR: ColorRepresentation = 0xe9e9e9
+  static readonly LIGHT_COLOR: ColorRepresentation = 0xffffff
 
   constructor(el: HTMLElement, arm: RobotArmData) {
     this.el = el
@@ -120,35 +130,76 @@ export class Arm {
       1000
     )
 
-    this.renderer = new THREE.WebGLRenderer()
+    this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
+    ;(this.renderer as THREE.WebGLRenderer).shadowMap.enabled = true
+    ;(this.renderer as THREE.WebGLRenderer).shadowMap.type =
+      THREE.PCFSoftShadowMap
     this.el.appendChild(this.renderer.domElement)
 
-    const light = new THREE.AmbientLight(0x404040) // soft white light
-    light.intensity = 3
-    this.scene.background = new THREE.Color(0xdddddd)
-    this.scene.add(light)
+    const texture = new THREE.TextureLoader().load(
+      require('@/assets/textures/wood-floor.jpg')
+    )
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(10, 10)
 
-    this.camera.position.x = 1
-    this.camera.position.y = 1
-    this.camera.position.z = 0.5
+    // immediately use the texture for material creation
+    const woodFloorMaterial = new THREE.MeshStandardMaterial({ map: texture })
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 10, 10, 10),
+      woodFloorMaterial
+    )
+    ground.receiveShadow = true
+    ground.rotation.x = Math.PI / 2
+    ground.rotation.y = Math.PI
+
+    const aLight = new THREE.AmbientLight(Arm.LIGHT_COLOR, 0.3)
+
+    const pLight = this._createPointLight(
+      Arm.LIGHT_COLOR,
+      0.8,
+      new THREE.Vector3(1.1, 2.5, 1.1),
+      true
+    )
+    const helper = new THREE.PointLightHelper(pLight, 1)
+
+    this.scene.background = new THREE.Color(Arm.BACKGROUND_COLOR)
+
+    this.scene.add(ground)
+    this.scene.add(aLight)
+    this.scene.add(pLight)
+    this.scene.add(helper)
+
+    this.camera.position.set(0.5, 0.5, 0.5)
+  }
+
+  private _createPointLight(
+    color: ColorRepresentation,
+    intensity: number,
+    position?: THREE.Vector3,
+    shadow?: boolean
+  ) {
+    const pLight = new THREE.PointLight(color, intensity)
+    pLight.castShadow = !!shadow
+    pLight.shadow.mapSize = new THREE.Vector2(2048, 2048)
+    pLight.shadow.bias = -0.00001
+    if (position) {
+      pLight.position.set(position.x, position.y, position.z)
+    }
+    return pLight
   }
 
   setupStats() {
     this.stats = Stats()
     this.stats.dom.style.height = '48px'
-    // [].forEach.call(
-    //   this.stats.dom.children,
-    //   child => (child.style.display = '')
-    // )
   }
   setupControls() {
     if (!this.renderer || !this.camera) return
 
-    console.log('MY COTNROLS')
-
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.autoRotate = true
+    this.controls.autoRotate = false
     this.controls.autoRotateSpeed = -10
     this.controls.screenSpacePanning = true
   }
@@ -167,7 +218,12 @@ export class Arm {
         if (!this.scene) return
         this.scene.add(gltf.scene)
         // console.log(this.scene, gltf)
-        gltf.scene.name = 'BigRobotArm'
+        gltf.scene.name = Arm.SCENE_NAME
+        gltf.scene.position.y = 0.4
+        gltf.scene.traverse(x => {
+          x.castShadow = true
+          x.receiveShadow = true
+        })
         this.setupShafts()
         this.centerCamera()
       },
@@ -181,7 +237,7 @@ export class Arm {
   centerCamera() {
     if (!this.scene || !this.camera) return
 
-    const arm = this.scene.getObjectByName('BigRobotArm')
+    const arm = this.scene.getObjectByName(Arm.SCENE_NAME)
     if (!arm) return
     const center = new THREE.Vector3()
     new THREE.Box3().setFromObject(arm).getCenter(center)
