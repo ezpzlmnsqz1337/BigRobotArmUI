@@ -1,6 +1,12 @@
-import { SerialMessage } from '@/constants/SerialMessage'
 import joints from '@/assets/joints'
 import { Commands } from '@/constants/Commands'
+import { SerialMessage } from '@/constants/SerialMessage'
+import { EventType } from '@/constants/types/EventType'
+import { WebsocketMessage } from '@/constants/WebsocketMessage'
+import eb from '@/EventBus'
+
+const hostname = 'roborukapi4'
+let ws: WebSocket | null = null
 
 export type Message = string
 export type MessageRow = string
@@ -16,7 +22,7 @@ export interface JointMessageData {
   value: number
 }
 
-export interface SerialCommStore {
+export interface CommunicationStore {
   parseJointsData(
     message: Message,
     dataType: SerialMessage
@@ -24,9 +30,12 @@ export interface SerialCommStore {
   parseGripper(message: Message): GripperMessageData | undefined
   parseSyncMotors(message: Message): boolean | undefined
   getMessageRow(message: string, type: SerialMessage): MessageRow | undefined
+  connect(): void
+  disconnect(): void
+  sendCommand(command: Command): void
 }
 
-export const serialCommStore: SerialCommStore = {
+export const communicationStore: CommunicationStore = {
   parseJointsData(message: Message, dataType: SerialMessage) {
     const messageRow = this.getMessageRow(message, dataType)
     if (!messageRow) return
@@ -64,5 +73,23 @@ export const serialCommStore: SerialCommStore = {
       .split('\n')
       .filter(x => x.includes(type))
       .pop()
+  },
+  connect() {
+    ws = new WebSocket(`ws://${hostname}:1337`)
+    ws.onmessage = event => eb.emit(EventType.WS_MESSAGE_RECEIVED, event.data)
+    ws.onopen = () => {
+      this.sendCommand(WebsocketMessage.WS_CONNECT)
+      this.sendCommand(Commands.STATUS)
+    }
+  },
+  disconnect() {
+    console.log('DISCONNECT')
+    this.sendCommand(WebsocketMessage.WS_DISCONNECT)
+    ws?.close()
+    ws = null
+  },
+  sendCommand(command: Command) {
+    eb.emit(EventType.WS_MESSAGE_SEND, command)
+    ws?.send(command)
   }
 }

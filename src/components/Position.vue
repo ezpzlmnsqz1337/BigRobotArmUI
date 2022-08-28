@@ -9,10 +9,16 @@
     </div>
     <div>
       <b-form-group>
-        <b-button size="large" @click="setZeroPosition()" :disabled="!ready"
+        <b-button
+          size="large"
+          @click="setZeroPosition()"
+          :disabled="!isConnected || !ready"
           ><fa-icon icon="fa-solid fa-crosshairs" />&nbsp;Set zero</b-button
         >
-        <b-button size="large" @click="sendHomeCommand()" :disabled="!ready"
+        <b-button
+          size="large"
+          @click="sendHomeCommand()"
+          :disabled="!isConnected || !ready"
           ><fa-icon icon="fa-solid fa-house" />&nbsp;Home</b-button
         >
       </b-form-group>

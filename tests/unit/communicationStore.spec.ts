@@ -1,5 +1,5 @@
 import { SerialMessage } from '@/constants/SerialMessage'
-import { serialCommStore } from '@/store/serialCommStore'
+import { communicationStore } from '@/store/communicationStore'
 
 describe('SerialCommStore', () => {
   const positionMessage = 'BigRobotArm::POSITION: B100 S200 E300 WR400 W500'
@@ -24,14 +24,14 @@ describe('SerialCommStore', () => {
       SerialMessage.ACCELERATION,
       SerialMessage.SPEED
     ].forEach(x =>
-      expect(serialCommStore.parseJointsData(statusMessage, x)).toBeDefined()
+      expect(communicationStore.parseJointsData(statusMessage, x)).toBeDefined()
     )
-    expect(serialCommStore.parseGripper(statusMessage)).toBeDefined()
-    expect(serialCommStore.parseSyncMotors(statusMessage)).toBeDefined()
+    expect(communicationStore.parseGripper(statusMessage)).toBeDefined()
+    expect(communicationStore.parseSyncMotors(statusMessage)).toBeDefined()
   })
 
   it('should parse position from message', () => {
-    const positions = serialCommStore.parseJointsData(
+    const positions = communicationStore.parseJointsData(
       statusMessage,
       SerialMessage.POSITION
     )
@@ -50,7 +50,7 @@ describe('SerialCommStore', () => {
   })
 
   it('should parse acceleration from message', () => {
-    const accelerations = serialCommStore.parseJointsData(
+    const accelerations = communicationStore.parseJointsData(
       statusMessage,
       SerialMessage.ACCELERATION
     )
@@ -69,7 +69,7 @@ describe('SerialCommStore', () => {
   })
 
   it('should parse speed from message', () => {
-    const speeds = serialCommStore.parseJointsData(
+    const speeds = communicationStore.parseJointsData(
       statusMessage,
       SerialMessage.SPEED
     )
@@ -88,33 +88,33 @@ describe('SerialCommStore', () => {
   })
 
   it('should parse gripper state from message', () => {
-    const gripper = serialCommStore.parseGripper(statusMessage)
+    const gripper = communicationStore.parseGripper(statusMessage)
 
     expect(gripper?.enabled).toEqual(false)
     expect(gripper?.target).toEqual(90)
   })
 
   it('should parse syncMotors from message', () => {
-    const syncMotors = serialCommStore.parseSyncMotors(statusMessage)
+    const syncMotors = communicationStore.parseSyncMotors(statusMessage)
 
     expect(syncMotors).toEqual(true)
   })
 
   it('should return undefined if message does not contain wanted information', () => {
-    const positions = serialCommStore.parseJointsData(
+    const positions = communicationStore.parseJointsData(
       wrongMessage,
       SerialMessage.POSITION
     )
-    const accelerations = serialCommStore.parseJointsData(
+    const accelerations = communicationStore.parseJointsData(
       wrongMessage,
       SerialMessage.ACCELERATION
     )
-    const speeds = serialCommStore.parseJointsData(
+    const speeds = communicationStore.parseJointsData(
       wrongMessage,
       SerialMessage.SPEED
     )
-    const gripper = serialCommStore.parseGripper(wrongMessage)
-    const syncMotors = serialCommStore.parseSyncMotors(wrongMessage)
+    const gripper = communicationStore.parseGripper(wrongMessage)
+    const syncMotors = communicationStore.parseSyncMotors(wrongMessage)
 
     expect(positions).toBeUndefined()
     expect(accelerations).toBeUndefined()

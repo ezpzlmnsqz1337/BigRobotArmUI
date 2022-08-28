@@ -8,7 +8,8 @@
   >
     <template #footer>
       <div class="d-flex justify-content-end px-3 py-3">
-        <b-button variant="danger" @click="disconnect()"
+        <Connect v-if="!isConnected" />
+        <b-button v-if="isConnected" variant="danger" @click="disconnect()"
           ><fa-icon icon="fa-solid fa-ban" />&nbsp;Disconnect</b-button
         >
       </div>
@@ -47,24 +48,29 @@ import ManualControl from '@/components/ManualControl.vue'
 import RecordCommands from '@/components/RecordCommands.vue'
 import Sequences from '@/components/Sequences.vue'
 import Terminal from '@/components/Terminal.vue'
-import { WebsocketMessage } from '@/constants/WebsocketMessage'
-import ws from '@/shared'
-import { Vue, Component, Emit } from 'vue-property-decorator'
+import { Component, Emit, Vue } from 'vue-property-decorator'
+import Connect from './Connect.vue'
 
 @Component({
   components: {
     ManualControl,
     Terminal,
     Sequences,
-    RecordCommands
+    RecordCommands,
+    Connect
   }
 })
 export default class Sidebar extends Vue {
   @Emit('change')
   change() {}
 
+  get isConnected() {
+    return this.$connectionStore.connected
+  }
+
   disconnect() {
-    ws.send(WebsocketMessage.WS_DISCONNECT)
+    this.$connectionStore.setConnectionStatus(false)
+    this.$communicationStore.disconnect()
   }
 }
 </script>

@@ -42,7 +42,7 @@
       </b-list-group>
 
       <div class="my-4">
-        <b-button @click="play()" :disabled="!ready"
+        <b-button @click="play()" :disabled="!isConnected || !ready"
           ><fa-icon icon="fa-solid fa-play" />&nbsp;Play</b-button
         >
         <b-button @click="preview()"
@@ -80,7 +80,7 @@ import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import EditSequence from '@/components/EditSequence.vue'
-import { Command } from '@/store/serialCommStore'
+import { Command } from '@/store/communicationStore'
 import { Component } from 'vue-property-decorator'
 import { SerialMessage } from '@/constants/SerialMessage'
 
@@ -95,14 +95,17 @@ export default class Sequences extends ArmMixin {
   previewQueue: Command[] = []
   previewSpeed = '5'
 
+  get isConnected() {
+    return this.$connectionStore.connected
+  }
+  get editedSequence() {
+    return this.$sequencesStore.editedSequence
+  }
+
   created() {
     eb.on(EventType.ARM_IN_POSITION, () =>
       this.previewCommand(this.previewQueue.shift())
     )
-  }
-
-  get editedSequence() {
-    return this.$sequencesStore.editedSequence
   }
 
   play() {
@@ -121,7 +124,7 @@ export default class Sequences extends ArmMixin {
     } else {
       this.$armControlStore.arm.preview = true
 
-      const positions = this.$serialCommStore.parseJointsData(
+      const positions = this.$communicationStore.parseJointsData(
         command.replace('G0', SerialMessage.POSITION),
         SerialMessage.POSITION
       )

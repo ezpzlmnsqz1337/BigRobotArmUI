@@ -3,7 +3,11 @@
     <b-row>
       <b-col class="my-auto controls">
         <RangeSliders valueName="speed" @on-change="sendCommand()" />
-        <b-checkbox v-model="syncMotors" @change="sendSyncMotorsCommand()"
+        <b-checkbox
+          v-model="syncMotors"
+          size="lg"
+          @change="sendSyncMotorsCommand()"
+          :disabled="!isConnected || !ready"
           >Sync motors</b-checkbox
         >
       </b-col>
@@ -15,7 +19,7 @@
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import RangeSliders from '@/components/RangeSliders.vue'
-import { Command } from '@/store/serialCommStore'
+import { Command } from '@/store/communicationStore'
 import { Component } from 'vue-property-decorator'
 
 @Component({

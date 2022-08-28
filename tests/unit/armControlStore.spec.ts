@@ -1,7 +1,7 @@
 import { GRIPPER_MIN_POSITION } from '@/assets/config'
 import joints from '@/assets/joints'
 import { armControlStore } from '@/store/armControlStore'
-import { JointMessageData } from '@/store/serialCommStore'
+import { JointMessageData } from '@/store/communicationStore'
 
 describe('ArmControlStore', () => {
   it('should set isReady to true when ready() is called', () => {

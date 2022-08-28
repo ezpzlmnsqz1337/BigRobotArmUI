@@ -11,11 +11,19 @@
         placeholder="Enter command..."
         v-model="command"
         v-on:keyup.native.enter="sendCommand()"
+        :disabled="!isConnected || !ready"
       ></b-form-input>
-      <b-button @click="sendCommand()" variant="primary" :disabled="!ready"
+      <b-button
+        @click="sendCommand()"
+        variant="primary"
+        :disabled="!isConnected || !ready"
         ><fa-icon icon="fa-solid fa-play" />&nbsp;Send</b-button
       >
-      <b-button @click="scrollToBottom()" :pressed.sync="autoscroll">
+      <b-button
+        @click="scrollToBottom()"
+        :pressed.sync="autoscroll"
+        :disabled="!isConnected"
+      >
         <fa-icon v-if="autoscroll" icon="fa-solid fa-lock" />
         <fa-icon v-if="!autoscroll" icon="fa-solid fa-lock-open" />
         &nbsp;Autoscroll</b-button
@@ -29,7 +37,7 @@ import { Commands } from '@/constants/Commands'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Command, Message } from '@/store/serialCommStore'
+import { Command, Message } from '@/store/communicationStore'
 import { BFormTextarea } from 'bootstrap-vue'
 import { Component } from 'vue-property-decorator'
 

@@ -10,7 +10,7 @@
             :min="j[valueName].min"
             :max="j[valueName].max"
             :step="step"
-            :disabled="!ready"
+            :disabled="!isConnected || !ready"
           ></b-form-spinbutton>
         </b-col>
         <b-col cols="12">
@@ -23,7 +23,7 @@
             :min="j[valueName].min"
             :max="j[valueName].max"
             :step="step"
-            :disabled="!ready"
+            :disabled="!isConnected || !ready"
           />
         </b-col>
       </b-row>

@@ -1,8 +1,6 @@
 <template>
   <b-container fluid class="text-center my-auto">
-    <Connect />
-
-    <div v-if="isConnected" class="__model" :class="{ __shrink: menuOpen }">
+    <div class="__model" :class="{ __shrink: menuOpen }">
       <Model ref="model" />
       <Sidebar @change="menuOpen ? closeMenu() : openMenu()" />
       <div v-if="!loadingModel" class="__menu">
@@ -17,6 +15,7 @@
         </b-button>
         <b-button
           size="lg"
+          :disabled="!isConnected"
           @click="toggleGripper()"
           :variant="gripper.enabled ? 'primary' : 'secondary'"
         >
@@ -32,7 +31,6 @@
 </template>
 
 <script lang="ts">
-import Connect from '@/components/Connect.vue'
 import Model from '@/components/Model.vue'
 import Sidebar from '@/components/Sidebar.vue'
 import { SerialMessage } from '@/constants/SerialMessage'
@@ -44,7 +42,6 @@ import { Component } from 'vue-property-decorator'
 @Component({
   components: {
     Model,
-    Connect,
     Sidebar
   }
 })
@@ -55,10 +52,6 @@ export default class Main extends ArmMixin {
 
   menuOpen = false
   loadingModel = true
-
-  get isConnected() {
-    return this.$connectionStore.connected
-  }
 
   created() {
     eb.on(EventType.WS_MESSAGE_RECEIVED, message => this.handleMessage(message))
@@ -79,7 +72,7 @@ export default class Main extends ArmMixin {
   }
 
   handlePositions(message: string) {
-    const positions = this.$serialCommStore.parseJointsData(
+    const positions = this.$communicationStore.parseJointsData(
       message,
       SerialMessage.POSITION
     )
@@ -88,7 +81,7 @@ export default class Main extends ArmMixin {
   }
 
   handleSpeed(message: string) {
-    const speeds = this.$serialCommStore.parseJointsData(
+    const speeds = this.$communicationStore.parseJointsData(
       message,
       SerialMessage.SPEED
     )
@@ -97,7 +90,7 @@ export default class Main extends ArmMixin {
   }
 
   handleAcceleration(message: string) {
-    const accelerations = this.$serialCommStore.parseJointsData(
+    const accelerations = this.$communicationStore.parseJointsData(
       message,
       SerialMessage.ACCELERATION
     )
@@ -106,14 +99,14 @@ export default class Main extends ArmMixin {
   }
 
   handleGripper(message: string) {
-    const gripper = this.$serialCommStore.parseGripper(message)
+    const gripper = this.$communicationStore.parseGripper(message)
     if (!gripper) return
     this.$armControlStore.setGripperEnabled(gripper.enabled)
     this.$armControlStore.setGripperTargetPosition(gripper.target)
   }
 
   handleSyncMotors(message: string) {
-    const syncMotors = this.$serialCommStore.parseSyncMotors(message)
+    const syncMotors = this.$communicationStore.parseSyncMotors(message)
     if (!syncMotors) return
     this.$armControlStore.setSyncMotors(syncMotors)
   }

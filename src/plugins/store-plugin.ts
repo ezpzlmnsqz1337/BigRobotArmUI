@@ -1,7 +1,7 @@
 import { ArmControlStore } from '@/store/armControlStore'
 import { ConnectionStore } from '@/store/connectionStore'
 import { SequencesStore } from '@/store/sequencesStore'
-import { SerialCommStore } from '@/store/serialCommStore'
+import { CommunicationStore } from '@/store/communicationStore'
 import _Vue, { PluginObject, PluginFunction } from 'vue'
 import store, { AppStore } from '../store/store'
 
@@ -11,7 +11,7 @@ declare module 'vue/types/vue' {
     $connectionStore: ConnectionStore
     $sequencesStore: SequencesStore
     $armControlStore: ArmControlStore
-    $serialCommStore: SerialCommStore
+    $communicationStore: CommunicationStore
   }
 }
 
@@ -27,6 +27,6 @@ export const storePlugin: StorePlugin = {
     Vue.prototype.$connectionStore = store.state.connectionStore
     Vue.prototype.$sequencesStore = store.state.sequencesStore
     Vue.prototype.$armControlStore = store.state.armControlStore
-    Vue.prototype.$serialCommStore = store.state.serialCommStore
+    Vue.prototype.$communicationStore = store.state.communicationStore
   }
 }

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import { ArmControlStore, armControlStore } from './armControlStore'
 import { ConnectionStore, connectionStore } from './connectionStore'
 import { SequencesStore, sequencesStore } from './sequencesStore'
-import { SerialCommStore, serialCommStore } from './serialCommStore'
+import { CommunicationStore, communicationStore } from './communicationStore'
 
 export interface AppStore {
   state: StoreState
@@ -11,7 +11,7 @@ export interface AppStore {
 export interface StoreState {
   connectionStore: ConnectionStore
   armControlStore: ArmControlStore
-  serialCommStore: SerialCommStore
+  communicationStore: CommunicationStore
   sequencesStore: SequencesStore
 }
 
@@ -19,7 +19,7 @@ const state: StoreState = {
   sequencesStore,
   connectionStore,
   armControlStore,
-  serialCommStore
+  communicationStore
 }
 
 const store: AppStore = Vue.observable({

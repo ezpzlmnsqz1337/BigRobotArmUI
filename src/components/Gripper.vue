@@ -10,7 +10,7 @@
             :min="gripper.min"
             :max="gripper.max"
             :step="step"
-            :disabled="!gripper.enabled || !ready"
+            :disabled="!isConnected || !gripper.enabled || !ready"
           ></b-form-spinbutton>
           {{ step }}
         </b-col>
@@ -24,12 +24,12 @@
             :min="gripper.min"
             :max="gripper.max"
             :step="step"
-            :disabled="!ready"
+            :disabled="!isConnected || !ready"
           />
           <b-checkbox
             v-model="gripper.enabled"
             @change="sendCommand()"
-            :disabled="!ready"
+            :disabled="!isConnected || !ready"
             size="lg"
             >Enabled</b-checkbox
           >

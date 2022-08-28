@@ -91,7 +91,7 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Command } from '@/store/serialCommStore'
+import { Command } from '@/store/communicationStore'
 import { Component } from 'vue-property-decorator'
 
 @Component
