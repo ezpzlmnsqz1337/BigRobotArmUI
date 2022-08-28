@@ -28,6 +28,7 @@ export interface ArmControlStore {
   createPositionCommand(): Command
   createSpeedCommand(): Command
   createAccelerationCommand(): Command
+  createGripperCommand(): Command
 }
 
 export const armControlStore: ArmControlStore = {
@@ -89,5 +90,10 @@ export const armControlStore: ArmControlStore = {
   createAccelerationCommand() {
     const p = this.arm.joints.map(x => `${x.code}${x.acceleration.value}`)
     return `${Commands.SET_ACCELERATIONS} ${p.join(' ')}`
+  },
+  createGripperCommand() {
+    const p = this.arm.gripper.position.target
+    const e = this.arm.gripper.enabled ? 1 : 0
+    return `${Commands.GRIPPER} E${e} P${p}`
   }
 }

@@ -5,15 +5,26 @@
     <div v-if="isConnected" class="__model" :class="{ __shrink: menuOpen }">
       <Model ref="model" />
       <Sidebar @change="menuOpen ? closeMenu() : openMenu()" />
-      <div class="__menu">
+      <div v-if="!loadingModel" class="__menu">
         <b-button v-b-toggle.sidebar-footer size="lg">
           <fa-icon icon="fa-solid fa-bars" />
         </b-button>
       </div>
 
-      <div class="__controls">
+      <div v-if="!loadingModel" class="__controls">
         <b-button size="lg" @click="resetCamera()">
           <fa-icon icon="fa-solid fa-crosshairs" />
+        </b-button>
+        <b-button
+          size="lg"
+          @click="toggleGripper()"
+          :variant="gripper.enabled ? 'primary' : 'secondary'"
+        >
+          <fa-icon
+            :icon="
+              `fa-solid fa-${gripper.enabled ? 'square-plus' : 'square-minus'}`
+            "
+          />
         </b-button>
       </div>
     </div>
@@ -43,6 +54,7 @@ export default class Main extends ArmMixin {
   }
 
   menuOpen = false
+  loadingModel = true
 
   get isConnected() {
     return this.$connectionStore.connected
@@ -50,6 +62,7 @@ export default class Main extends ArmMixin {
 
   created() {
     eb.on(EventType.WS_MESSAGE_RECEIVED, message => this.handleMessage(message))
+    eb.on(EventType.ARM_MODEL_LOADED, () => (this.loadingModel = false))
   }
 
   handleMessage(message: string) {
@@ -105,6 +118,12 @@ export default class Main extends ArmMixin {
     this.$armControlStore.setSyncMotors(syncMotors)
   }
 
+  toggleGripper() {
+    this.gripper.enabled = !this.gripper.enabled
+    const command = this.$armControlStore.createGripperCommand()
+    this.sendCommandToArm(command)
+  }
+
   openMenu() {
     this.menuOpen = true
     setTimeout(() => this.$refs.model.handleResize(), 300)
@@ -154,6 +173,10 @@ export default class Main extends ArmMixin {
   position: fixed;
   left: 1rem;
   top: 1rem;
+
+  button:not(:first-child) {
+    margin-left: 1rem;
+  }
 }
 
 @media only screen and (min-width: 1024px) {

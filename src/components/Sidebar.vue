@@ -14,29 +14,29 @@
       </div>
     </template>
     <b-tabs pills fill card>
-      <b-tab class="my-3">
-        <template #title>
-          <fa-icon icon="fa-solid fa-terminal" />
-        </template>
-        <b-card-text><Terminal /></b-card-text>
-      </b-tab>
-      <b-tab class="my-3">
+      <b-tab class="mt-3">
         <template #title>
           <fa-icon icon="fa-solid fa-gamepad" />
         </template>
         <ManualControl />
       </b-tab>
-      <b-tab class="my-3">
+      <b-tab class="mt-3">
         <template #title>
           <fa-icon icon="fa-solid fa-sliders" />
         </template>
         <Sequences />
       </b-tab>
-      <b-tab class="my-3">
+      <b-tab class="mt-3">
         <template #title>
           <fa-icon icon="fa-solid fa-square-plus" />
         </template>
         <RecordCommands />
+      </b-tab>
+      <b-tab class="mt-3">
+        <template #title>
+          <fa-icon icon="fa-solid fa-terminal" />
+        </template>
+        <b-card-text><Terminal /></b-card-text>
       </b-tab>
     </b-tabs>
   </b-sidebar>

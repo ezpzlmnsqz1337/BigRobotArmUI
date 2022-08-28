@@ -25,6 +25,7 @@ import {
   faGamepad,
   faSliders,
   faSquarePlus,
+  faSquareMinus,
   faBars
 } from '@fortawesome/free-solid-svg-icons'
 import { faAmazon } from '@fortawesome/free-brands-svg-icons'
@@ -51,6 +52,7 @@ library.add(
   faGamepad,
   faSliders,
   faSquarePlus,
+  faSquareMinus,
   faBars
 )
 

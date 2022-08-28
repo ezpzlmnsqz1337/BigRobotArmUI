@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 import { Joint } from '@/assets/joints'
 import { EventType } from '@/constants/types/EventType'
@@ -59,25 +59,27 @@ export class Arm {
   }
 
   init() {
-    this.setupScene()
-    this.setupControls()
-    this.setupStats()
-    this.loadModel()
+    this._setupScene()
+    this._setupControls()
+    this._setupStats()
+    this._loadModel()
 
-    this.animate()
+    this._animate()
 
     eb.on(EventType.SET_PREVIEW_SPEED, e => (this.previewSpeed = e))
     eb.on(EventType.CENTER_CAMERA, () => this.centerCamera())
   }
 
-  animate() {
-    if (!this.renderer || !this.scene || !this.camera) return
+  centerCamera() {
+    if (!this.scene || !this.camera) return
 
-    requestAnimationFrame(this.animate.bind(this))
-
-    this.arm.joints.forEach(x => this.handleJoint(x))
-
-    this.renderer.render(this.scene, this.camera)
+    const arm = this.scene.getObjectByName(Arm.SCENE_NAME)
+    if (!arm) return
+    const center = new THREE.Vector3()
+    new THREE.Box3().setFromObject(arm).getCenter(center)
+    this.controls?.target.set(center.x, center.y, center.z)
+    this.camera.position.set(...Arm.DEFAULT_CAMERA_POSITION)
+    this.camera.rotation.set(...Arm.DEFAULT_CAMERA_ROTATION)
   }
 
   handleResize() {
@@ -89,7 +91,21 @@ export class Arm {
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
   }
 
-  handleJoint(joint: Joint) {
+  isInPosition() {
+    return !Object.values(this.inPosition).includes(false)
+  }
+
+  protected _animate() {
+    if (!this.renderer || !this.scene || !this.camera) return
+
+    requestAnimationFrame(this._animate.bind(this))
+
+    this.arm.joints.forEach(x => this._handleJoint(x))
+
+    this.renderer.render(this.scene, this.camera)
+  }
+
+  protected _handleJoint(joint: Joint) {
     if (joint.mesh) {
       const rAxis = joint.rotationAxis as RotationAxis
       const position = parseFloat(joint.mesh.rotation[rAxis].toFixed(2))
@@ -110,25 +126,17 @@ export class Arm {
       }
     }
 
-    this.handlePreview()
+    this._handlePreview()
   }
 
-  handlePreview() {
+  protected _handlePreview() {
     if (this.arm.preview && this.isInPosition()) {
       eb.emit(EventType.ARM_IN_POSITION)
       Object.keys(this.inPosition).forEach(x => (this.inPosition[x] = false))
     }
   }
 
-  isInPosition() {
-    return !Object.values(this.inPosition).includes(false)
-  }
-
-  mapAngle(value: number, x1: number, y1: number, x2: number, y2: number) {
-    return parseFloat((((value - x1) * (y2 - x2)) / (y1 - x1) + x2).toFixed(2))
-  }
-
-  setupScene() {
+  protected _setupScene() {
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(
       75,
@@ -144,13 +152,20 @@ export class Arm {
       THREE.PCFSoftShadowMap
     this.el.appendChild(this.renderer.domElement)
 
+    this._setupGround()
+    this._setupLights()
+
+    this.centerCamera()
+  }
+
+  protected _setupGround() {
+    if (!this.scene) return
     const texture = new THREE.TextureLoader().load(
       require('@/assets/textures/wood-floor.jpg')
     )
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(10, 10)
-
+    texture.repeat.set(10, 8)
     // immediately use the texture for material creation
     const woodFloorMaterial = new THREE.MeshStandardMaterial({ map: texture })
 
@@ -162,6 +177,11 @@ export class Arm {
     ground.rotation.x = Math.PI / 2
     ground.rotation.y = Math.PI
 
+    this.scene.add(ground)
+  }
+
+  protected _setupLights() {
+    if (!this.scene) return
     const aLight = new THREE.AmbientLight(Arm.LIGHT_COLOR, 0.3)
 
     const pLight = this._createPointLight(
@@ -170,19 +190,13 @@ export class Arm {
       new THREE.Vector3(1.1, 2.5, 1.1),
       true
     )
-    const helper = new THREE.PointLightHelper(pLight, 1)
 
     this.scene.background = new THREE.Color(Arm.BACKGROUND_COLOR)
 
-    this.scene.add(ground)
-    this.scene.add(aLight)
-    this.scene.add(pLight)
-    this.scene.add(helper)
-
-    this.camera.position.set(...Arm.DEFAULT_CAMERA_POSITION)
+    this.scene.add(aLight, pLight)
   }
 
-  private _createPointLight(
+  protected _createPointLight(
     color: ColorRepresentation,
     intensity: number,
     position?: THREE.Vector3,
@@ -198,11 +212,12 @@ export class Arm {
     return pLight
   }
 
-  setupStats() {
+  protected _setupStats() {
     this.stats = Stats()
     this.stats.dom.style.height = '48px'
   }
-  setupControls() {
+
+  protected _setupControls() {
     if (!this.renderer || !this.camera) return
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
@@ -210,7 +225,15 @@ export class Arm {
     this.controls.screenSpacePanning = true
   }
 
-  loadModel() {
+  protected _setupShafts() {
+    if (!this.scene || !this.camera) return
+
+    this.arm.joints.forEach(x => {
+      x.mesh = this.scene?.getObjectByName(x.meshId)
+    })
+  }
+
+  protected _loadModel() {
     const gltfLoader = new GLTFLoader()
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderConfig({ type: 'js' })
@@ -220,45 +243,25 @@ export class Arm {
 
     gltfLoader.load(
       require('@/assets/models/BigRobotArmWebCompressed.glb'),
-      gltf => {
-        if (!this.scene) return
-        this.scene.add(gltf.scene)
-        // console.log(this.scene, gltf)
-        gltf.scene.name = Arm.SCENE_NAME
-        gltf.scene.position.y = 0.4
-        gltf.scene.traverse(x => {
-          x.castShadow = true
-          x.receiveShadow = true
-        })
-        this.setupShafts()
-        this.centerCamera()
-      },
-      undefined,
-      error => {
-        console.error(error)
-      }
+      gltf => this._onGLTFModelLoaded(gltf),
+      e => eb.emit(EventType.ARM_MODEL_LOADING_PROGRESS, e),
+      err => eb.emit(EventType.ARM_MODEL_LOADED_ERROR, err)
     )
   }
 
-  centerCamera() {
-    if (!this.scene || !this.camera) return
+  protected _onGLTFModelLoaded(gltf: GLTF) {
+    if (!this.scene) return
 
-    const arm = this.scene.getObjectByName(Arm.SCENE_NAME)
-    if (!arm) return
-    const center = new THREE.Vector3()
-    new THREE.Box3().setFromObject(arm).getCenter(center)
-    this.controls?.target.set(center.x, center.y, center.z)
-    this.camera.position.set(...Arm.DEFAULT_CAMERA_POSITION)
-    this.camera.rotation.set(...Arm.DEFAULT_CAMERA_ROTATION)
-  }
+    this.scene.add(gltf.scene)
 
-  setupShafts() {
-    if (!this.scene || !this.camera) return
-
-    this.arm.joints.forEach(x => {
-      x.mesh = this.scene?.getObjectByName(x.meshId)
+    gltf.scene.name = Arm.SCENE_NAME
+    gltf.scene.position.y = 0.4
+    gltf.scene.traverse(x => {
+      x.castShadow = true
+      x.receiveShadow = true
     })
+    this._setupShafts()
+    this.centerCamera()
+    eb.emit(EventType.ARM_MODEL_LOADED)
   }
-
-  setPosition() {}
 }

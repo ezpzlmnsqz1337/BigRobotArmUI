@@ -40,7 +40,6 @@
 </template>
 
 <script lang="ts">
-import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import { Prop } from 'vue-property-decorator'
 
@@ -48,10 +47,7 @@ export default class Gripper extends ArmMixin {
   @Prop({ default: 20 }) readonly step!: number
 
   sendCommand() {
-    console.log(this.step)
-    const p = this.gripper.position.target
-    const e = this.gripper.enabled ? 1 : 0
-    const command = `${Commands.GRIPPER} E${e} P${p}`
+    const command = this.$armControlStore.createGripperCommand()
     this.sendCommandToArm(command)
   }
 }
