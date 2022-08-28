@@ -1,27 +1,40 @@
 <template>
-  <b-container fluid>
-    <h2>Model</h2>
-    <b-row>
-      <b-col class="my-auto controls"
-        ><div ref="armWrapper" class="__armWrapper"
-      /></b-col>
-    </b-row>
-  </b-container>
+  <div class="__armWrapper">
+    <div ref="armWrapper" class="__armWrapper" />
+    <div class="__loadingModel" v-if="loadingModel">
+      <div>Loading model</div>
+      <div>{{ loadedMB }} / {{ totalMB }}MB</div>
+      <fa-icon icon="fa-solid fa-circle-notch" spin />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { EventType } from '@/constants/types/EventType'
+import eb from '@/EventBus'
 import { Arm } from '@/helpers/Arm'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import { Component } from 'vue-property-decorator'
 
 @Component
 export default class Model extends ArmMixin {
+  loadingModel = true
+  loadedMB = 0
+  totalMB = 0
   arm!: Arm
+
+  $refs!: {
+    armWrapper: HTMLDivElement
+  }
 
   created() {
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
-    this.$store.initSequences()
+    eb.on(EventType.ARM_MODEL_LOADED, () => (this.loadingModel = false))
+    eb.on(EventType.ARM_MODEL_LOADING_PROGRESS, (e: ProgressEvent) => {
+      this.loadedMB = Number((e.loaded / 1000000).toFixed(2))
+      this.totalMB = Number((e.total / 1000000).toFixed(2))
+    })
+    this.$sequencesStore.initSequences()
   }
 
   mounted() {
@@ -34,7 +47,7 @@ export default class Model extends ArmMixin {
 
   setupModel() {
     const armWrapper = this.$refs.armWrapper
-    this.arm = new Arm(armWrapper, this.$arm)
+    this.arm = new Arm(armWrapper, this.$armControlStore.arm)
     this.arm.init()
   }
 
@@ -46,17 +59,26 @@ export default class Model extends ArmMixin {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.__armWrapper {
-  width: 100%;
-  height: 240px;
-  margin: 0 auto;
+.__loadingModel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #e8e8e8;
+  font-size: 1.5rem;
+
+  svg {
+    font-size: 4rem;
+  }
 }
 
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  .__armWrapper {
-    height: 480px;
-    width: 40vw;
-  }
+.__armWrapper,
+.__loadingModel {
+  z-index: -999;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 </style>

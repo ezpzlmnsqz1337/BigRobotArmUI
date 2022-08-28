@@ -1,7 +1,6 @@
 <template>
-  <b-container fluid>
-    <h2>Manual control</h2>
-    <b-tabs>
+  <div>
+    <b-tabs pills fill small>
       <b-tab title="Position">
         <Position />
       </b-tab>
@@ -12,10 +11,10 @@
         <Acceleration />
       </b-tab>
       <b-tab title="Gripper">
-        <Gripper />
+        <Gripper step="20" />
       </b-tab>
     </b-tabs>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">

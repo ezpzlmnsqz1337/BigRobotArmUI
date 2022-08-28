@@ -1,47 +1,53 @@
 <template>
-  <b-container fluid>
-    <b-row>
-      <b-col class="my-auto controls">
-        <b-form-group>
-          <label :for="gripper.name">{{ gripper.name }}</label>
-          <b-row>
-            <b-col md="12" lg="2">
-              <b-form-input disabled :value="gripper.target" />
-            </b-col>
-            <b-col md="12" lg="10">
-              <b-form-input
-                :id="gripper.name"
-                type="range"
-                :name="gripper.name"
-                v-model="gripper.target"
-                @change="sendCommand()"
-                :min="gripper.min"
-                :max="gripper.max"
-                :disabled="!ready"
-              />
-              <b-checkbox
-                v-model="gripper.enabled"
-                @change="sendCommand()"
-                :disabled="!ready"
-                >Enabled</b-checkbox
-              >
-            </b-col>
-          </b-row>
-        </b-form-group>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div class="my-4">
+    <b-form-group>
+      <label :for="gripper.name">{{ gripper.name }}</label>
+      <b-row>
+        <b-col md="12">
+          <b-form-spinbutton
+            v-model="gripper.position.target"
+            @change="sendCommand()"
+            :min="gripper.min"
+            :max="gripper.max"
+            :step="step"
+            :disabled="!isConnected || !gripper.enabled || !ready"
+          ></b-form-spinbutton>
+          {{ step }}
+        </b-col>
+        <b-col md="12">
+          <b-form-input
+            :id="gripper.name"
+            type="range"
+            :name="gripper.name"
+            v-model="gripper.position.target"
+            @change="sendCommand()"
+            :min="gripper.min"
+            :max="gripper.max"
+            :step="step"
+            :disabled="!isConnected || !ready"
+          />
+          <b-checkbox
+            v-model="gripper.enabled"
+            @change="sendCommand()"
+            :disabled="!isConnected || !ready"
+            size="lg"
+            >Enabled</b-checkbox
+          >
+        </b-col>
+      </b-row>
+    </b-form-group>
+  </div>
 </template>
 
 <script lang="ts">
-import { Commands } from '@/constants/Commands'
 import ArmMixin from '@/mixins/ArmMixin.vue'
+import { Prop } from 'vue-property-decorator'
 
 export default class Gripper extends ArmMixin {
+  @Prop({ default: 20 }) readonly step!: number
+
   sendCommand() {
-    const p = this.gripper.target
-    const e = this.gripper.enabled ? 1 : 0
-    const command = `${Commands.GRIPPER} E${e} P${p}`
+    const command = this.$armControlStore.createGripperCommand()
     this.sendCommandToArm(command)
   }
 }

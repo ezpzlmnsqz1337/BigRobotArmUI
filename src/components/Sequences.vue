@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid>
+  <div>
     <b-form-group>
       <label for="previewSpeed">Preview speed</label>
       <b-form-input disabled :value="previewSpeed" />
@@ -14,7 +14,7 @@
         step="1"
       />
     </b-form-group>
-    <b-container v-if="!edit" class="__sequences">
+    <div v-if="!editedSequence" class="__sequences">
       <b-list-group>
         <b-list-group-item
           v-for="(s, index) in sequences"
@@ -30,42 +30,28 @@
               <small>{{ s.data.length }} commands</small>
             </div>
             <b-button-group>
-              <b-button size="sm" @click="editSequence(index)"
-                >&#9998; Edit</b-button
-              >
-              <b-button
-                variant="danger"
-                size="sm"
-                v-b-modal.remove-sequence-modal
-                >&#x1F5D1; Remove</b-button
-              >
+              <b-button @click="editSequence(index)"
+                ><fa-icon icon="fa-solid fa-pen"
+              /></b-button>
+              <b-button variant="danger" v-b-modal.remove-sequence-modal
+                ><fa-icon icon="fa-solid fa-trash-can"
+              /></b-button>
             </b-button-group>
           </div>
         </b-list-group-item>
       </b-list-group>
-      <b-button-group>
-        <b-button @click="play()" :disabled="!ready">Play</b-button>
-        <b-button @click="preview()">Preview</b-button>
-      </b-button-group>
-    </b-container>
-    <!-- Edit sequence -->
-    <b-container v-if="edit && editedSequence" class="__edit">
-      <h2>Edit sequence</h2>
-      <label for="sequenceName">Name</label>
-      <b-form-input if="sequenceName" v-model="editedSequence.name" />
-      <label for="sequenceData" class="mt-3">Data</label>
-      <b-textarea
-        if="sequenceData"
-        v-model="editedSequence.data"
-        :rows="editedSequenceRows"
-      />
-      <b-button variant="success" @click="saveSequence()"
-        >&#x1F5AB; Save</b-button
-      >
-      <b-button variant="danger" @click="cancelEditSequence()"
-        >&#x1F5D1; Cancel</b-button
-      >
-    </b-container>
+
+      <div class="my-4">
+        <b-button @click="play()" :disabled="!isConnected || !ready"
+          ><fa-icon icon="fa-solid fa-play" />&nbsp;Play</b-button
+        >
+        <b-button @click="preview()"
+          ><fa-icon icon="fa-solid fa-video" />&nbsp;Preview</b-button
+        >
+      </div>
+    </div>
+
+    <EditSequence :sequenceId="selected" />
     <!-- modal -->
     <b-modal
       id="remove-sequence-modal"
@@ -86,33 +72,40 @@
         >
       </div>
     </b-modal>
-  </b-container>
+  </div>
 </template>
 
 <script lang="ts">
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Command, EditedSequence } from '@/store'
+import EditSequence from '@/components/EditSequence.vue'
+import { Command } from '@/store/communicationStore'
 import { Component } from 'vue-property-decorator'
+import { SerialMessage } from '@/constants/SerialMessage'
 
-@Component
+@Component({
+  components: {
+    EditSequence
+  }
+})
 export default class Sequences extends ArmMixin {
-  sequences = this.$store.state.sequences
+  sequences = this.$sequencesStore.sequences
   selected = 0
   previewQueue: Command[] = []
   previewSpeed = '5'
-  edit = false
-  editedSequence: EditedSequence | null = null
+
+  get isConnected() {
+    return this.$connectionStore.connected
+  }
+  get editedSequence() {
+    return this.$sequencesStore.editedSequence
+  }
 
   created() {
     eb.on(EventType.ARM_IN_POSITION, () =>
       this.previewCommand(this.previewQueue.shift())
     )
-  }
-
-  get editedSequenceRows() {
-    return this.editedSequence!.data.split('\n').length
   }
 
   play() {
@@ -127,12 +120,16 @@ export default class Sequences extends ArmMixin {
 
   previewCommand(command: Command | undefined) {
     if (!command) {
-      this.$arm.preview = false
+      this.$armControlStore.arm.preview = false
     } else {
-      this.$arm.preview = true
-      const positions = this.$store.parsePositionFromMessageRow(command)
-      if (!positions.length) return
-      this.$store.setTargetPositions(positions)
+      this.$armControlStore.arm.preview = true
+
+      const positions = this.$communicationStore.parseJointsData(
+        command.replace('G0', SerialMessage.POSITION),
+        SerialMessage.POSITION
+      )
+      if (!positions) return
+      this.$armControlStore.setTargetPositions(positions)
     }
   }
 
@@ -147,45 +144,33 @@ export default class Sequences extends ArmMixin {
     )
   }
 
-  removeSequence(index: number) {
-    this.$store.removeSequence(index)
+  removeSequence(sequenceId: number) {
+    this.$sequencesStore.removeSequence(sequenceId)
     this.$bvModal.hide('remove-sequence-modal')
   }
 
-  editSequence(index: number) {
-    this.selected = index
-    this.editedSequence = {
-      name: this.sequences[index].name,
-      data: this.sequences[index].data.join('\n')
-    }
-    this.edit = true
-  }
-
-  saveSequence() {
-    this.sequences[this.selected].name = this.editedSequence!.name
-    this.sequences[this.selected].data.splice(0)
-    this.sequences[this.selected].data.push(
-      ...this.editedSequence!.data.split('\n')
-    )
-    this.edit = false
-    this.$store.saveSequences()
-  }
-
-  cancelEditSequence() {
-    this.edit = false
-    this.editedSequence = null
+  editSequence(sequenceId: number) {
+    this.selected = sequenceId
+    this.$sequencesStore.startEditSequence({
+      name: this.sequences[sequenceId].name,
+      data: this.sequences[sequenceId].data.join('\n')
+    })
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.__sequences::v-deep .list-group {
-  height: 22rem;
+.__sequences :deep(.list-group) {
+  height: 50vh;
   overflow-y: scroll;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 4px;
 }
 
-.__edit {
-  text-align: left;
+@media only screen and (max-width: 600px) {
+  .__sequences :deep(.list-group) {
+    height: 20vh;
+  }
 }
 </style>

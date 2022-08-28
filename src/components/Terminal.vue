@@ -1,27 +1,35 @@
 <template>
-  <b-container fluid>
-    <b-row>
-      <b-col class="my-auto controls">
-        <b-textarea
-          readonly
-          v-model="serialOutput"
-          class="__serialOutput"
-          ref="terminal"
-        ></b-textarea>
-        <b-input-group>
-          <b-form-input
-            placeholder="Enter command..."
-            v-model="command"
-            v-on:keyup.native.enter="sendCommand()"
-          ></b-form-input>
-          <b-button @click="sendCommand()" :disabled="!ready">Send</b-button>
-          <b-button @click="scrollToBottom()" :pressed.sync="autoscroll"
-            >Autoscroll</b-button
-          >
-        </b-input-group>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div>
+    <b-textarea
+      readonly
+      v-model="serialOutput"
+      class="__serialOutput"
+      ref="terminal"
+    ></b-textarea>
+    <b-input-group>
+      <b-form-input
+        placeholder="Enter command..."
+        v-model="command"
+        v-on:keyup.native.enter="sendCommand()"
+        :disabled="!isConnected || !ready"
+      ></b-form-input>
+      <b-button
+        @click="sendCommand()"
+        variant="primary"
+        :disabled="!isConnected || !ready"
+        ><fa-icon icon="fa-solid fa-play" />&nbsp;Send</b-button
+      >
+      <b-button
+        @click="scrollToBottom()"
+        :pressed.sync="autoscroll"
+        :disabled="!isConnected"
+      >
+        <fa-icon v-if="autoscroll" icon="fa-solid fa-lock" />
+        <fa-icon v-if="!autoscroll" icon="fa-solid fa-lock-open" />
+        &nbsp;Autoscroll</b-button
+      >
+    </b-input-group>
+  </div>
 </template>
 
 <script lang="ts">
@@ -29,7 +37,7 @@ import { Commands } from '@/constants/Commands'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Command, Message } from '@/store'
+import { Command, Message } from '@/store/communicationStore'
 import { BFormTextarea } from 'bootstrap-vue'
 import { Component } from 'vue-property-decorator'
 
@@ -55,7 +63,7 @@ export default class Terminal extends ArmMixin {
   }
 
   addMessage(message: Message, send = true) {
-    if (!this.$store.state.connected) return
+    if (!this.$connectionStore.connected) return
     message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
     this.serialOutput += message
     this.scrollToBottom()
@@ -80,6 +88,12 @@ export default class Terminal extends ArmMixin {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .__serialOutput {
-  height: 15rem;
+  height: 68vh;
+}
+
+@media only screen and (max-width: 600px) {
+  .__serialOutput {
+    height: 25vh;
+  }
 }
 </style>

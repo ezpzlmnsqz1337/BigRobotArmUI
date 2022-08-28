@@ -1,0 +1,79 @@
+<template>
+  <b-sidebar
+    id="sidebar-footer"
+    title="Big Robot Arm UI"
+    shadow
+    right
+    @change="change()"
+  >
+    <template #footer>
+      <div class="d-flex justify-content-end px-3 py-3">
+        <Connect v-if="!isConnected" />
+        <b-button v-if="isConnected" variant="danger" @click="disconnect()"
+          ><fa-icon icon="fa-solid fa-ban" />&nbsp;Disconnect</b-button
+        >
+      </div>
+    </template>
+    <b-tabs pills fill card>
+      <b-tab class="mt-3">
+        <template #title>
+          <fa-icon icon="fa-solid fa-gamepad" />
+        </template>
+        <ManualControl />
+      </b-tab>
+      <b-tab class="mt-3">
+        <template #title>
+          <fa-icon icon="fa-solid fa-sliders" />
+        </template>
+        <Sequences />
+      </b-tab>
+      <b-tab class="mt-3">
+        <template #title>
+          <fa-icon icon="fa-solid fa-square-plus" />
+        </template>
+        <RecordCommands />
+      </b-tab>
+      <b-tab class="mt-3">
+        <template #title>
+          <fa-icon icon="fa-solid fa-terminal" />
+        </template>
+        <b-card-text><Terminal /></b-card-text>
+      </b-tab>
+    </b-tabs>
+  </b-sidebar>
+</template>
+
+<script lang="ts">
+import ManualControl from '@/components/ManualControl.vue'
+import RecordCommands from '@/components/RecordCommands.vue'
+import Sequences from '@/components/Sequences.vue'
+import Terminal from '@/components/Terminal.vue'
+import { Component, Emit, Vue } from 'vue-property-decorator'
+import Connect from './Connect.vue'
+
+@Component({
+  components: {
+    ManualControl,
+    Terminal,
+    Sequences,
+    RecordCommands,
+    Connect
+  }
+})
+export default class Sidebar extends Vue {
+  @Emit('change')
+  change() {}
+
+  get isConnected() {
+    return this.$connectionStore.connected
+  }
+
+  disconnect() {
+    this.$connectionStore.setConnectionStatus(false)
+    this.$communicationStore.disconnect()
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped lang="scss"></style>

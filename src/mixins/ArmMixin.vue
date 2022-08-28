@@ -1,24 +1,24 @@
 <script lang="ts">
-import { EventType } from '@/constants/types/EventType'
-import eb from '@/EventBus'
-import ws from '@/shared'
 import { Component, Vue } from 'vue-property-decorator'
 
-import { Command } from '@/store'
+import { Command } from '@/store/communicationStore'
 
 @Component
 export default class ArmMixin extends Vue {
-  joints = this.$arm.joints
-  gripper = this.$arm.gripper
+  joints = this.$armControlStore.arm.joints
+  gripper = this.$armControlStore.arm.gripper
 
   get ready() {
-    return this.$arm.ready
+    return this.$armControlStore.arm.isReady
+  }
+
+  get isConnected() {
+    return this.$connectionStore.connected
   }
 
   sendCommandToArm(command: Command) {
-    eb.emit(EventType.WS_MESSAGE_SEND, command)
-    ws.send(command)
-    this.$store.busy()
+    this.$communicationStore.sendCommand(command)
+    this.$armControlStore.busy()
   }
 }
 </script>
