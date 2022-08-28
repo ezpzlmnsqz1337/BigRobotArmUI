@@ -147,7 +147,7 @@ export default class Main extends ArmMixin {
   z-index: 0;
   position: absolute;
   top: 0;
-  bottom: 0;
+  height: 100%;
   left: 0;
   right: 0;
 
@@ -180,21 +180,20 @@ export default class Main extends ArmMixin {
 
 @media only screen and (max-width: 600px) {
   .__model.__shrink {
-    bottom: 60vh;
+    height: 40vh;
   }
 
   .__model :deep(div#sidebar-footer) {
     position: fixed;
     width: 100%;
-    height: 60vh;
+    height: calc(100% - 40vh);
     left: 0;
     right: 0;
-    top: 40vh;
-    bottom: 0;
+    top: 0;
   }
 
   .__model :deep(.b-sidebar) {
-    transform: translateY(0);
+    transform: translateY(40vh);
   }
 
   .__model :deep(.b-sidebar.slide) {
@@ -202,7 +201,7 @@ export default class Main extends ArmMixin {
   }
 
   .__model :deep(.b-sidebar.b-sidebar-right.slide:not(.show)) {
-    transform: translateY(100%);
+    transform: translateY(100vh);
   }
 }
 </style>
