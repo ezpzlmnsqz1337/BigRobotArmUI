@@ -2,9 +2,10 @@
   <div class="__armWrapper">
     <div ref="armWrapper" class="__armWrapper" />
     <div class="__loadingModel" v-if="loadingModel">
-      <div>Loading model</div>
-      <div>{{ loadedMB }} / {{ totalMB }}MB</div>
-      <fa-icon icon="fa-solid fa-circle-notch" spin />
+      <div v-if="loadedMB < totalMB">Loading model</div>
+      <div v-if="loadedMB < totalMB">{{ loadedMB }} / {{ totalMB }} MB</div>
+      <div v-if="message && loadedMB >= totalMB">{{ message }}</div>
+      <fa-icon icon="fa-solid fa-circle-notch" spin class="mt-3" />
     </div>
   </div>
 </template>
@@ -19,6 +20,7 @@ import { Component } from 'vue-property-decorator'
 @Component
 export default class Model extends ArmMixin {
   loadingModel = true
+  message = ''
   loadedMB = 0
   totalMB = 0
   arm!: Arm
@@ -30,6 +32,7 @@ export default class Model extends ArmMixin {
   created() {
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
     eb.on(EventType.ARM_MODEL_LOADED, () => (this.loadingModel = false))
+    eb.on(EventType.ARM_MODEL_LOADING_MESSAGE, e => (this.message = e))
     eb.on(EventType.ARM_MODEL_LOADING_PROGRESS, (e: ProgressEvent) => {
       this.loadedMB = Number((e.loaded / 1000000).toFixed(2))
       this.totalMB = Number((e.total / 1000000).toFixed(2))
@@ -76,6 +79,7 @@ export default class Model extends ArmMixin {
 .__loadingModel {
   z-index: -999;
   position: absolute;
+  height: 100%;
   top: 0;
   bottom: 0;
   left: 0;

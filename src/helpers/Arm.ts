@@ -61,7 +61,7 @@ export class Arm {
   init() {
     this._setupScene()
     this._setupControls()
-    this._setupStats()
+    // this._setupStats()
     this._loadModel()
 
     this._animate()
@@ -103,6 +103,8 @@ export class Arm {
     this.arm.joints.forEach(x => this._handleJoint(x))
 
     this.renderer.render(this.scene, this.camera)
+
+    this.stats?.update()
   }
 
   protected _handleJoint(joint: Joint) {
@@ -137,6 +139,11 @@ export class Arm {
   }
 
   protected _setupScene() {
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up scene'),
+      300
+    )
+
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(
       75,
@@ -148,8 +155,7 @@ export class Arm {
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
     ;(this.renderer as THREE.WebGLRenderer).shadowMap.enabled = true
-    ;(this.renderer as THREE.WebGLRenderer).shadowMap.type =
-      THREE.PCFSoftShadowMap
+    ;(this.renderer as THREE.WebGLRenderer).shadowMap.type = THREE.VSMShadowMap
     this.el.appendChild(this.renderer.domElement)
 
     this._setupGround()
@@ -160,6 +166,12 @@ export class Arm {
 
   protected _setupGround() {
     if (!this.scene) return
+
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up ground'),
+      1000
+    )
+
     const texture = new THREE.TextureLoader().load(
       require('@/assets/textures/wood-floor.jpg')
     )
@@ -182,6 +194,11 @@ export class Arm {
 
   protected _setupLights() {
     if (!this.scene) return
+
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up lights'),
+      2000
+    )
     const aLight = new THREE.AmbientLight(Arm.LIGHT_COLOR, 0.3)
 
     const pLight = this._createPointLight(
@@ -213,12 +230,21 @@ export class Arm {
   }
 
   protected _setupStats() {
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up stats'),
+      3000
+    )
     this.stats = Stats()
-    this.stats.dom.style.height = '48px'
+    document.body.appendChild(this.stats.dom)
   }
 
   protected _setupControls() {
     if (!this.renderer || !this.camera) return
+
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up controls'),
+      4000
+    )
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.autoRotate = false
@@ -227,6 +253,11 @@ export class Arm {
 
   protected _setupShafts() {
     if (!this.scene || !this.camera) return
+
+    setTimeout(
+      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up shafts'),
+      5000
+    )
 
     this.arm.joints.forEach(x => {
       x.mesh = this.scene?.getObjectByName(x.meshId)

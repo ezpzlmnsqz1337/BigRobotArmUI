@@ -83,7 +83,6 @@ export const communicationStore: CommunicationStore = {
     }
   },
   disconnect() {
-    console.log('DISCONNECT')
     this.sendCommand(WebsocketMessage.WS_DISCONNECT)
     ws?.close()
     ws = null
