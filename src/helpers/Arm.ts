@@ -8,13 +8,7 @@ import { Joint } from '@/assets/joints'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import { RobotArmData } from '@/store/armControlStore'
-import {
-  ColorRepresentation,
-  MeshStandardMaterial,
-  PerspectiveCamera,
-  Renderer,
-  Scene
-} from 'three'
+import { ColorRepresentation, PerspectiveCamera, Renderer, Scene } from 'three'
 
 type InPosition = Record<string, boolean>
 type RotationAxis = 'x' | 'y' | 'z'
@@ -26,6 +20,7 @@ export class Arm {
   protected renderer: Renderer | null = null
   protected stats: Stats | null = null
   protected controls: OrbitControls | null = null
+  protected _antialias = true
 
   protected inPosition: InPosition
   protected firedInPosition = false
@@ -44,11 +39,6 @@ export class Arm {
 
   constructor(el: HTMLElement, arm: RobotArmData) {
     this.el = el
-    this.scene = null
-    this.camera = null
-    this.renderer = null
-    this.stats = null
-    this.controls = null
 
     this.inPosition = arm.joints.reduce((prev: InPosition, next) => {
       prev[next.name] = true
@@ -59,15 +49,11 @@ export class Arm {
   }
 
   init() {
-    this._setupScene()
-    this._setupControls()
-    // this._setupStats()
-    this._loadModel()
-
-    this._animate()
+    this._setup()
 
     eb.on(EventType.SET_PREVIEW_SPEED, e => (this.previewSpeed = e))
     eb.on(EventType.CENTER_CAMERA, () => this.centerCamera())
+    eb.on(EventType.TOGGLE_ANTIALIASING, () => this.toggleAntialias())
   }
 
   centerCamera() {
@@ -95,6 +81,15 @@ export class Arm {
     return !Object.values(this.inPosition).includes(false)
   }
 
+  get antialias() {
+    return this._antialias
+  }
+
+  toggleAntialias() {
+    this._antialias = !this._antialias
+    this._setup()
+  }
+
   protected _animate() {
     if (!this.renderer || !this.scene || !this.camera) return
 
@@ -105,6 +100,24 @@ export class Arm {
     this.renderer.render(this.scene, this.camera)
 
     this.stats?.update()
+  }
+
+  protected _deinit() {
+    this.scene?.clear()
+    this.stats?.end()
+    this.controls?.dispose()
+    this.camera?.clear()
+    ;(this.renderer as THREE.WebGLRenderer)?.dispose()
+  }
+
+  protected _setup() {
+    this._deinit()
+    this._setupScene()
+    this._setupControls()
+    // this._setupStats()
+    this._loadModel()
+
+    this._animate()
   }
 
   protected _handleJoint(joint: Joint) {
@@ -139,10 +152,7 @@ export class Arm {
   }
 
   protected _setupScene() {
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up scene'),
-      300
-    )
+    eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up the scene')
 
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(
@@ -152,11 +162,12 @@ export class Arm {
       1000
     )
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true })
+    this.renderer = new THREE.WebGLRenderer({ antialias: this._antialias })
     this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
     ;(this.renderer as THREE.WebGLRenderer).shadowMap.enabled = true
     ;(this.renderer as THREE.WebGLRenderer).shadowMap.type = THREE.VSMShadowMap
-    this.el.appendChild(this.renderer.domElement)
+    this.el.innerHTML = ''
+    setTimeout(() => this.el.appendChild(this.renderer!.domElement))
 
     this._setupGround()
     this._setupLights()
@@ -166,11 +177,6 @@ export class Arm {
 
   protected _setupGround() {
     if (!this.scene) return
-
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up ground'),
-      1000
-    )
 
     const texture = new THREE.TextureLoader().load(
       require('@/assets/textures/wood-floor.jpg')
@@ -190,15 +196,12 @@ export class Arm {
     ground.rotation.y = Math.PI
 
     this.scene.add(ground)
+    //this.scene.fog = new THREE.Fog(0x1f1f1f, 0.9, 8)
   }
 
   protected _setupLights() {
     if (!this.scene) return
 
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up lights'),
-      2000
-    )
     const aLight = new THREE.AmbientLight(Arm.LIGHT_COLOR, 0.3)
 
     const pLight = this._createPointLight(
@@ -230,21 +233,12 @@ export class Arm {
   }
 
   protected _setupStats() {
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up stats'),
-      3000
-    )
     this.stats = Stats()
     document.body.appendChild(this.stats.dom)
   }
 
   protected _setupControls() {
     if (!this.renderer || !this.camera) return
-
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up controls'),
-      4000
-    )
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.autoRotate = false
@@ -253,11 +247,6 @@ export class Arm {
 
   protected _setupShafts() {
     if (!this.scene || !this.camera) return
-
-    setTimeout(
-      () => eb.emit(EventType.ARM_MODEL_LOADING_MESSAGE, 'Setting up shafts'),
-      5000
-    )
 
     this.arm.joints.forEach(x => {
       x.mesh = this.scene?.getObjectByName(x.meshId)

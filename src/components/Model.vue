@@ -32,7 +32,10 @@ export default class Model extends ArmMixin {
   created() {
     window.addEventListener(EventType.WINDOW_RESIZE, this.handleResize, false)
     eb.on(EventType.ARM_MODEL_LOADED, () => (this.loadingModel = false))
-    eb.on(EventType.ARM_MODEL_LOADING_MESSAGE, e => (this.message = e))
+    eb.on(EventType.ARM_MODEL_LOADING_MESSAGE, e => {
+      this.loadingModel = true
+      this.message = e
+    })
     eb.on(EventType.ARM_MODEL_LOADING_PROGRESS, (e: ProgressEvent) => {
       this.loadedMB = Number((e.loaded / 1000000).toFixed(2))
       this.totalMB = Number((e.total / 1000000).toFixed(2))

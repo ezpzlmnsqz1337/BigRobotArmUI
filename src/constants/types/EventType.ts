@@ -9,6 +9,7 @@ export enum EventType {
   ARM_MODEL_LOADING_PROGRESS = 'arm-model-loading-progress',
   ARM_MODEL_LOADED_ERROR = 'arm-model-loaded-error',
   ARM_MODEL_LOADING_MESSAGE = 'arm-model-loading-message',
+  TOGGLE_ANTIALIASING = 'toggle-antialiasing',
   // window events
   WINDOW_RESIZE = 'resize'
 }

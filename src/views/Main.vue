@@ -3,7 +3,15 @@
     <div class="__model" :class="{ __shrink: menuOpen }">
       <Model ref="model" />
       <Sidebar @change="menuOpen ? closeMenu() : openMenu()" />
+
       <div v-if="!loadingModel" class="__menu">
+        <b-button
+          size="lg"
+          @click="toggleAntialias()"
+          :variant="antialiasing ? 'primary' : 'secondary'"
+        >
+          <fa-icon icon="fa-solid fa-a" />
+        </b-button>
         <b-button v-b-toggle.sidebar-footer size="lg">
           <fa-icon icon="fa-solid fa-bars" />
         </b-button>
@@ -50,6 +58,7 @@ export default class Main extends ArmMixin {
     model: Model
   }
 
+  antialiasing = true
   menuOpen = false
   loadingModel = true
 
@@ -130,6 +139,11 @@ export default class Main extends ArmMixin {
   resetCamera() {
     eb.emit(EventType.CENTER_CAMERA)
   }
+
+  toggleAntialias() {
+    this.antialiasing = !this.antialiasing
+    eb.emit(EventType.TOGGLE_ANTIALIASING)
+  }
 }
 </script>
 
@@ -160,6 +174,10 @@ export default class Main extends ArmMixin {
   position: fixed;
   right: 1rem;
   top: 1rem;
+
+  button:not(:last-child) {
+    margin-right: 1rem;
+  }
 }
 
 .__controls {
