@@ -2,39 +2,33 @@
   <div class="my-4">
     <b-form-group>
       <label :for="gripper.name">{{ gripper.name }}</label>
-      <b-row>
-        <b-col md="12">
-          <b-form-spinbutton
-            v-model="gripper.position.target"
-            @change="sendCommand()"
-            :min="gripper.min"
-            :max="gripper.max"
-            :step="step"
-            :disabled="!isConnected || !gripper.enabled || !ready"
-          ></b-form-spinbutton>
-          {{ step }}
-        </b-col>
-        <b-col md="12">
-          <b-form-input
-            :id="gripper.name"
-            type="range"
-            :name="gripper.name"
-            v-model="gripper.position.target"
-            @change="sendCommand()"
-            :min="gripper.min"
-            :max="gripper.max"
-            :step="step"
-            :disabled="!isConnected || !ready"
-          />
-          <b-checkbox
-            v-model="gripper.enabled"
-            @change="sendCommand()"
-            :disabled="!isConnected || !ready"
-            size="lg"
-            >Enabled</b-checkbox
-          >
-        </b-col>
-      </b-row>
+      <b-form-spinbutton
+        v-model="gripper.position.target"
+        @change="sendCommand()"
+        :min="gripper.min"
+        :max="gripper.max"
+        :step="step"
+        :disabled="!isConnected || !gripper.enabled || !ready"
+      ></b-form-spinbutton>
+
+      <b-form-input
+        :id="gripper.name"
+        type="range"
+        :name="gripper.name"
+        v-model="gripperTarget"
+        @change="sendCommand()"
+        :min="gripper.min"
+        :max="gripper.max"
+        :step="`${step}`"
+        :disabled="!isConnected || !ready"
+      />
+      <b-checkbox
+        v-model="gripper.enabled"
+        @change="sendCommand()"
+        :disabled="!isConnected || !ready"
+        size="lg"
+        >Enabled</b-checkbox
+      >
     </b-form-group>
   </div>
 </template>
@@ -45,6 +39,14 @@ import { Prop } from 'vue-property-decorator'
 
 export default class Gripper extends ArmMixin {
   @Prop({ default: 20 }) readonly step!: number
+
+  get gripperTarget(): number {
+    return this.gripper.position.target
+  }
+
+  set gripperTarget(value: any) {
+    this.gripper.position.target = parseInt(value)
+  }
 
   sendCommand() {
     const command = this.$armControlStore.createGripperCommand()
