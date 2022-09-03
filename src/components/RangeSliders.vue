@@ -37,7 +37,7 @@ export default class RangeSliders extends ArmMixin {
     | 'acceleration'
     | 'position'
   @Prop({ default: 'value' }) readonly valueKey!: 'value' | 'target'
-  @Prop({ default: '1' }) readonly step!: string
+  @Prop({ default: '10' }) readonly step!: string
 
   @Emit('on-change')
   onChange(event: string, joint: Joint) {

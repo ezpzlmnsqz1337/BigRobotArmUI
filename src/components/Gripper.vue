@@ -35,8 +35,9 @@
 
 <script lang="ts">
 import ArmMixin from '@/mixins/ArmMixin.vue'
-import { Prop } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 
+@Component
 export default class Gripper extends ArmMixin {
   @Prop({ default: 20 }) readonly step!: number
 

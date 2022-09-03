@@ -4,6 +4,7 @@
       <RangeSliders
         valueName="position"
         valueKey="target"
+        :step="100"
         @on-change="sendCommand()"
       />
     </div>
