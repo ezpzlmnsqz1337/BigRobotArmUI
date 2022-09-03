@@ -1,5 +1,5 @@
 <template>
-  <div class="my-4">
+  <div>
     <b-row>
       <b-col class="my-auto controls">
         <RangeSliders valueName="acceleration" @on-change="sendCommand()" />

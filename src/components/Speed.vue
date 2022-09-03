@@ -4,7 +4,7 @@
       <b-col class="my-auto controls">
         <RangeSliders valueName="speed" @on-change="sendCommand()" />
         <b-checkbox
-          v-model="syncMotors"
+          v-model="$armControlStore.arm.syncMotors"
           size="lg"
           @change="sendSyncMotorsCommand()"
           :disabled="!isConnected || !ready"
@@ -28,10 +28,6 @@ import { Component } from 'vue-property-decorator'
   }
 })
 export default class Speed extends ArmMixin {
-  get syncMotors() {
-    return this.$armControlStore.arm.syncMotors
-  }
-
   sendCommand() {
     const s = this.$armControlStore
       .getJoints()

@@ -1,32 +1,26 @@
 <template>
-  <div>
+  <div class="mt-3">
     <b-form-group v-for="j in joints" :key="j.name">
       <label :for="j.name">{{ j.name }}</label>
-      <b-row>
-        <b-col cols="12">
-          <b-form-spinbutton
-            :value="j[valueName][valueKey]"
-            @change="onChange($event, j)"
-            :min="j[valueName].min"
-            :max="j[valueName].max"
-            :step="step"
-            :disabled="!isConnected || !ready"
-          ></b-form-spinbutton>
-        </b-col>
-        <b-col cols="12">
-          <b-form-input
-            :id="j.name"
-            type="range"
-            :name="j.name"
-            :value="j[valueName][valueKey]"
-            @change="onChange($event, j)"
-            :min="j[valueName].min"
-            :max="j[valueName].max"
-            :step="step"
-            :disabled="!isConnected || !ready"
-          />
-        </b-col>
-      </b-row>
+      <b-form-spinbutton
+        :value="j[valueName][valueKey]"
+        @change="onChange($event, j)"
+        :min="j[valueName].min"
+        :max="j[valueName].max"
+        :step="step"
+        :disabled="!isConnected || !ready"
+      ></b-form-spinbutton>
+      <b-form-input
+        :id="j.name"
+        type="range"
+        :name="j.name"
+        :value="j[valueName][valueKey]"
+        @change="onChange($event, j)"
+        :min="j[valueName].min"
+        :max="j[valueName].max"
+        :step="step"
+        :disabled="!isConnected || !ready"
+      />
     </b-form-group>
   </div>
 </template>
