@@ -27,7 +27,9 @@ import {
   faSquarePlus,
   faSquareMinus,
   faBars,
-  faA
+  faA,
+  faRobot,
+  faUser
 } from '@fortawesome/free-solid-svg-icons'
 import { faAmazon } from '@fortawesome/free-brands-svg-icons'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
@@ -39,6 +41,7 @@ library.add(
   faAmazon,
   faClock,
   faPlay,
+  faUser,
   faPen,
   faTrashCan,
   faVideo,
@@ -55,7 +58,8 @@ library.add(
   faSquarePlus,
   faSquareMinus,
   faBars,
-  faA
+  faA,
+  faRobot
 )
 
 /* add font awesome icon component */

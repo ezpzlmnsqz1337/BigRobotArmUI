@@ -1,11 +1,14 @@
 <template>
   <div>
-    <b-textarea
-      readonly
-      v-model="serialOutput"
-      class="__serialOutput"
-      ref="terminal"
-    ></b-textarea>
+    <div class="__content" ref="terminal">
+      <TerminalMessage
+        v-for="(message, index) in messages"
+        :type="message.type"
+        :key="index"
+        >{{ message.text }}</TerminalMessage
+      >
+    </div>
+
     <b-input-group>
       <b-form-input
         placeholder="Enter command..."
@@ -35,19 +38,27 @@
 <script lang="ts">
 import { Commands } from '@/constants/Commands'
 import { EventType } from '@/constants/types/EventType'
+import TerminalMessage, {
+  TerminalMessageType
+} from '@/components/TerminalMessage.vue'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import { Command, Message } from '@/store/communicationStore'
-import { BFormTextarea } from 'bootstrap-vue'
 import { Component } from 'vue-property-decorator'
 
-@Component
+@Component({
+  components: {
+    TerminalMessage
+  }
+})
 export default class Terminal extends ArmMixin {
+  protected static readonly MAX_TERMINAL_MESSAGES = 50
+
   $refs!: {
-    terminal: BFormTextarea
+    terminal: HTMLDivElement
   }
 
-  serialOutput = ''
+  messages: { text: string; type: TerminalMessageType }[] = []
   command: Command = ''
   autoscroll = true
   initialized = false
@@ -64,8 +75,14 @@ export default class Terminal extends ArmMixin {
 
   addMessage(message: Message, send = true) {
     if (!this.$connectionStore.connected) return
-    message = send ? `Send:\n${message}\n` : `Receive:\n${message}\n`
-    this.serialOutput += message
+    this.messages.push({
+      text: message.replaceAll('BigRobotArm::', ''),
+      type: send ? 'client' : 'server'
+    })
+    if (this.messages.length >= Terminal.MAX_TERMINAL_MESSAGES) {
+      this.messages.shift()
+    }
+
     this.scrollToBottom()
   }
 
@@ -79,7 +96,7 @@ export default class Terminal extends ArmMixin {
   scrollToBottom() {
     if (!this.$refs.terminal || !this.autoscroll) return
 
-    const textarea = this.$refs.terminal.$el
+    const textarea = this.$refs.terminal
     setTimeout(() => (textarea.scrollTop = textarea.scrollHeight))
   }
 }
@@ -87,12 +104,16 @@ export default class Terminal extends ArmMixin {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.__serialOutput {
+.__content {
   height: 68vh;
+  border-radius: 0.3rem 0.3rem 0 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  flex-direction: column;
+  overflow: scroll;
 }
 
 @media only screen and (max-width: 600px) {
-  .__serialOutput {
+  .__content {
     height: 25vh;
   }
 }
