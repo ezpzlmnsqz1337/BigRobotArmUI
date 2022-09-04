@@ -12,7 +12,7 @@
         >
           <fa-icon icon="fa-solid fa-a" />
         </b-button>
-        <b-button v-b-toggle.sidebar-footer size="lg">
+        <b-button v-b-toggle.sidebar size="lg">
           <fa-icon icon="fa-solid fa-bars" />
         </b-button>
       </div>
@@ -165,7 +165,7 @@ export default class Main extends ArmMixin {
   left: 0;
   right: 0;
 
-  :deep(div#sidebar-footer) {
+  :deep(.b-sidebar) {
     width: 40vw;
   }
 }
@@ -193,33 +193,6 @@ export default class Main extends ArmMixin {
 @media only screen and (min-width: 1024px) {
   .__model.__shrink {
     right: 40vw;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .__model.__shrink {
-    height: 40vh;
-  }
-
-  .__model :deep(div#sidebar-footer) {
-    position: fixed;
-    width: 100%;
-    height: calc(100% - 40vh);
-    left: 0;
-    right: 0;
-    top: 0;
-  }
-
-  .__model :deep(.b-sidebar) {
-    transform: translateY(40vh);
-  }
-
-  .__model :deep(.b-sidebar.slide) {
-    transition: transform 0.3s ease-in-out;
-  }
-
-  .__model :deep(.b-sidebar.b-sidebar-right.slide:not(.show)) {
-    transform: translateY(100vh);
   }
 }
 </style>
