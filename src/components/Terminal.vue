@@ -90,7 +90,7 @@ export default class Terminal extends ArmMixin {
     if (!this.command.length) return
 
     this.sendCommandToArm(this.command)
-    this.command = ''
+    this.$nextTick(() => (this.command = ''))
   }
 
   scrollToBottom() {
