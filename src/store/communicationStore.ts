@@ -5,7 +5,6 @@ import { EventType } from '@/constants/types/EventType'
 import { WebsocketMessage } from '@/constants/WebsocketMessage'
 import eb from '@/EventBus'
 
-const hostname = 'roborukapi4'
 let ws: WebSocket | null = null
 
 export type Message = string
@@ -75,7 +74,7 @@ export const communicationStore: CommunicationStore = {
       .pop()
   },
   connect() {
-    ws = new WebSocket(`ws://${hostname}:1337`)
+    ws = new WebSocket(`ws://${window.location.hostname}:1337`)
     ws.onmessage = event => eb.emit(EventType.WS_MESSAGE_RECEIVED, event.data)
     ws.onopen = () => {
       this.sendCommand(WebsocketMessage.WS_CONNECT)
