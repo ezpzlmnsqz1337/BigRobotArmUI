@@ -49,6 +49,11 @@ describe('ArmControlStore', () => {
     expect(armControlStore.arm.gripper.position.target).toBe(69)
   })
 
+  it('should set gripper value position', () => {
+    armControlStore.setGripperValuePosition(69)
+    expect(armControlStore.arm.gripper.position.value).toBe(69)
+  })
+
   it('should set joints target positions', () => {
     const targetPositions = armControlStore.arm.joints.map(({ name }) => ({
       name,
@@ -57,6 +62,16 @@ describe('ArmControlStore', () => {
     armControlStore.setTargetPositions(targetPositions)
 
     armControlStore.arm.joints.forEach(x => expect(x.position.target).toBe(420))
+  })
+
+  it('should set joints value positions', () => {
+    const valuePositions = armControlStore.arm.joints.map(({ name }) => ({
+      name,
+      value: 420
+    }))
+    armControlStore.setValuePositions(valuePositions)
+
+    armControlStore.arm.joints.forEach(x => expect(x.position.value).toBe(420))
   })
 
   it('should set joints speeds', () => {

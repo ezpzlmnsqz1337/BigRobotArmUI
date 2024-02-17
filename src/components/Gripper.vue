@@ -5,8 +5,8 @@
       <b-form-spinbutton
         v-model="gripper.position.target"
         @change="sendCommand()"
-        :min="gripper.min"
-        :max="gripper.max"
+        :min="gripper.position.min"
+        :max="gripper.position.max"
         :step="step"
         :disabled="!isConnected || !gripper.enabled || !ready"
       ></b-form-spinbutton>
@@ -17,8 +17,8 @@
         :name="gripper.name"
         v-model="gripperTarget"
         @change="sendCommand()"
-        :min="gripper.min"
-        :max="gripper.max"
+        :min="gripper.position.min"
+        :max="gripper.position.max"
         :step="`${step}`"
         :disabled="!isConnected || !ready"
       />
