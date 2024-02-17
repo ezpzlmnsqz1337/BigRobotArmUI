@@ -4,8 +4,8 @@
       <RangeSliders
         valueName="position"
         valueKey="target"
+        diffKey="value"
         :step="100"
-        @on-change="sendCommand()"
       />
     </div>
     <div>
@@ -21,6 +21,13 @@
           @click="sendHomeCommand()"
           :disabled="!isConnected || !ready"
           ><fa-icon icon="fa-solid fa-house" />&nbsp;Home</b-button
+        >
+        <b-button
+          variant="primary"
+          size="large"
+          @click="sendCommand()"
+          :disabled="!isConnected || !ready"
+          ><fa-icon icon="fa-solid fa-play" />&nbsp;Go</b-button
         >
       </b-form-group>
     </div>

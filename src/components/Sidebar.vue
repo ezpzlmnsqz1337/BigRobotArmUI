@@ -7,7 +7,9 @@
     :class="{ __fullscreen: fullscreen }"
   >
     <template #header="{ hide }">
-      <div @click="toggleFullscreenMenu()">Big Robot Arm UI</div>
+      <div @click="toggleFullscreenMenu()" class="__heading">
+        Big Robot Arm UI
+      </div>
       <fa-icon icon="fa-solid fa-xmark" @click.prevent="hide()" />
       <div class="d-md-none __expand_arrows">
         <fa-icon
@@ -109,6 +111,10 @@ export default class Sidebar extends Vue {
     left: 0;
     right: 0;
     top: 0;
+  }
+
+  .__heading {
+    font-size: 0.8rem;
   }
 
   .__fullscreen :deep(.b-sidebar) {
