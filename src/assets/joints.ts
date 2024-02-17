@@ -65,12 +65,12 @@ export default [
     speed: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     acceleration: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     stepsPerDegree: BASE_STEPS_PER_DEGREE,
     meshId: 'ShaftBase',
@@ -90,12 +90,12 @@ export default [
     speed: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     acceleration: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     stepsPerDegree: SHOULDER_STEPS_PER_DEGREE,
     meshId: 'ShaftShoulder',
@@ -115,12 +115,12 @@ export default [
     speed: {
       value: 100,
       min: 10,
-      max: 500
+      max: 3000
     },
     acceleration: {
       value: 100,
       min: 10,
-      max: 500
+      max: 3000
     },
     stepsPerDegree: ELBOW_STEPS_PER_DEGREE,
     meshId: 'ShaftElbow',
@@ -140,12 +140,12 @@ export default [
     speed: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     acceleration: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     stepsPerDegree: WRIST_ROTATE_STEPS_PER_DEGREE,
     meshId: 'ShaftWristRotate',
@@ -165,12 +165,12 @@ export default [
     speed: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     acceleration: {
       value: 100,
       min: 10,
-      max: 500
+      max: 1000
     },
     stepsPerDegree: WRIST_STEPS_PER_DEGREE,
     meshId: 'ShaftWrist',

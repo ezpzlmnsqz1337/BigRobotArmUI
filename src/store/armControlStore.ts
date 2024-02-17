@@ -20,8 +20,10 @@ export interface ArmControlStore {
   getJoints(): Joint[]
   getJointByName(name: string): Joint | undefined
   setTargetPositions(positions: JointMessageData[]): void
+  setValuePositions(positions: JointMessageData[]): void
   setGripperEnabled(enabled: boolean): void
   setGripperTargetPosition(position: number): void
+  setGripperValuePosition(position: number): void
   setSpeeds(speeds: JointMessageData[]): void
   setAccelerations(accelerations: JointMessageData[]): void
   setSyncMotors(syncMotors: boolean): void
@@ -64,9 +66,17 @@ export const armControlStore: ArmControlStore = {
   setGripperTargetPosition(position: number) {
     this.arm.gripper.position.target = position
   },
+  setGripperValuePosition(position: number) {
+    this.arm.gripper.position.value = position
+  },
   setTargetPositions(positions: JointMessageData[]) {
     this.arm.joints.forEach((joint, index) => {
       joint.position.target = positions[index].value
+    })
+  },
+  setValuePositions(positions: JointMessageData[]): void {
+    this.arm.joints.forEach((joint, index) => {
+      joint.position.value = positions[index].value
     })
   },
   setSpeeds(speeds: JointMessageData[]) {

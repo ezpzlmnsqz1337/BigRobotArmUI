@@ -86,6 +86,7 @@ export default class Main extends ArmMixin {
       SerialMessage.POSITION
     )
     if (!positions) return
+    this.$armControlStore.setValuePositions(positions)
     this.$armControlStore.setTargetPositions(positions)
   }
 
@@ -112,6 +113,7 @@ export default class Main extends ArmMixin {
     if (!gripper) return
     this.$armControlStore.setGripperEnabled(gripper.enabled)
     this.$armControlStore.setGripperTargetPosition(gripper.target)
+    this.$armControlStore.setGripperValuePosition(gripper.target)
   }
 
   handleSyncMotors(message: string) {
