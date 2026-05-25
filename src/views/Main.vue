@@ -45,6 +45,7 @@ import { SerialMessage } from '@/constants/SerialMessage'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
+import { ServerEvent } from '@/store/communicationStore'
 import { Component } from 'vue-property-decorator'
 
 @Component({
@@ -70,6 +71,12 @@ export default class Main extends ArmMixin {
   handleMessage(message: string) {
     console.log('Response from server: ', message)
 
+    const serverEvent = this.$communicationStore.parseServerEvent(message)
+    if (serverEvent) {
+      this.handleServerEvent(serverEvent)
+      return
+    }
+
     if (message.includes(SerialMessage.READY)) this.$armControlStore.ready()
     if (message.includes(SerialMessage.POSITION)) this.handlePositions(message)
     if (message.includes(SerialMessage.GRIPPER)) this.handleGripper(message)
@@ -78,6 +85,29 @@ export default class Main extends ArmMixin {
       this.handleAcceleration(message)
     if (message.includes(SerialMessage.SYNC_MOTORS))
       this.handleSyncMotors(message)
+  }
+
+  handleServerEvent(event: ServerEvent) {
+    if (event.type === 'queueStatus') {
+      this.$jobStore.setQueueStatus(event.jobs ?? [])
+      return
+    }
+
+    if (event.type === 'error') {
+      this.$jobStore.setError(event.message ?? 'Unknown server error')
+      return
+    }
+
+    if (event.job) {
+      this.$jobStore.applyJobStatus(event.job)
+      if (
+        event.type === 'jobCompleted' ||
+        event.type === 'jobFailed' ||
+        event.type === 'jobCancelled'
+      ) {
+        this.$armControlStore.ready()
+      }
+    }
   }
 
   handlePositions(message: string) {
@@ -118,7 +148,7 @@ export default class Main extends ArmMixin {
 
   handleSyncMotors(message: string) {
     const syncMotors = this.$communicationStore.parseSyncMotors(message)
-    if (!syncMotors) return
+    if (syncMotors === undefined) return
     this.$armControlStore.setSyncMotors(syncMotors)
   }
 

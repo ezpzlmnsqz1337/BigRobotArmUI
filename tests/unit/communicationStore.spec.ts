@@ -122,4 +122,56 @@ describe('SerialCommStore', () => {
     expect(gripper).toBeUndefined()
     expect(syncMotors).toBeUndefined()
   })
+
+  it('should serialize queued jobs as submitJob messages', () => {
+    const send = jest.fn()
+    const webSocketMock = jest.fn().mockImplementation(() => ({
+      send,
+      onmessage: null,
+      onopen: null
+    }))
+    Object.defineProperty(window, 'WebSocket', {
+      writable: true,
+      configurable: true,
+      value: webSocketMock
+    })
+
+    communicationStore.connect()
+
+    const instance = webSocketMock.mock.results[0].value
+    instance.onopen()
+
+    send.mockClear()
+    communicationStore.sendJob('Demo path', ['G0 B0 S0 E0 WR0 W0', 'G28'])
+
+    expect(send).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'submitJob',
+        job: {
+          name: 'Demo path',
+          commands: ['G0 B0 S0 E0 WR0 W0', 'G28']
+        }
+      })
+    )
+  })
+
+  it('should parse queue and job JSON messages from the server', () => {
+    expect(
+      communicationStore.parseServerEvent(
+        JSON.stringify({ type: 'jobProgress', job: { jobId: 'job-1', name: 'Demo', status: 'running', currentIndex: 1, total: 3 } })
+      )
+    ).toStrictEqual({
+      type: 'jobProgress',
+      job: { jobId: 'job-1', name: 'Demo', status: 'running', currentIndex: 1, total: 3 }
+    })
+
+    expect(
+      communicationStore.parseServerEvent(
+        JSON.stringify({ type: 'queueStatus', jobs: [{ jobId: 'job-1', name: 'Demo', status: 'queued', currentIndex: 0, total: 3 }] })
+      )
+    ).toStrictEqual({
+      type: 'queueStatus',
+      jobs: [{ jobId: 'job-1', name: 'Demo', status: 'queued', currentIndex: 0, total: 3 }]
+    })
+  })
 })

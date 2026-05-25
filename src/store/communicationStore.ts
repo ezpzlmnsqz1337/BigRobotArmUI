@@ -11,6 +11,33 @@ export type Message = string
 export type MessageRow = string
 export type Command = string
 
+export interface ServerJobStatus {
+  jobId: string
+  name: string
+  status: string
+  currentIndex: number
+  total: number
+  lastResponse?: string | null
+  error?: string | null
+  cancelRequested?: boolean
+}
+
+export interface ServerEvent {
+  type: string
+  message?: string
+  jobId?: string
+  job?: ServerJobStatus | null
+  jobs?: ServerJobStatus[]
+}
+
+export interface JobPayload {
+  type: 'submitJob'
+  job: {
+    name: string
+    commands: Command[]
+  }
+}
+
 export interface GripperMessageData {
   target: number
   enabled: boolean
@@ -28,10 +55,13 @@ export interface CommunicationStore {
   ): JointMessageData[] | undefined
   parseGripper(message: Message): GripperMessageData | undefined
   parseSyncMotors(message: Message): boolean | undefined
+  parseServerEvent(message: Message): ServerEvent | undefined
   getMessageRow(message: string, type: SerialMessage): MessageRow | undefined
   connect(): void
   disconnect(): void
   sendCommand(command: Command): void
+  sendJob(name: string, commands: Command[]): void
+  requestQueueStatus(): void
 }
 
 export const communicationStore: CommunicationStore = {
@@ -67,6 +97,17 @@ export const communicationStore: CommunicationStore = {
 
     return parseInt(messageRow.split(' ')[1]) === 1
   },
+  parseServerEvent(message: Message) {
+    const trimmed = message.trim()
+    if (!trimmed.startsWith('{')) return
+
+    try {
+      const parsed = JSON.parse(trimmed) as ServerEvent
+      return typeof parsed.type === 'string' ? parsed : undefined
+    } catch {
+      return
+    }
+  },
   getMessageRow(message: string, type: SerialMessage) {
     return message
       .split('\n')
@@ -79,6 +120,7 @@ export const communicationStore: CommunicationStore = {
     ws.onopen = () => {
       this.sendCommand(WebsocketMessage.WS_CONNECT)
       this.sendCommand(Commands.STATUS)
+      this.requestQueueStatus()
     }
   },
   disconnect() {
@@ -89,5 +131,22 @@ export const communicationStore: CommunicationStore = {
   sendCommand(command: Command) {
     eb.emit(EventType.WS_MESSAGE_SEND, command)
     ws?.send(command)
+  },
+  sendJob(name: string, commands: Command[]) {
+    const payload: JobPayload = {
+      type: 'submitJob',
+      job: {
+        name,
+        commands
+      }
+    }
+    const serialized = JSON.stringify(payload)
+    eb.emit(EventType.WS_MESSAGE_SEND, serialized)
+    ws?.send(serialized)
+  },
+  requestQueueStatus() {
+    const payload = JSON.stringify({ type: 'getQueueStatus' })
+    eb.emit(EventType.WS_MESSAGE_SEND, payload)
+    ws?.send(payload)
   }
 }

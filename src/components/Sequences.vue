@@ -15,6 +15,26 @@
       />
     </b-form-group>
     <div v-if="!editedSequence" class="__sequences">
+      <b-alert v-if="jobError" show variant="danger" class="text-left">
+        {{ jobError }}
+      </b-alert>
+
+      <b-card v-if="activeJob" class="mb-3 text-left">
+        <div><strong>Active job:</strong> {{ activeJob.name }}</div>
+        <div><strong>Status:</strong> {{ activeJob.status }}</div>
+        <div><strong>Progress:</strong> {{ activeJob.currentIndex }} / {{ activeJob.total }}</div>
+        <div v-if="activeJob.error"><strong>Error:</strong> {{ activeJob.error }}</div>
+      </b-card>
+
+      <b-card v-if="queuedJobs.length" class="mb-3 text-left">
+        <div><strong>Queued jobs:</strong> {{ queuedJobs.length }}</div>
+        <ul class="pl-3 mb-0">
+          <li v-for="job in queuedJobs" :key="job.jobId">
+            {{ job.name }} ({{ job.currentIndex }} / {{ job.total }})
+          </li>
+        </ul>
+      </b-card>
+
       <b-list-group>
         <b-list-group-item
           v-for="(s, index) in sequences"
@@ -42,7 +62,7 @@
       </b-list-group>
 
       <div class="my-4">
-        <b-button @click="play()" :disabled="!isConnected || !ready"
+        <b-button @click="play()" :disabled="!isConnected"
           ><fa-icon icon="fa-solid fa-play" />&nbsp;Play</b-button
         >
         <b-button @click="preview()"
@@ -101,6 +121,15 @@ export default class Sequences extends ArmMixin {
   get editedSequence() {
     return this.$sequencesStore.editedSequence
   }
+  get activeJob() {
+    return this.$jobStore.activeJob
+  }
+  get queuedJobs() {
+    return this.$jobStore.queuedJobs
+  }
+  get jobError() {
+    return this.$jobStore.lastError
+  }
 
   created() {
     eb.on(EventType.ARM_IN_POSITION, () =>
@@ -109,8 +138,10 @@ export default class Sequences extends ArmMixin {
   }
 
   play() {
-    const sequence = this.sequences[this.selected].data
-    sequence.forEach(x => this.sendCommand(x))
+    const sequence = this.sequences[this.selected]
+    this.$jobStore.setError(null)
+    this.$communicationStore.sendJob(sequence.name, sequence.data)
+    this.$armControlStore.busy()
   }
 
   preview() {
@@ -132,11 +163,6 @@ export default class Sequences extends ArmMixin {
       this.$armControlStore.setTargetPositions(positions)
     }
   }
-
-  sendCommand(command: Command) {
-    this.sendCommandToArm(command)
-  }
-
   setPreviewSpeed() {
     eb.emit(
       EventType.SET_PREVIEW_SPEED,
