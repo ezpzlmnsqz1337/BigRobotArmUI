@@ -158,20 +158,54 @@ describe('SerialCommStore', () => {
   it('should parse queue and job JSON messages from the server', () => {
     expect(
       communicationStore.parseServerEvent(
-        JSON.stringify({ type: 'jobProgress', job: { jobId: 'job-1', name: 'Demo', status: 'running', currentIndex: 1, total: 3 } })
+        JSON.stringify({
+          type: 'jobProgress',
+          job: {
+            jobId: 'job-1',
+            name: 'Demo',
+            status: 'running',
+            currentIndex: 1,
+            total: 3
+          }
+        })
       )
     ).toStrictEqual({
       type: 'jobProgress',
-      job: { jobId: 'job-1', name: 'Demo', status: 'running', currentIndex: 1, total: 3 }
+      job: {
+        jobId: 'job-1',
+        name: 'Demo',
+        status: 'running',
+        currentIndex: 1,
+        total: 3
+      }
     })
 
     expect(
       communicationStore.parseServerEvent(
-        JSON.stringify({ type: 'queueStatus', jobs: [{ jobId: 'job-1', name: 'Demo', status: 'queued', currentIndex: 0, total: 3 }] })
+        JSON.stringify({
+          type: 'queueStatus',
+          jobs: [
+            {
+              jobId: 'job-1',
+              name: 'Demo',
+              status: 'queued',
+              currentIndex: 0,
+              total: 3
+            }
+          ]
+        })
       )
     ).toStrictEqual({
       type: 'queueStatus',
-      jobs: [{ jobId: 'job-1', name: 'Demo', status: 'queued', currentIndex: 0, total: 3 }]
+      jobs: [
+        {
+          jobId: 'job-1',
+          name: 'Demo',
+          status: 'queued',
+          currentIndex: 0,
+          total: 3
+        }
+      ]
     })
   })
 })

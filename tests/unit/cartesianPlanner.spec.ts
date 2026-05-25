@@ -35,8 +35,8 @@ describe('cartesianPlanner', () => {
   })
 
   it('should format a position command from joint targets', () => {
-    expect(
-      createPositionCommand({ B: 10, S: 20, E: 30, WR: 40, W: 50 })
-    ).toBe('G0 B10 S20 E30 WR40 W50')
+    expect(createPositionCommand({ B: 10, S: 20, E: 30, WR: 40, W: 50 })).toBe(
+      'G0 B10 S20 E30 WR40 W50'
+    )
   })
 })

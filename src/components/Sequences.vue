@@ -22,8 +22,13 @@
       <b-card v-if="activeJob" class="mb-3 text-left">
         <div><strong>Active job:</strong> {{ activeJob.name }}</div>
         <div><strong>Status:</strong> {{ activeJob.status }}</div>
-        <div><strong>Progress:</strong> {{ activeJob.currentIndex }} / {{ activeJob.total }}</div>
-        <div v-if="activeJob.error"><strong>Error:</strong> {{ activeJob.error }}</div>
+        <div>
+          <strong>Progress:</strong> {{ activeJob.currentIndex }} /
+          {{ activeJob.total }}
+        </div>
+        <div v-if="activeJob.error">
+          <strong>Error:</strong> {{ activeJob.error }}
+        </div>
       </b-card>
 
       <b-card v-if="queuedJobs.length" class="mb-3 text-left">

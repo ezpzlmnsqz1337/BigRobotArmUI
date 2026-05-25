@@ -212,7 +212,10 @@ export default [
   },
   {
     name: 'Linear path demo - horizontal sweep',
-    data: [...linearHorizontalSweep, ...linearHorizontalSweep.slice(0, -1).reverse()]
+    data: [
+      ...linearHorizontalSweep,
+      ...linearHorizontalSweep.slice(0, -1).reverse()
+    ]
   },
   {
     name: 'Linear path demo - vertical lift',

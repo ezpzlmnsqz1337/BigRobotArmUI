@@ -69,8 +69,6 @@ export default class Main extends ArmMixin {
   }
 
   handleMessage(message: string) {
-    console.log('Response from server: ', message)
-
     const serverEvent = this.$communicationStore.parseServerEvent(message)
     if (serverEvent) {
       this.handleServerEvent(serverEvent)

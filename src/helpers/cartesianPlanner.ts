@@ -59,7 +59,9 @@ function toJointSteps(code: keyof PlannedJointTargets, degrees: number) {
     normalizedSteps > joint.position.max
   ) {
     throw new Error(
-      `Joint ${code} out of range for ${degrees.toFixed(2)} degrees: ${normalizedSteps}`
+      `Joint ${code} out of range for ${degrees.toFixed(
+        2
+      )} degrees: ${normalizedSteps}`
     )
   }
 
@@ -147,7 +149,9 @@ export function planCartesianWaypoint(
     )
   }
 
-  return candidates.sort((left, right) => scoreJointTargets(left) - scoreJointTargets(right))[0]
+  return candidates.sort(
+    (left, right) => scoreJointTargets(left) - scoreJointTargets(right)
+  )[0]
 }
 
 export function createPositionCommand(targets: PlannedJointTargets) {
@@ -168,7 +172,8 @@ export function createLinearPathSequence(plan: LinearPathPlan) {
         (plan.end.heightMm - plan.start.heightMm) * progress,
       baseDegrees:
         (plan.start.baseDegrees ?? 0) +
-        ((plan.end.baseDegrees ?? 0) - (plan.start.baseDegrees ?? 0)) * progress,
+        ((plan.end.baseDegrees ?? 0) - (plan.start.baseDegrees ?? 0)) *
+          progress,
       toolPitchDegrees:
         (plan.start.toolPitchDegrees ?? DEFAULT_TOOL_PITCH_DEGREES) +
         ((plan.end.toolPitchDegrees ?? DEFAULT_TOOL_PITCH_DEGREES) -
