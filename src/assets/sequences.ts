@@ -1,3 +1,17 @@
+import { createLinearPathSequence } from '@/helpers/cartesianPlanner'
+
+const linearHorizontalSweep = createLinearPathSequence({
+  start: { radiusMm: 220, heightMm: 205, toolPitchDegrees: 90 },
+  end: { radiusMm: 300, heightMm: 205, toolPitchDegrees: 90 },
+  segments: 4
+})
+
+const linearVerticalLift = createLinearPathSequence({
+  start: { radiusMm: 260, heightMm: 175, toolPitchDegrees: 90 },
+  end: { radiusMm: 260, heightMm: 220, toolPitchDegrees: 90 },
+  segments: 3
+})
+
 export default [
   {
     name: 'Pick up and move',
@@ -195,5 +209,13 @@ export default [
       'G0 B-707 S1780 E4758 WR0 W-2465',
       'G0 B-1741 S2345 E-9 WR0 W-3000'
     ]
+  },
+  {
+    name: 'Linear path demo - horizontal sweep',
+    data: [...linearHorizontalSweep, ...linearHorizontalSweep.slice(0, -1).reverse()]
+  },
+  {
+    name: 'Linear path demo - vertical lift',
+    data: [...linearVerticalLift, ...linearVerticalLift.slice(0, -1).reverse()]
   }
 ]
