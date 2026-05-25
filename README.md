@@ -24,7 +24,23 @@ https://github.com/ezpzlmnsqz1337/BigRobotArmFirmware - firmware for the MKS Gen
 
 
 
-## Instalation
+## Installation
 - clone this repository
-- npm run serve for development
-- npm run build for deployment
+- install `nvm` for your shell environment
+- run `nvm install`
+- run `nvm use`
+- run `npm install`
+- run `npm run serve` for development
+- run `npm run build` for deployment
+
+## Node.js version
+
+This project is pinned to Node `16.20.2` in [.nvmrc](c:/Projects/BigRobotArm/BigRobotArmUI/.nvmrc).
+
+Recommended setup in Git Bash:
+
+```bash
+nvm install
+nvm use
+npm install
+```
