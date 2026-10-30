@@ -9,7 +9,7 @@
     <div>
       <div class="__header">
         <fa-icon
-          :icon="`fa-solid ' ${type === 'client' ? 'fa-user' : 'fa-robot'}`"
+          :icon="`fa-solid ${type === 'client' ? 'fa-user' : 'fa-robot'}`"
         />
         {{ type === 'client' ? 'You' : 'Robot arm' }}
       </div>

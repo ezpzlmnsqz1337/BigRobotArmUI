@@ -25,6 +25,25 @@ describe('SequencesStore', () => {
     sequencesStore.initSequences()
 
     expect(sequencesStore.sequences).toHaveLength(sequences.length)
+    expect(sequencesStore.sequences).not.toBe(sequences)
+    expect(sequencesStore.sequences[0].data).not.toBe(sequences[0].data)
+  })
+
+  it('should fall back to asset sequences when local storage is corrupted', () => {
+    localStorage.setItem(SEQUENCES_LOCAL_STORAGE_KEY, '{not valid json')
+
+    expect(() => sequencesStore.initSequences()).not.toThrow()
+    expect(sequencesStore.sequences).toHaveLength(sequences.length)
+  })
+
+  it('should fall back to asset sequences when stored data has the wrong shape', () => {
+    localStorage.setItem(
+      SEQUENCES_LOCAL_STORAGE_KEY,
+      JSON.stringify([{ name: 'broken', data: 'not-an-array' }])
+    )
+
+    sequencesStore.initSequences()
+    expect(sequencesStore.sequences).toHaveLength(sequences.length)
   })
 
   it('should start and stop editing of sequence', () => {

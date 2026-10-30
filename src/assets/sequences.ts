@@ -1,5 +1,9 @@
 import { createLinearPathSequence } from '@/helpers/cartesianPlanner'
 
+// The Cartesian demo sequences below are planned when this module is first
+// imported, i.e. during application bootstrap. Invalid path parameters throw
+// at import time, which is intentional: bad defaults should fail loudly rather
+// than emit NaN commands.
 const linearHorizontalSweep = createLinearPathSequence({
   start: { radiusMm: 220, heightMm: 205, toolPitchDegrees: 90 },
   end: { radiusMm: 300, heightMm: 205, toolPitchDegrees: 90 },

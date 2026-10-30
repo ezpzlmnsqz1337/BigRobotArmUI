@@ -63,9 +63,18 @@ export default class Terminal extends ArmMixin {
   autoscroll = true
   initialized = false
 
+  readonly handleMessageReceived = (message: Message) =>
+    this.addMessage(message, false)
+  readonly handleMessageSent = (message: Message) => this.addMessage(message)
+
   created() {
-    eb.on(EventType.WS_MESSAGE_RECEIVED, e => this.addMessage(e, false))
-    eb.on(EventType.WS_MESSAGE_SEND, e => this.addMessage(e))
+    eb.on(EventType.WS_MESSAGE_RECEIVED, this.handleMessageReceived)
+    eb.on(EventType.WS_MESSAGE_SEND, this.handleMessageSent)
+  }
+
+  destroyed() {
+    eb.off(EventType.WS_MESSAGE_RECEIVED, this.handleMessageReceived)
+    eb.off(EventType.WS_MESSAGE_SEND, this.handleMessageSent)
   }
 
   mounted() {
@@ -74,7 +83,6 @@ export default class Terminal extends ArmMixin {
   }
 
   addMessage(message: Message, send = true) {
-    if (!this.$connectionStore.connected) return
     this.messages.push({
       text: message.replaceAll('BigRobotArm::', ''),
       type: send ? 'client' : 'server'

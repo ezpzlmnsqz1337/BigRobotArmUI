@@ -71,22 +71,34 @@ export const armControlStore: ArmControlStore = {
   },
   setTargetPositions(positions: JointMessageData[]) {
     this.arm.joints.forEach((joint, index) => {
-      joint.position.target = positions[index].value
+      const position = positions[index]
+      if (!position || !Number.isFinite(position.value)) return
+
+      joint.position.target = position.value
     })
   },
   setValuePositions(positions: JointMessageData[]): void {
     this.arm.joints.forEach((joint, index) => {
-      joint.position.value = positions[index].value
+      const position = positions[index]
+      if (!position || !Number.isFinite(position.value)) return
+
+      joint.position.value = position.value
     })
   },
   setSpeeds(speeds: JointMessageData[]) {
     this.arm.joints.forEach((joint, index) => {
-      joint.speed.value = speeds[index].value
+      const speed = speeds[index]
+      if (!speed || !Number.isFinite(speed.value)) return
+
+      joint.speed.value = speed.value
     })
   },
   setAccelerations(accelerations: JointMessageData[]) {
     this.arm.joints.forEach((joint, index) => {
-      joint.acceleration.value = accelerations[index].value
+      const acceleration = accelerations[index]
+      if (!acceleration || !Number.isFinite(acceleration.value)) return
+
+      joint.acceleration.value = acceleration.value
     })
   },
   createPositionCommand() {

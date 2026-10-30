@@ -27,7 +27,11 @@
 </template>
 
 <script lang="ts">
-import { Joint, NumberRangeData } from '@/assets/joints'
+import {
+  Joint,
+  NumberRangeData,
+  NumberRangeDataWithTarget
+} from '@/assets/joints'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import { Component, Emit, Prop } from 'vue-property-decorator'
 
@@ -37,10 +41,8 @@ export default class RangeSliders extends ArmMixin {
     Joint,
     'speed' | 'acceleration' | 'position'
   >
-  @Prop({ default: 'value' }) readonly valueKey!: keyof Pick<
-    NumberRangeData,
-    'value'
-  >
+  @Prop({ default: 'value' })
+  readonly valueKey!: keyof NumberRangeDataWithTarget
   @Prop({ default: 'value' }) readonly diffKey!: keyof Pick<
     NumberRangeData,
     'value'

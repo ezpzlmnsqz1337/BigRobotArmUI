@@ -24,12 +24,54 @@ export interface SequencesStore {
   removeSequence(sequenceId: number): void
 }
 
+function copySequences(source: Sequence[]): Sequence[] {
+  return source.map(sequence => ({
+    name: sequence.name,
+    data: [...sequence.data]
+  }))
+}
+
+function isSequence(value: unknown): value is Sequence {
+  if (!value || typeof value !== 'object') return false
+
+  const sequence = value as Partial<Sequence>
+  return (
+    typeof sequence.name === 'string' &&
+    Array.isArray(sequence.data) &&
+    sequence.data.every(item => typeof item === 'string')
+  )
+}
+
+function parseStoredSequences(stored: string): Sequence[] | undefined {
+  const parsed: unknown = JSON.parse(stored)
+  if (!Array.isArray(parsed) || !parsed.every(isSequence)) return
+
+  return parsed
+}
+
 export const sequencesStore: SequencesStore = {
   sequences: [],
   editedSequence: null,
   initSequences() {
-    const seqs = localStorage.getItem(SEQUENCES_LOCAL_STORAGE_KEY)
-    this.sequences = seqs ? JSON.parse(seqs) : sequences
+    const stored = localStorage.getItem(SEQUENCES_LOCAL_STORAGE_KEY)
+
+    if (!stored) {
+      this.sequences = copySequences(sequences)
+      return
+    }
+
+    try {
+      const storedSequences = parseStoredSequences(stored)
+      if (storedSequences) {
+        this.sequences = storedSequences
+        return
+      }
+    } catch {
+      // Corrupted local storage should not prevent the app from booting; fall
+      // back to the bundled default sequences below.
+    }
+
+    this.sequences = copySequences(sequences)
   },
   startEditSequence(sequence: EditedSequence) {
     this.editedSequence = sequence

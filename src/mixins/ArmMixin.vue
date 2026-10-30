@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Commands } from '@/constants/Commands'
 import { Component, Vue } from 'vue-property-decorator'
 
 import { Command } from '@/store/communicationStore'
@@ -17,8 +18,12 @@ export default class ArmMixin extends Vue {
   }
 
   sendCommandToArm(command: Command) {
-    this.$communicationStore.sendCommand(command)
-    this.$armControlStore.busy()
+    const sent = this.$communicationStore.sendCommand(command)
+    if (!sent) return
+
+    // Read-only status requests do not move the arm, so they must not block
+    // further commands until the next READY message arrives.
+    if (command !== Commands.STATUS) this.$armControlStore.busy()
   }
 }
 </script>

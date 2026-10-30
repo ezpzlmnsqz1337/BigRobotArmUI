@@ -40,7 +40,16 @@ function radiansToDegrees(value: number) {
   return (value * 180) / Math.PI
 }
 
-function clampCosine(value: number) {
+// Math.acos is only defined for [-1, 1]. Allow for floating point noise at
+// exactly reachable poses, but reject anything further out as unreachable
+// instead of silently clamping it.
+const COSINE_TOLERANCE = Number.EPSILON * 8
+
+function normalizeCosine(value: number) {
+  if (!Number.isFinite(value) || Math.abs(value) > 1 + COSINE_TOLERANCE) {
+    return undefined
+  }
+
   return Math.max(-1, Math.min(1, value))
 }
 
@@ -107,12 +116,19 @@ export function planCartesianWaypoint(
     waypoint.heightMm - WRIST_TO_GRIPPER_CENTER_MM * Math.cos(toolPitchRadians)
   const wristDistanceSquared =
     wristRadiusMm * wristRadiusMm + wristHeightMm * wristHeightMm
-  const cosineElbow = clampCosine(
+  const cosineElbow = normalizeCosine(
     (wristDistanceSquared -
       SHOULDER_TO_ELBOW_MM * SHOULDER_TO_ELBOW_MM -
       ELBOW_TO_WRIST_MM * ELBOW_TO_WRIST_MM) /
       (2 * SHOULDER_TO_ELBOW_MM * ELBOW_TO_WRIST_MM)
   )
+
+  if (cosineElbow === undefined) {
+    throw new Error(
+      `Unreachable waypoint for radius ${waypoint.radiusMm} mm and height ${waypoint.heightMm} mm`
+    )
+  }
+
   const elbowAngleMagnitude = Math.acos(cosineElbow)
   const elbowCandidates = [-elbowAngleMagnitude, elbowAngleMagnitude]
   const candidates: PlannedJointTargets[] = []
@@ -159,6 +175,12 @@ export function createPositionCommand(targets: PlannedJointTargets) {
 }
 
 export function createLinearPathSequence(plan: LinearPathPlan) {
+  if (!Number.isInteger(plan.segments) || plan.segments < 1) {
+    throw new Error(
+      `Linear path requires at least one segment, received ${plan.segments}`
+    )
+  }
+
   const commands: string[] = []
 
   for (let index = 0; index <= plan.segments; index += 1) {

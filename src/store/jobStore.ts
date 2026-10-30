@@ -33,7 +33,7 @@ export const jobStore: JobStore = {
       return
     }
 
-    this.lastError = job.error ?? this.lastError
+    this.lastError = job.error ?? null
     const queueIndex = this.queuedJobs.findIndex(x => x.jobId === job.jobId)
 
     if (job.status === 'queued') {

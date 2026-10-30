@@ -1,5 +1,6 @@
 import { SerialMessage } from '@/constants/SerialMessage'
 import { communicationStore } from '@/store/communicationStore'
+import { connectionStore } from '@/store/connectionStore'
 
 describe('SerialCommStore', () => {
   const positionMessage = 'BigRobotArm::POSITION: B100 S200 E300 WR400 W500'
@@ -100,6 +101,45 @@ describe('SerialCommStore', () => {
     expect(syncMotors).toEqual(true)
   })
 
+  it('should return undefined for truncated joint data', () => {
+    expect(
+      communicationStore.parseJointsData(
+        'BigRobotArm::POSITION: B100 S200',
+        SerialMessage.POSITION
+      )
+    ).toBeUndefined()
+    expect(
+      communicationStore.parseJointsData(
+        'BigRobotArm::POSITION: Bnope S200 E300 WR400 W500',
+        SerialMessage.POSITION
+      )
+    ).toBeUndefined()
+  })
+
+  it('should match joint data by code instead of position', () => {
+    const positions = communicationStore.parseJointsData(
+      'BigRobotArm::POSITION: W500 WR400 E300 S200 B100',
+      SerialMessage.POSITION
+    )
+
+    expect(positions).toStrictEqual([
+      { name: 'base', value: 100 },
+      { name: 'shoulder', value: 200 },
+      { name: 'elbow', value: 300 },
+      { name: 'wristRotate', value: 400 },
+      { name: 'wrist', value: 500 }
+    ])
+  })
+
+  it('should return undefined for truncated gripper data', () => {
+    expect(
+      communicationStore.parseGripper('BigRobotArm::GRIPPER: E0')
+    ).toBeUndefined()
+    expect(
+      communicationStore.parseGripper('BigRobotArm::GRIPPER: E? P90')
+    ).toBeUndefined()
+  })
+
   it('should return undefined if message does not contain wanted information', () => {
     const positions = communicationStore.parseJointsData(
       wrongMessage,
@@ -127,8 +167,12 @@ describe('SerialCommStore', () => {
     const send = jest.fn()
     const webSocketMock = jest.fn().mockImplementation(() => ({
       send,
+      close: jest.fn(),
+      readyState: 1,
       onmessage: null,
-      onopen: null
+      onopen: null,
+      onerror: null,
+      onclose: null
     }))
     Object.defineProperty(window, 'WebSocket', {
       writable: true,
@@ -153,6 +197,33 @@ describe('SerialCommStore', () => {
         }
       })
     )
+  })
+
+  it('should stop connecting and surface an error when the socket fails', () => {
+    const webSocketMock = jest.fn().mockImplementation(() => ({
+      send: jest.fn(),
+      close: jest.fn(),
+      readyState: 1,
+      onmessage: null,
+      onopen: null,
+      onerror: null,
+      onclose: null
+    }))
+    Object.defineProperty(window, 'WebSocket', {
+      writable: true,
+      configurable: true,
+      value: webSocketMock
+    })
+
+    connectionStore.startConnecting()
+    communicationStore.connect()
+
+    const instance = webSocketMock.mock.results[0].value
+    instance.onerror()
+
+    expect(connectionStore.isConnecting).toBe(false)
+    expect(connectionStore.connected).toBe(false)
+    expect(connectionStore.error).toBeTruthy()
   })
 
   it('should parse queue and job JSON messages from the server', () => {

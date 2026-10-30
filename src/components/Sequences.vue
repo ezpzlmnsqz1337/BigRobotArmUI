@@ -67,10 +67,10 @@
       </b-list-group>
 
       <div class="my-4">
-        <b-button @click="play()" :disabled="!isConnected"
+        <b-button @click="play()" :disabled="!isConnected || !sequences.length"
           ><fa-icon icon="fa-solid fa-play" />&nbsp;Play</b-button
         >
-        <b-button @click="preview()"
+        <b-button @click="preview()" :disabled="!sequences.length"
           ><fa-icon icon="fa-solid fa-video" />&nbsp;Preview</b-button
         >
       </div>
@@ -101,12 +101,14 @@
 </template>
 
 <script lang="ts">
+import { Commands } from '@/constants/Commands'
 import { EventType } from '@/constants/types/EventType'
 import eb from '@/EventBus'
 import ArmMixin from '@/mixins/ArmMixin.vue'
 import EditSequence from '@/components/EditSequence.vue'
 import { Command } from '@/store/communicationStore'
-import { Component } from 'vue-property-decorator'
+import { Sequence } from '@/store/sequencesStore'
+import { Component, Watch } from 'vue-property-decorator'
 import { SerialMessage } from '@/constants/SerialMessage'
 
 @Component({
@@ -115,11 +117,20 @@ import { SerialMessage } from '@/constants/SerialMessage'
   }
 })
 export default class Sequences extends ArmMixin {
-  sequences = this.$sequencesStore.sequences
   selected = 0
   previewQueue: Command[] = []
   previewSpeed = '5'
 
+  readonly handleArmInPosition = () => {
+    this.previewCommand(this.previewQueue.shift())
+  }
+
+  get sequences() {
+    return this.$sequencesStore.sequences
+  }
+  get selectedSequence(): Sequence | undefined {
+    return this.sequences[this.selected]
+  }
   get isConnected() {
     return this.$connectionStore.connected
   }
@@ -137,37 +148,60 @@ export default class Sequences extends ArmMixin {
   }
 
   created() {
-    eb.on(EventType.ARM_IN_POSITION, () =>
-      this.previewCommand(this.previewQueue.shift())
-    )
+    eb.on(EventType.ARM_IN_POSITION, this.handleArmInPosition)
+  }
+
+  destroyed() {
+    eb.off(EventType.ARM_IN_POSITION, this.handleArmInPosition)
+  }
+
+  @Watch('sequences')
+  onSequencesChanged() {
+    this.clampSelected()
   }
 
   play() {
-    const sequence = this.sequences[this.selected]
+    const sequence = this.selectedSequence
+    if (!sequence) return
+
     this.$jobStore.setError(null)
     this.$communicationStore.sendJob(sequence.name, sequence.data)
     this.$armControlStore.busy()
   }
 
   preview() {
-    this.previewQueue = this.sequences[this.selected].data.map(x => x)
+    const sequence = this.selectedSequence
+    if (!sequence) return
+
+    this.previewQueue = [...sequence.data]
     this.previewCommand(this.previewQueue.shift())
   }
 
   previewCommand(command: Command | undefined) {
-    if (!command) {
-      this.$armControlStore.arm.preview = false
-    } else {
-      this.$armControlStore.arm.preview = true
+    let nextCommand = command
 
-      const positions = this.$communicationStore.parseJointsData(
-        command.replace('G0', SerialMessage.POSITION),
-        SerialMessage.POSITION
-      )
-      if (!positions) return
-      this.$armControlStore.setTargetPositions(positions)
+    while (nextCommand) {
+      if (nextCommand.trim().startsWith(`${Commands.GO_TO} `)) {
+        const positions = this.$communicationStore.parseJointsData(
+          nextCommand.replace(Commands.GO_TO, SerialMessage.POSITION),
+          SerialMessage.POSITION
+        )
+
+        if (positions) {
+          this.$armControlStore.arm.preview = true
+          this.$armControlStore.setTargetPositions(positions)
+          return
+        }
+      }
+
+      nextCommand = this.previewQueue.shift()
     }
+
+    // Nothing left to preview: stop the 3D preview instead of leaving it stuck
+    // on a command that does not contain joint positions.
+    this.$armControlStore.arm.preview = false
   }
+
   setPreviewSpeed() {
     eb.emit(
       EventType.SET_PREVIEW_SPEED,
@@ -177,15 +211,26 @@ export default class Sequences extends ArmMixin {
 
   removeSequence(sequenceId: number) {
     this.$sequencesStore.removeSequence(sequenceId)
+    this.clampSelected()
     this.$bvModal.hide('remove-sequence-modal')
   }
 
   editSequence(sequenceId: number) {
+    const sequence = this.sequences[sequenceId]
+    if (!sequence) return
+
     this.selected = sequenceId
     this.$sequencesStore.startEditSequence({
-      name: this.sequences[sequenceId].name,
-      data: this.sequences[sequenceId].data.join('\n')
+      name: sequence.name,
+      data: sequence.data.join('\n')
     })
+  }
+
+  clampSelected() {
+    this.selected = Math.min(
+      this.selected,
+      Math.max(0, this.sequences.length - 1)
+    )
   }
 }
 </script>

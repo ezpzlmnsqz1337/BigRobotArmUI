@@ -63,9 +63,20 @@ export default class Main extends ArmMixin {
   menuOpen = false
   loadingModel = true
 
+  readonly handleWebSocketMessage = (message: string) =>
+    this.handleMessage(message)
+  readonly handleModelLoaded = () => {
+    this.loadingModel = false
+  }
+
   created() {
-    eb.on(EventType.WS_MESSAGE_RECEIVED, message => this.handleMessage(message))
-    eb.on(EventType.ARM_MODEL_LOADED, () => (this.loadingModel = false))
+    eb.on(EventType.WS_MESSAGE_RECEIVED, this.handleWebSocketMessage)
+    eb.on(EventType.ARM_MODEL_LOADED, this.handleModelLoaded)
+  }
+
+  destroyed() {
+    eb.off(EventType.WS_MESSAGE_RECEIVED, this.handleWebSocketMessage)
+    eb.off(EventType.ARM_MODEL_LOADED, this.handleModelLoaded)
   }
 
   handleMessage(message: string) {

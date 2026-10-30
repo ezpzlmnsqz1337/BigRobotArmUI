@@ -21,11 +21,18 @@ export class Arm {
   protected stats: Stats | null = null
   protected controls: OrbitControls | null = null
   protected _antialias = true
+  protected animationFrameId: number | null = null
 
   protected inPosition: InPosition
   protected firedInPosition = false
   protected previewSpeed = 0.005
   protected arm: RobotArmData
+
+  protected readonly handlePreviewSpeed = (speed: number) => {
+    this.previewSpeed = speed
+  }
+  protected readonly handleCenterCamera = () => this.centerCamera()
+  protected readonly handleToggleAntialias = () => this.toggleAntialias()
 
   static readonly SCENE_NAME = 'BigRobotArm'
   static readonly BACKGROUND_COLOR: ColorRepresentation = 0xe9e9e9
@@ -51,9 +58,22 @@ export class Arm {
   init() {
     this._setup()
 
-    eb.on(EventType.SET_PREVIEW_SPEED, e => (this.previewSpeed = e))
-    eb.on(EventType.CENTER_CAMERA, () => this.centerCamera())
-    eb.on(EventType.TOGGLE_ANTIALIASING, () => this.toggleAntialias())
+    eb.on(EventType.SET_PREVIEW_SPEED, this.handlePreviewSpeed)
+    eb.on(EventType.CENTER_CAMERA, this.handleCenterCamera)
+    eb.on(EventType.TOGGLE_ANTIALIASING, this.handleToggleAntialias)
+  }
+
+  dispose() {
+    eb.off(EventType.SET_PREVIEW_SPEED, this.handlePreviewSpeed)
+    eb.off(EventType.CENTER_CAMERA, this.handleCenterCamera)
+    eb.off(EventType.TOGGLE_ANTIALIASING, this.handleToggleAntialias)
+
+    this._deinit()
+    this.renderer?.domElement.remove()
+    this.renderer = null
+    this.scene = null
+    this.camera = null
+    this.el.innerHTML = ''
   }
 
   centerCamera() {
@@ -71,10 +91,14 @@ export class Arm {
   handleResize() {
     if (!this.renderer || !this.camera) return
 
-    this.camera.aspect = this.el.offsetWidth / this.el.offsetHeight
+    const width = this.el.offsetWidth
+    const height = this.el.offsetHeight
+    if (!width || !height) return
+
+    this.camera.aspect = width / height
     this.camera.updateProjectionMatrix()
 
-    this.renderer.setSize(this.el.offsetWidth, this.el.offsetHeight)
+    this.renderer.setSize(width, height)
   }
 
   isInPosition() {
@@ -93,7 +117,7 @@ export class Arm {
   protected _animate() {
     if (!this.renderer || !this.scene || !this.camera) return
 
-    requestAnimationFrame(this._animate.bind(this))
+    this.animationFrameId = requestAnimationFrame(() => this._animate())
 
     this.arm.joints.forEach(x => this._handleJoint(x))
 
@@ -102,7 +126,15 @@ export class Arm {
     this.stats?.update()
   }
 
+  protected _stopAnimation() {
+    if (this.animationFrameId === null) return
+
+    cancelAnimationFrame(this.animationFrameId)
+    this.animationFrameId = null
+  }
+
   protected _deinit() {
+    this._stopAnimation()
     this.scene?.clear()
     this.stats?.end()
     this.controls?.dispose()
@@ -157,7 +189,7 @@ export class Arm {
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(
       75,
-      this.el.offsetWidth / this.el.offsetHeight,
+      this._getAspectRatio(),
       0.1,
       1000
     )
@@ -167,12 +199,22 @@ export class Arm {
     ;(this.renderer as THREE.WebGLRenderer).shadowMap.enabled = true
     ;(this.renderer as THREE.WebGLRenderer).shadowMap.type = THREE.VSMShadowMap
     this.el.innerHTML = ''
-    setTimeout(() => this.el.appendChild(this.renderer!.domElement))
+
+    const renderer = this.renderer
+    setTimeout(() => {
+      if (this.renderer === renderer) this.el.appendChild(renderer.domElement)
+    })
 
     this._setupGround()
     this._setupLights()
 
     this.centerCamera()
+  }
+
+  protected _getAspectRatio() {
+    const width = this.el.offsetWidth
+    const height = this.el.offsetHeight
+    return width && height ? width / height : 1
   }
 
   protected _setupGround() {
@@ -192,7 +234,7 @@ export class Arm {
       woodFloorMaterial
     )
     ground.receiveShadow = true
-    ground.rotation.x = Math.PI / 2
+    ground.rotation.x = -Math.PI / 2
     ground.rotation.y = Math.PI
 
     this.scene.add(ground)
@@ -257,6 +299,9 @@ export class Arm {
     const gltfLoader = new GLTFLoader()
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderConfig({ type: 'js' })
+    // The Draco decoder is fetched from Google's CDN, so loading the model
+    // requires network access. Failures are surfaced via
+    // EventType.ARM_MODEL_LOADED_ERROR.
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/')
 
     gltfLoader.setDRACOLoader(dracoLoader)

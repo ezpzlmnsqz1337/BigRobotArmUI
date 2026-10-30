@@ -39,4 +39,30 @@ describe('cartesianPlanner', () => {
       'G0 B10 S20 E30 WR40 W50'
     )
   })
+
+  it('should reject a linear path without segments', () => {
+    const plan = {
+      start: { radiusMm: 220, heightMm: 205 },
+      end: { radiusMm: 300, heightMm: 205 }
+    }
+
+    expect(() => createLinearPathSequence({ ...plan, segments: 0 })).toThrow(
+      'at least one segment'
+    )
+    expect(() => createLinearPathSequence({ ...plan, segments: -1 })).toThrow(
+      'at least one segment'
+    )
+    expect(() =>
+      createLinearPathSequence({ ...plan, segments: Number.NaN })
+    ).toThrow('at least one segment')
+    expect(() => createLinearPathSequence({ ...plan, segments: 1.5 })).toThrow(
+      'at least one segment'
+    )
+  })
+
+  it('should reject unreachable waypoints instead of clamping them', () => {
+    expect(() =>
+      planCartesianWaypoint({ radiusMm: 1000, heightMm: 1000 })
+    ).toThrow('Unreachable waypoint')
+  })
 })

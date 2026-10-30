@@ -64,6 +64,17 @@ describe('ArmControlStore', () => {
     armControlStore.arm.joints.forEach(x => expect(x.position.target).toBe(420))
   })
 
+  it('should ignore missing or invalid joint positions instead of throwing', () => {
+    expect(() =>
+      armControlStore.setTargetPositions([
+        { name: 'base', value: 42 },
+        { name: 'shoulder', value: Number.NaN }
+      ])
+    ).not.toThrow()
+
+    expect(armControlStore.arm.joints[0].position.target).toBe(42)
+  })
+
   it('should set joints value positions', () => {
     const valuePositions = armControlStore.arm.joints.map(({ name }) => ({
       name,

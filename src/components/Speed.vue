@@ -29,11 +29,7 @@ import { Component } from 'vue-property-decorator'
 })
 export default class Speed extends ArmMixin {
   sendCommand() {
-    const s = this.$armControlStore
-      .getJoints()
-      .map(x => `${x.code}${x.speed.value}`)
-    const command: Command = `${Commands.SET_SPEEDS} ${s.join(' ')}`
-    this.sendCommandToArm(command)
+    this.sendCommandToArm(this.$armControlStore.createSpeedCommand())
   }
 
   sendSyncMotorsCommand() {
